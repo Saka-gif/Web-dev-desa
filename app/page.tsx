@@ -85,43 +85,68 @@ export default function Page() {
             </p>
           </div>
 
-          {/* Bagian Bawah: Statistik & Preview Card */}
-          <div className="grid grid-cols-1 items-end gap-8 pt-8 lg:grid-cols-12 border-t border-white/20">
+          {/* BAGIAN DATA STATISTIK DESA (GAYA MINIMALIS CAPSULE GLASS) */}
+          <div className="grid grid-cols-1 items-end gap-8 pt-8 lg:grid-cols-12 border-t border-white/10">
+            
+            {/* STATISTIK & BUTTONS (KIRI) */}
             <div className="space-y-6 lg:col-span-8">
-              <div className="flex flex-wrap items-center gap-8">
-                <div>
-                  <p className="text-3xl sm:text-4xl font-black tracking-tight text-white drop-shadow-md">
-                    12.4K<span className="text-[#C7D42B]">+</span>
+              
+              {/* CONTAINER STATISTIK BERBENTUK KAPSUL MINIMALIS */}
+              <div className="inline-flex flex-wrap items-center justify-between gap-6 sm:gap-10 rounded-full border border-white/15 bg-white/5 px-8 py-5 backdrop-blur-xl shadow-xl">
+                
+                {/* Stat 1: Total Penduduk */}
+                <div className="text-center sm:text-left">
+                  <p className="text-2xl sm:text-3xl font-light tracking-tight text-white">
+                    12.4K+
                   </p>
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-300 mt-1">
-                    Total Penduduk
-                  </p>
-                </div>
-
-                <div className="h-8 w-[1px] bg-white/20 hidden sm:block" />
-
-                <div>
-                  <p className="text-3xl sm:text-4xl font-black tracking-tight text-white drop-shadow-md">
-                    98.4<span className="text-[#64A8E5]">%</span>
-                  </p>
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-300 mt-1">
-                    Laporan Selesai
+                  <p className="text-[11px] font-medium text-slate-300 mt-1 capitalize">
+                    Total penduduk
                   </p>
                 </div>
 
-                <div className="h-8 w-[1px] bg-white/20 hidden sm:block" />
+                {/* Garis Pemisah Tipis */}
+                <div className="h-7 w-[1px] bg-white/20 hidden sm:block" />
 
-                <div>
-                  <p className="text-3xl sm:text-4xl font-black tracking-tight text-white drop-shadow-md">
-                    150<span className="text-[#C7D42B]">+</span>
+                {/* Stat 2: Laporan Selesai */}
+                <div className="text-center sm:text-left">
+                  <p className="text-2xl sm:text-3xl font-light tracking-tight text-white">
+                    98.4%
                   </p>
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-300 mt-1">
-                    UMKM Terverifikasi
+                  <p className="text-[11px] font-medium text-slate-300 mt-1 capitalize">
+                    Laporan selesai
                   </p>
                 </div>
+
+                {/* Garis Pemisah Tipis */}
+                <div className="h-7 w-[1px] bg-white/20 hidden sm:block" />
+
+                {/* Stat 3: UMKM Terverifikasi */}
+                <div className="text-center sm:text-left">
+                  <p className="text-2xl sm:text-3xl font-light tracking-tight text-white">
+                    150+
+                  </p>
+                  <p className="text-[11px] font-medium text-slate-300 mt-1 capitalize">
+                    UMKM terverifikasi
+                  </p>
+                </div>
+
+                {/* Garis Pemisah Tipis */}
+                <div className="h-7 w-[1px] bg-white/20 hidden sm:block" />
+
+                {/* Stat 4: Layanan Online */}
+                <div className="text-center sm:text-left">
+                  <p className="text-2xl sm:text-3xl font-light tracking-tight text-white">
+                    24/7
+                  </p>
+                  <p className="text-[11px] font-medium text-slate-300 mt-1 capitalize">
+                    Layanan mandiri
+                  </p>
+                </div>
+
               </div>
 
-              <div className="flex flex-wrap items-center gap-4">
+              {/* TOMBOL AKSI UTAMA */}
+              <div className="flex flex-wrap items-center gap-4 pt-2">
                 <a
                   href="#pengaduan"
                   className="inline-flex items-center justify-center gap-2 rounded-full bg-[#C7D42B] px-8 py-3.5 text-xs font-black uppercase tracking-wider text-slate-950 shadow-xl shadow-black/30 transition-all duration-300 hover:scale-105 hover:bg-[#b5c225]"
@@ -131,7 +156,7 @@ export default function Page() {
 
                 <a
                   href="#layanan"
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-slate-900/40 backdrop-blur-md transition-all hover:bg-white/20 hover:scale-105"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur-md transition-all hover:bg-white/20 hover:scale-105"
                   aria-label="Jelajahi Fitur"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="h-5 w-5 text-white">
@@ -143,8 +168,10 @@ export default function Page() {
                   Layanan mandiri warga Sawotratap, transparan dan terhubung langsung.
                 </p>
               </div>
+
             </div>
 
+            {/* KANAN: CAROUSEL PREVIEW CARD */}
             <div className="lg:col-span-4 flex justify-start lg:justify-end">
               <div className="group relative w-full max-w-xs overflow-hidden rounded-2xl border border-white/20 bg-slate-950/70 p-3 backdrop-blur-xl shadow-2xl transition-all hover:border-white/40">
                 <div className="relative h-36 w-full overflow-hidden rounded-xl">
@@ -191,7 +218,7 @@ export default function Page() {
         </div>
       </section>
 
-      {/* 3. SECTION BERITA DESA (GELAP GLASSMORPHISM MENYATU) */}
+      {/* 3. SECTION BERITA DESA */}
       <BeritaSection />
 
       {/* 4. SECTION UMKM LOKAL */}
