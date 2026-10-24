@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/navbar";
+import Footer from "./components/footer";
+import Aesthetic2DBackground from "./components/aesthetic-2d-background";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,9 +15,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
+
 export const metadata: Metadata = {
-  title: "Sawotratap Smart Service – Portal Desa Digital",
-  description: "Portal layanan digital Desa Sawotratap.",
+  title: "Pemerintah Desa Sawotratap – Portal Resmi & Layanan Digital",
+  description: "Portal resmi pelayanan mandiri kependudukan, keterbukaan informasi publik, APBDes, dan direktori UMKM Desa Sawotratap, Gedangan, Sidoarjo.",
 };
 
 export default function RootLayout({
@@ -26,16 +34,22 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${plusJakartaSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-slate-950 text-slate-100 flex flex-col font-sans">
-        {/* Floating Glass Navbar */}
+      <body className="min-h-full bg-[#FAF9F4] text-[#111827] flex flex-col font-sans relative">
+        {/* Ambient Aesthetic 2D Background Animation */}
+        <Aesthetic2DBackground />
+
+        {/* Global Navigation */}
         <Navbar />
 
-        {/* Konten Utama */}
-        <main className="flex-grow">
+        {/* Konten Utama Halaman */}
+        <div className="flex-grow">
           {children}
-        </main>
+        </div>
+
+        {/* Global Footer Resmi Desa */}
+        <Footer />
       </body>
     </html>
   );

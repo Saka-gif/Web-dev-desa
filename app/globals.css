@@ -1,132 +1,235 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #ffffff;
-  --color-foreground: #0F172A;
-  --font-sans: var(--font-geist-sans);
+  --color-background: #FAF9F4;
+  --color-foreground: #111827;
+  
+  --font-sans: var(--font-plus-jakarta), var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: var(--font-geist-mono);
 
-  /* Brand Colors */
-  --color-primary:   #2961B1;
-  --color-secondary: #64A8E5;
-  --color-accent:    #C7D42B;
-  --color-neutral:   #F8FAFC;
+  /* Modern Indonesian Civic Palette */
+  --color-midnight-navy:  #111827;
+  --color-forest-green:   #064E3B;
+  --color-emerald-civic:  #047857;
+  --color-fresh-lime:     #C5D82F;
+  
+  --color-soft-ivory:     #FAF9F4;
+  --color-warm-white:     #FFFFFF;
+  --color-pale-sage:      #EDF3E9;
+  --color-cool-mist:      #EAF0F7;
+  --color-muted-slate:    #64748B;
+  --color-soft-border:    #E3E8E2;
 
-  /* Text */
-  --color-heading:   #0F172A;
-  --color-body:      #475569;
+  --color-warm-amber:     #F4B942;
+  --color-terracotta:     #C87857;
 
-  /* Animation */
-  --animate-fade-up: fade-up 0.6s ease-out both;
-  --animate-fade-in: fade-in 0.5s ease-out both;
-  --animate-counter: counter 2s ease-out forwards;
-}
-
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(32px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-12px); }
-}
-
-@keyframes pulse-ring {
-  0%   { transform: scale(1);    opacity: 0.6; }
-  100% { transform: scale(1.6);  opacity: 0; }
-}
-
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
-}
-
-@keyframes chat-bounce {
-  0%, 80%, 100% { transform: scale(0); }
-  40%           { transform: scale(1); }
+  /* Legacy aliases for compatibility */
+  --color-primary:        #064E3B;
+  --color-secondary:      #047857;
+  --color-accent:         #C5D82F;
+  --color-neutral:        #FAF9F4;
+  --color-heading:        #111827;
+  --color-body:           #475569;
 }
 
 html {
   scroll-behavior: smooth;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
 body {
-  background: #ffffff;
-  color: #0F172A;
-  font-family: var(--font-geist-sans, system-ui, sans-serif);
+  background: #FAF9F4;
+  color: #111827;
+  font-family: var(--font-plus-jakarta), var(--font-geist-sans), sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #F8FAFC; }
-::-webkit-scrollbar-thumb { background: #2961B1; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #64A8E5; }
-
-/* Float animation utility */
-.animate-float {
-  animation: float 4s ease-in-out infinite;
+/* Custom modern scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #F1F4EE;
+}
+::-webkit-scrollbar-thumb {
+  background: #064E3B;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #047857;
 }
 
-/* Pulse ring */
-.animate-pulse-ring {
-  animation: pulse-ring 1.5s ease-out infinite;
+/* ============================================================
+   AESTHETIC 2D MOTION & KEYFRAME ANIMATION SUITE
+   ============================================================ */
+
+/* 1. Gentle 2D Floating Leaf/Particle Animation */
+@keyframes float-leaf-1 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  33% {
+    transform: translate3d(8px, -14px, 0) rotate(4deg);
+  }
+  66% {
+    transform: translate3d(-6px, -24px, 0) rotate(-3deg);
+  }
 }
 
-/* Shimmer */
-.animate-shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
-  background-size: 200% 100%;
-  animation: shimmer 2.5s linear infinite;
+@keyframes float-leaf-2 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(-10px, -18px, 0) rotate(-5deg);
+  }
 }
 
-/* Chat dots */
-.chat-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #64A8E5;
-  animation: chat-bounce 1.4s ease-in-out infinite;
-}
-.chat-dot:nth-child(2) { animation-delay: 0.2s; }
-.chat-dot:nth-child(3) { animation-delay: 0.4s; }
-
-/* Glassmorphism nav */
-.glass-nav {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(41, 97, 177, 0.12);
+@keyframes float-leaf-3 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(12px, 15px, 0) scale(1.04) rotate(6deg);
+  }
 }
 
-/* Card hover lift */
-.card-hover {
-  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1),
-              box-shadow 0.3s cubic-bezier(0.4,0,0.2,1),
-              border-color 0.3s ease;
-}
-.card-hover:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(41, 97, 177, 0.15);
-  border-color: #2961B1;
+.animate-float-leaf-1 {
+  animation: float-leaf-1 8s ease-in-out infinite;
 }
 
-/* Gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, #2961B1 0%, #64A8E5 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.animate-float-leaf-2 {
+  animation: float-leaf-2 10s ease-in-out infinite;
 }
 
-/* Counter number style */
-.counter-num {
+.animate-float-leaf-3 {
+  animation: float-leaf-3 12s ease-in-out infinite;
+}
+
+/* 2. Slow Ambient 2D Rotation (Topographic & Geometric Elements) */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 45s linear infinite;
+}
+
+.animate-spin-reverse-slow {
+  animation: spin-slow 55s linear infinite reverse;
+}
+
+/* 3. Subtle 2D Pulse & Breathing Halo */
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 0.15;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(1.05);
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 6s ease-in-out infinite;
+}
+
+/* 4. Subtle 2D Arrow Bobbing (Navbar indicator) */
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 1.8s ease-in-out infinite;
+}
+
+/* 5. Shimmer Light Sweep on Interactive Buttons/Cards */
+@keyframes shine-sweep {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  50%, 100% {
+    transform: translateX(200%) skewX(-20deg);
+  }
+}
+
+.shine-hover {
+  position: relative;
+  overflow: hidden;
+}
+.shine-hover::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.28),
+    transparent
+  );
+  transform: translateX(-150%) skewX(-20deg);
+  pointer-events: none;
+}
+.shine-hover:hover::after {
+  animation: shine-sweep 1.2s ease-out;
+}
+
+/* 6. Smooth 2D Card Lift & Spring */
+.card-interactive-2d {
+  transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.15),
+              box-shadow 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.15),
+              border-color 0.25s ease;
+}
+.card-interactive-2d:hover {
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: 0 16px 32px -8px rgba(6, 78, 59, 0.12), 0 6px 12px -4px rgba(17, 24, 39, 0.04);
+  border-color: rgba(4, 120, 87, 0.4);
+}
+
+/* 7. Animated 2D Border Glow Gradient */
+@keyframes border-gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-border-glow {
+  background-size: 200% 200%;
+  animation: border-gradient-shift 4s ease infinite;
+}
+
+/* 8. Tabular figures for data tables and charts */
+.tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+/* Accessible reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

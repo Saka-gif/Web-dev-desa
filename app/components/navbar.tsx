@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import {
+  LogIn,
+  Menu,
+  X,
+} from "lucide-react";
 
 interface SubMenuItem {
   title: string;
-  desc?: string;
   href: string;
 }
 
@@ -18,214 +22,243 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mobileExpandedTab, setMobileExpandedTab] = useState<string | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 30) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 15);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const navItems: MenuItem[] = [
-    { name: "Home", href: "#hero" },
+    { name: "Home", href: "/" },
     {
       name: "Profil",
-      href: "#profil",
+      href: "/profil",
       dropdown: [
-        { title: "Sejarah Desa", desc: "Asal-usul & rekam jejak Sawotratap", href: "#sejarah" },
-        { title: "Visi & Misi", desc: "Arah pembangunan & komitmen desa", href: "#visi-misi" },
-        { title: "Geografis", desc: "Peta wilayah & batas batas administratif", href: "#geografis" },
-        { title: "Demografi Warga", desc: "Statistik struktur populasi warga", href: "#demografi" },
+        { title: "Sejarah Desa", href: "/profil#sejarah" },
+        { title: "Visi & Misi", href: "/profil#visi-misi" },
+        { title: "Geografis & 3D", href: "/profil#geografis" },
+        { title: "Demografi Penduduk", href: "/profil#demografi" },
       ],
     },
     {
       name: "Pemerintahan",
-      href: "#pemerintahan",
+      href: "/pemerintahan",
       dropdown: [
-        { title: "Struktur Organisasi", desc: "Bagan tata kelola perangkat desa", href: "#pamong" },
-        { title: "Lembaga Desa", desc: "BPD, LPKMD, Karang Taruna, & PKK", href: "#lembaga" },
-        { title: "APBD & Transparansi", desc: "Realisasi anggaran & keuangan desa", href: "#transparansi" },
+        { title: "Sambutan Kepala Desa", href: "/pemerintahan#sambutan" },
+        { title: "Struktur Pamong", href: "/pemerintahan#pamong" },
+        { title: "BPD & Lembaga Desa", href: "/pemerintahan#bpd" },
+        { title: "Transparansi APBDes", href: "/pemerintahan#transparansi" },
       ],
     },
     {
       name: "Informasi",
-      href: "#informasi",
+      href: "/informasi",
       dropdown: [
-        { title: "Berita Terbaru", desc: "Kabar dan kegiatan terkini desa", href: "#berita" },
-        { title: "Pengumuman Resmi", desc: "Edaran & kebijakan pemerintah desa", href: "#pengumuman" },
-        { title: "Galeri Dokumentasi", desc: "Foto & video potret kegiatan warga", href: "#galeri" },
+        { title: "Warta & Berita", href: "/informasi#berita" },
+        { title: "Papan Edaran Resmi", href: "/informasi#pengumuman" },
+        { title: "Agenda Kegiatan", href: "/informasi#agenda" },
+        { title: "Galeri Dokumentasi", href: "/informasi#galeri" },
       ],
     },
     {
       name: "Layanan",
-      href: "#layanan",
+      href: "/layanan",
       dropdown: [
-        { title: "Surat Mandiri Online", desc: "Pengajuan KTP, KK, & Surat Pengantar", href: "#surat" },
-        { title: "Pengaduan Masyarakat", desc: "Layanan aspirasi & keluhan warga", href: "#pengaduan" },
-        { title: "Direktori UMKM", desc: "Promosi produk ekonomi kreatif warga", href: "#umkm" },
+        { title: "Surat Mandiri Online", href: "/layanan#surat" },
+        { title: "Pengaduan Warga", href: "/layanan#pengaduan" },
+        { title: "Direktori Pasar UMKM", href: "/layanan#umkm" },
+        { title: "Cek Status Berkas", href: "/layanan#status" },
       ],
     },
-    { name: "Kontak", href: "#kontak" },
+    { name: "Kontak", href: "/kontak" },
   ];
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-500 px-6 sm:px-10 lg:px-16 ${
+      className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 font-sans ${
         isScrolled
-          ? "py-3.5 bg-slate-950/85 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-black/50"
-          : "py-6 bg-gradient-to-b from-slate-950/80 via-slate-950/40 to-transparent"
+          ? "bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-md py-3"
+          : "bg-white/95 backdrop-blur-md border-b border-slate-200/60 shadow-xs py-3.5 sm:py-4"
       }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-8 lg:px-12">
         
-        {/* BRAND & LOGO DESA SAWOTRATAP */}
-        <a href="#" className="flex items-center gap-3.5 group shrink-0">
-          <div className="w-10 h-10 bg-gradient-to-br from-[#2961B1] to-slate-900 border border-white/20 rounded-xl flex items-center justify-center text-white shadow-lg transition-transform group-hover:scale-105">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-[#C7D42B]">
+        {/* BRAND LOGO PEMERINTAH DESA SAWOTRATAP */}
+        <a href="/" className="flex items-center gap-3 group shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-[#285726] border border-emerald-800 flex items-center justify-center text-white shadow-sm transition-transform group-hover:scale-105">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className="w-5 h-5 text-[#C5D82F]">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5M4.5 21V10.5" />
             </svg>
           </div>
           <div className="flex flex-col">
-            <span className="font-black text-base tracking-tight text-white leading-none group-hover:text-[#C7D42B] transition-colors">
-              PEMERINTAH DESA
-            </span>
-            <span className="font-extrabold text-xs tracking-wider text-[#64A8E5] uppercase mt-0.5">
-              SAWOTRATAP
+            <div className="flex items-center gap-1.5">
+              <span className="font-extrabold text-[11px] sm:text-xs tracking-wider text-slate-500 uppercase">
+                Pemerintah Desa
+              </span>
+              <span className="w-1 h-1 rounded-full bg-[#285726]" />
+              <span className="text-[10px] text-emerald-800 font-bold uppercase tracking-wider">
+                Gedangan
+              </span>
+            </div>
+            <span className="font-black text-sm sm:text-base tracking-wider text-[#285726] uppercase leading-none mt-0.5">
+              Sawotratap
             </span>
           </div>
         </a>
 
-        {/* NAVIGASI DESKTOP BER-DROPDOWN */}
-        <nav className="hidden lg:flex items-center gap-1">
-          {navItems.map((item) => (
-            <div
-              key={item.name}
-              className="relative py-2"
-              onMouseEnter={() => item.dropdown && setActiveDropdown(item.name)}
-              onMouseLeave={() => setActiveDropdown(null)}
-            >
-              <a
-                href={item.href}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold tracking-wide text-slate-200 hover:text-[#C7D42B] transition-all rounded-full hover:bg-white/5"
-              >
-                <span>{item.name}</span>
-                {item.dropdown && (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2.5}
-                    stroke="currentColor"
-                    className={`w-3 h-3 transition-transform duration-300 ${
-                      activeDropdown === item.name ? "rotate-180 text-[#C7D42B]" : "text-slate-400"
-                    }`}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                  </svg>
-                )}
-              </a>
+        {/* NAVIGASI DESKTOP PERSIS SEPERTI GAMBAR */}
+        <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+          {navItems.map((item) => {
+            const hasDropdown = Boolean(item.dropdown);
+            const isCurrentOpen = activeDropdown === item.name;
 
-              {/* DROPDOWN MENU KAPSUL GLASS */}
-              {item.dropdown && activeDropdown === item.name && (
-                <div className="absolute top-full left-0 mt-1 w-64 rounded-2xl border border-white/15 bg-slate-950/90 p-2.5 backdrop-blur-2xl shadow-2xl shadow-black/80 transition-all duration-300 animate-in fade-in slide-in-from-top-2">
-                  <div className="space-y-1">
-                    {item.dropdown.map((sub) => (
-                      <a
-                        key={sub.title}
-                        href={sub.href}
-                        className="group/sub flex flex-col rounded-xl p-2.5 transition-all hover:bg-white/10"
-                      >
-                        <span className="text-xs font-bold text-slate-100 group-hover/sub:text-[#C7D42B] transition-colors">
+            return (
+              <div
+                key={item.name}
+                className="relative py-2"
+                onMouseEnter={() => hasDropdown && setActiveDropdown(item.name)}
+                onMouseLeave={() => setActiveDropdown(null)}
+              >
+                <a
+                  href={item.href}
+                  className={`inline-flex items-center gap-1 text-[15px] sm:text-base font-bold tracking-normal transition-colors ${
+                    isCurrentOpen
+                      ? "text-[#285726]"
+                      : "text-slate-800 hover:text-[#285726]"
+                  }`}
+                >
+                  <span>{item.name}</span>
+                  {/* Panah bawah dengan animasi 2D halus */}
+                  {hasDropdown && isCurrentOpen && (
+                    <span className="text-xs font-bold text-slate-800 ml-0.5 inline-block animate-bounce-subtle">↓</span>
+                  )}
+                </a>
+
+                {/* DROPDOWN POPUP: FLOATING WHITE CARD ROUNDED-3XL DENGAN ANIMASI 2D POP-IN */}
+                {hasDropdown && item.dropdown && isCurrentOpen && (
+                  <div
+                    className="absolute top-full left-0 pt-2 z-50 min-w-[210px] animate-in fade-in zoom-in-95 slide-in-from-top-1 duration-200 pointer-events-auto"
+                  >
+                    <div className="rounded-3xl bg-white p-6 shadow-2xl shadow-black/15 border border-slate-100 flex flex-col space-y-4">
+                      {item.dropdown.map((sub) => (
+                        <a
+                          key={sub.title}
+                          href={sub.href}
+                          onClick={() => {
+                            setActiveDropdown(null);
+                            const parts = sub.href.split("#");
+                            if (typeof window !== "undefined" && parts[1] && window.location.pathname === parts[0]) {
+                              window.location.hash = parts[1];
+                              window.dispatchEvent(new Event("hashchange"));
+                            }
+                          }}
+                          className="text-base font-bold text-slate-800 hover:text-[#285726] hover:translate-x-1.5 transition-all duration-200 whitespace-nowrap block"
+                        >
                           {sub.title}
-                        </span>
-                        {sub.desc && (
-                          <span className="text-[10px] text-slate-400 font-medium leading-normal mt-0.5">
-                            {sub.desc}
-                          </span>
-                        )}
-                      </a>
-                    ))}
+                        </a>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ))}
+                )}
+              </div>
+            );
+          })}
         </nav>
 
-        {/* TOMBOL LOGIN PORTAL WARGA */}
-        <div className="hidden sm:flex items-center gap-4 shrink-0">
+        {/* TOMBOL LOGIN DENGAN SHINE SWEEP 2D HOVER */}
+        <div className="hidden lg:flex items-center">
           <a
-            href="#login"
-            className="group inline-flex items-center justify-center gap-2 rounded-full bg-[#C7D42B] text-slate-950 px-6 py-2.5 text-xs font-black shadow-xl shadow-[#C7D42B]/20 transition-all duration-300 hover:bg-[#b5c225] hover:scale-105"
+            href="/login"
+            className="shine-hover inline-flex items-center justify-center gap-2 rounded-2xl bg-[#285726] hover:bg-[#1e421c] text-white px-6 py-2.5 text-sm sm:text-base font-bold shadow-md shadow-emerald-950/20 transition-all duration-300 hover:scale-105"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H8.25" />
-            </svg>
-            <span>Login Warga</span>
+            <LogIn className="w-4 h-4" />
+            <span>Login</span>
           </a>
         </div>
 
         {/* HAMBURGER BUTTON MOBILE */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="p-2 lg:hidden rounded-xl text-white bg-white/5 border border-white/10 hover:bg-white/10"
-          aria-label="Toggle Navigation"
+          className="p-2 lg:hidden rounded-xl text-slate-800 bg-slate-100 border border-slate-200 hover:bg-slate-200 transition-colors"
+          aria-label="Buka Menu Navigasi"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-            {isMobileMenuOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            )}
-          </svg>
+          {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
 
       </div>
 
-      {/* DROPDOWN NAVIGATION MOBILE */}
+      {/* DRAWER MENU MOBILE */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden mt-4 max-h-[75vh] overflow-y-auto rounded-2xl border border-white/15 bg-slate-950/95 p-4 backdrop-blur-2xl shadow-2xl flex flex-col gap-3">
-          {navItems.map((item) => (
-            <div key={item.name} className="space-y-1">
-              <div className="text-xs font-extrabold uppercase tracking-wider text-[#C7D42B] px-3 py-1">
-                {item.name}
-              </div>
-              {item.dropdown ? (
-                <div className="pl-3 space-y-1 border-l border-white/10 my-1">
-                  {item.dropdown.map((sub) => (
-                    <a
-                      key={sub.title}
-                      href={sub.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="block px-3 py-2 text-xs font-semibold text-slate-200 rounded-lg hover:bg-white/10"
+        <div className="lg:hidden mt-3 max-h-[80vh] overflow-y-auto rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl text-slate-900 flex flex-col gap-3 animate-in fade-in slide-in-from-top-3">
+          
+          <div className="space-y-1">
+            {navItems.map((item) => {
+              const hasDropdown = Boolean(item.dropdown);
+              const isExpanded = mobileExpandedTab === item.name;
+
+              return (
+                <div key={item.name} className="rounded-2xl border border-slate-100 bg-slate-50/60 overflow-hidden">
+                  {hasDropdown ? (
+                    <button
+                      onClick={() => setMobileExpandedTab(isExpanded ? null : item.name)}
+                      className="w-full flex items-center justify-between px-4 py-3 text-sm font-bold text-slate-800 hover:text-[#285726] transition-colors"
                     >
-                      {sub.title}
+                      <span>{item.name}</span>
+                      <span className="text-xs font-bold text-slate-600">↓</span>
+                    </button>
+                  ) : (
+                    <a
+                      href={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block px-4 py-3 text-sm font-bold text-slate-800 hover:text-[#285726]"
+                    >
+                      {item.name}
                     </a>
-                  ))}
+                  )}
+
+                  {/* Isi Submenu Mobile */}
+                  {hasDropdown && isExpanded && item.dropdown && (
+                    <div className="p-4 pt-1 space-y-3 bg-white border-t border-slate-100">
+                      {item.dropdown.map((sub) => (
+                        <a
+                          key={sub.title}
+                          href={sub.href}
+                          onClick={() => {
+                            setIsMobileMenuOpen(false);
+                            const parts = sub.href.split("#");
+                            if (typeof window !== "undefined" && parts[1] && window.location.pathname === parts[0]) {
+                              window.location.hash = parts[1];
+                              window.dispatchEvent(new Event("hashchange"));
+                            }
+                          }}
+                          className="block text-sm font-bold text-slate-800 hover:text-[#285726] transition-colors py-1"
+                        >
+                          {sub.title}
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <a
-                  href={item.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-3 py-2 text-xs font-semibold text-slate-200 rounded-lg hover:bg-white/10"
-                >
-                  {item.name}
-                </a>
-              )}
-            </div>
-          ))}
-          <a
-            href="#login"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="mt-2 text-center bg-[#C7D42B] text-slate-950 text-xs font-black py-3 rounded-xl shadow-md"
-          >
-            Login Warga
-          </a>
+              );
+            })}
+          </div>
+
+          {/* Tombol Login Mobile */}
+          <div className="pt-2">
+            <a
+              href="/login"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="w-full py-3 rounded-2xl bg-[#285726] text-white text-sm font-bold flex items-center justify-center gap-2 shadow-md"
+            >
+              <LogIn className="w-4 h-4" />
+              <span>Login Aparatur / Warga</span>
+            </a>
+          </div>
+
         </div>
       )}
     </header>
