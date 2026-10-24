@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   LogIn,
   Menu,
   X,
+  Home,
 } from "lucide-react";
 
 interface SubMenuItem {
@@ -21,8 +22,14 @@ interface MenuItem {
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [prevActiveDropdown, setPrevActiveDropdown] = useState<string | null>(null);
+  const [dropdownLeft, setDropdownLeft] = useState<number>(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileExpandedTab, setMobileExpandedTab] = useState<string | null>(null);
+
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const navRef = useRef<HTMLElement | null>(null);
+  const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     const handleScroll = () => {
@@ -77,6 +84,70 @@ export default function Navbar() {
     { name: "Kontak", href: "/kontak" },
   ];
 
+  // Menghitung posisi koordinat horizontal untuk floating card secara presisi
+  const updateDropdownPosition = (name: string) => {
+    const itemEl = itemRefs.current[name];
+    const navEl = navRef.current;
+    if (itemEl && navEl) {
+      const itemRect = itemEl.getBoundingClientRect();
+      const navRect = navEl.getBoundingClientRect();
+      // Selisih koordinat terhadap container navigasi
+      const relativeLeft = itemRect.left - navRect.left - 14;
+      // Batasi agar tidak meluap keluar batas kanan container
+      const maxLeft = navRect.width - 260;
+      const finalLeft = Math.max(0, Math.min(relativeLeft, maxLeft));
+      setDropdownLeft(finalLeft);
+    }
+  };
+
+  const handleMouseEnterItem = (name: string, hasDropdown: boolean) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    if (hasDropdown) {
+      updateDropdownPosition(name);
+      setPrevActiveDropdown(activeDropdown);
+      setActiveDropdown(name);
+    } else {
+      // Jika kursor ke menu tanpa dropdown (seperti Home atau Kontak), mulai graceful exit buffer
+      handleMouseLeave();
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    // Hover intent buffer 280ms agar perpindahan tenang, santai, dan tidak tergesa-gesa
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null);
+      setPrevActiveDropdown(null);
+    }, 280);
+  };
+
+  const handleDropdownMouseEnter = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  };
+
+  // Re-kalkulasi posisi dropdown saat window di-resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (activeDropdown) {
+        updateDropdownPosition(activeDropdown);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [activeDropdown]);
+
+  const isSliding = Boolean(prevActiveDropdown && activeDropdown && prevActiveDropdown !== activeDropdown);
+  const isOpen = Boolean(activeDropdown);
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 font-sans ${
@@ -110,8 +181,12 @@ export default function Navbar() {
           </div>
         </a>
 
-        {/* NAVIGASI DESKTOP PERSIS SEPERTI GAMBAR */}
-        <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+        {/* NAVIGASI DESKTOP DENGAN SMOOTH FLOATING DROPDOWN TRANSITION */}
+        <nav
+          ref={navRef}
+          className="relative hidden lg:flex items-center gap-6 xl:gap-8"
+          onMouseLeave={handleMouseLeave}
+        >
           {navItems.map((item) => {
             const hasDropdown = Boolean(item.dropdown);
             const isCurrentOpen = activeDropdown === item.name;
@@ -119,54 +194,119 @@ export default function Navbar() {
             return (
               <div
                 key={item.name}
+                ref={(el) => {
+                  itemRefs.current[item.name] = el;
+                }}
                 className="relative py-2"
-                onMouseEnter={() => hasDropdown && setActiveDropdown(item.name)}
-                onMouseLeave={() => setActiveDropdown(null)}
+                onMouseEnter={() => handleMouseEnterItem(item.name, hasDropdown)}
               >
                 <a
                   href={item.href}
-                  className={`inline-flex items-center gap-1 text-[15px] sm:text-base font-bold tracking-normal transition-colors ${
+                  className={`inline-flex items-center text-[15px] sm:text-base font-bold tracking-normal transition-colors duration-200 ${
                     isCurrentOpen
                       ? "text-[#285726]"
                       : "text-slate-800 hover:text-[#285726]"
                   }`}
                 >
                   <span>{item.name}</span>
-                  {/* Panah bawah dengan animasi 2D halus */}
-                  {hasDropdown && isCurrentOpen && (
-                    <span className="text-xs font-bold text-slate-800 ml-0.5 inline-block animate-bounce-subtle">↓</span>
+                  
+                  {/* Panah bawah dengan fixed width slot agar NOL layout shift (tidak bergeser sama sekali) */}
+                  {hasDropdown && (
+                    <span
+                      aria-hidden="true"
+                      className={`inline-flex items-center justify-center w-3.5 h-3.5 text-xs font-bold ml-1 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                        isCurrentOpen
+                          ? "text-[#285726] translate-y-0.5 opacity-100 scale-110"
+                          : "text-slate-400 opacity-0 -translate-y-0.5 scale-90"
+                      }`}
+                    >
+                      ↓
+                    </span>
                   )}
                 </a>
 
-                {/* DROPDOWN POPUP: FLOATING WHITE CARD ROUNDED-3XL DENGAN ANIMASI 2D POP-IN */}
-                {hasDropdown && item.dropdown && isCurrentOpen && (
-                  <div
-                    className="absolute top-full left-0 pt-2 z-50 min-w-[210px] animate-in fade-in zoom-in-95 slide-in-from-top-1 duration-200 pointer-events-auto"
-                  >
-                    <div className="rounded-3xl bg-white p-6 shadow-2xl shadow-black/15 border border-slate-100 flex flex-col space-y-4">
-                      {item.dropdown.map((sub) => (
+                {/* Indikator garis halus bawah tab yang aktif */}
+                <span
+                  className={`absolute bottom-0 left-0 h-0.5 bg-[#285726] rounded-full transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                    isCurrentOpen ? "w-full opacity-100" : "w-0 opacity-0"
+                  }`}
+                />
+              </div>
+            );
+          })}
+
+          {/* FLOATING DROPDOWN CARD BERSAMA DENGAN BUTTERY GLIDE TRANSITION (520ms TENANG & HALUS) */}
+          <div
+            onMouseEnter={handleDropdownMouseEnter}
+            className="absolute top-full z-50 pt-2.5"
+            style={{
+              left: `${dropdownLeft}px`,
+              opacity: isOpen ? 1 : 0,
+              transform: isOpen ? "translateY(0) scale(1)" : "translateY(-8px) scale(0.97)",
+              pointerEvents: isOpen ? "auto" : "none",
+              visibility: isOpen ? "visible" : "hidden",
+              transition: isSliding
+                ? "left 520ms cubic-bezier(0.22, 1, 0.36, 1), opacity 380ms ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1)"
+                : "left 0ms linear, opacity 380ms cubic-bezier(0.22, 1, 0.36, 1), transform 420ms cubic-bezier(0.22, 1, 0.36, 1), visibility 380ms",
+            }}
+          >
+            {/* Invisible hit-test bridge penahan kursor diagonal */}
+            <div className="absolute -top-3 left-0 right-0 h-4 bg-transparent" />
+
+            {/* Container Putih Rounded-3xl Sesuai Desain Referensi */}
+            <div className="w-[260px] rounded-3xl bg-white p-5 shadow-2xl shadow-emerald-950/15 border border-slate-100/90 relative overflow-hidden">
+              {navItems
+                .filter((item) => Boolean(item.dropdown))
+                .map((item) => {
+                  const isCurrentTab = activeDropdown === item.name;
+                  return (
+                    <div
+                      key={item.name}
+                      className={`transition-all duration-400 ease-out flex flex-col space-y-3 ${
+                        isCurrentTab
+                          ? "opacity-100 translate-x-0 relative pointer-events-auto"
+                          : "opacity-0 absolute inset-0 p-5 pointer-events-none translate-x-2"
+                      }`}
+                    >
+                      {item.dropdown?.map((sub) => (
                         <a
                           key={sub.title}
                           href={sub.href}
                           onClick={() => {
                             setActiveDropdown(null);
+                            setPrevActiveDropdown(null);
                             const parts = sub.href.split("#");
                             if (typeof window !== "undefined" && parts[1] && window.location.pathname === parts[0]) {
                               window.location.hash = parts[1];
                               window.dispatchEvent(new Event("hashchange"));
                             }
                           }}
-                          className="text-base font-bold text-slate-800 hover:text-[#285726] hover:translate-x-1.5 transition-all duration-200 whitespace-nowrap block"
+                          className="group/item flex items-center justify-between text-[15px] font-bold text-slate-800 hover:text-[#285726] hover:translate-x-1.5 transition-all duration-200 whitespace-nowrap"
                         >
-                          {sub.title}
+                          <span>{sub.title}</span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#285726] opacity-0 -translate-x-1 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-200" />
                         </a>
                       ))}
                     </div>
-                  </div>
-                )}
+                  );
+                })}
+
+              {/* TOMBOL KEMBALI KE BERANDA (DIPERLIHATKAN DENGAN JELAS & ESTETIK) */}
+              <div className="pt-3.5 mt-3 border-t border-slate-100">
+                <a
+                  href="/"
+                  onClick={() => {
+                    setActiveDropdown(null);
+                    setPrevActiveDropdown(null);
+                  }}
+                  className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-2xl bg-emerald-50/90 hover:bg-[#285726] text-[#285726] hover:text-white border border-emerald-200/90 hover:border-[#285726] text-xs font-black uppercase tracking-wider shadow-xs hover:shadow-md transition-all duration-300 group/home"
+                >
+                  <Home className="w-4 h-4 text-[#285726] group-hover/home:text-white transition-colors" />
+                  <span>Kembali ke Beranda</span>
+                </a>
               </div>
-            );
-          })}
+            </div>
+          </div>
         </nav>
 
         {/* TOMBOL LOGIN DENGAN SHINE SWEEP 2D HOVER */}
@@ -195,6 +335,18 @@ export default function Navbar() {
       {isMobileMenuOpen && (
         <div className="lg:hidden mt-3 max-h-[80vh] overflow-y-auto rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl text-slate-900 flex flex-col gap-3 animate-in fade-in slide-in-from-top-3">
           
+          {/* Tombol Kembali ke Beranda Mobile (Diperlihatkan Jelas) */}
+          <div className="pb-1">
+            <a
+              href="/"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center justify-center gap-2.5 w-full py-3 px-4 rounded-2xl bg-emerald-50 text-[#285726] border border-emerald-200/90 text-xs font-black uppercase tracking-wider shadow-xs hover:bg-[#285726] hover:text-white transition-all duration-300"
+            >
+              <Home className="w-4 h-4" />
+              <span>Kembali ke Beranda</span>
+            </a>
+          </div>
+
           <div className="space-y-1">
             {navItems.map((item) => {
               const hasDropdown = Boolean(item.dropdown);
@@ -208,7 +360,9 @@ export default function Navbar() {
                       className="w-full flex items-center justify-between px-4 py-3 text-sm font-bold text-slate-800 hover:text-[#285726] transition-colors"
                     >
                       <span>{item.name}</span>
-                      <span className="text-xs font-bold text-slate-600">↓</span>
+                      <span className={`text-xs font-bold text-slate-600 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}>
+                        ↓
+                      </span>
                     </button>
                   ) : (
                     <a
@@ -258,6 +412,12 @@ export default function Navbar() {
               <span>Login Aparatur / Warga</span>
             </a>
           </div>
+
+        </div>
+      )}
+    </header>
+  );
+}
 
         </div>
       )}
