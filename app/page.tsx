@@ -1,6 +1,7 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
+import { DAFTAR_BERITA } from "@/app/data/berita";
 import BeritaSection from "./components/berita-section";
 import UmkmSection from "./components/umkm-section";
 import LayananSection from "./components/layanan-section";
@@ -74,7 +75,7 @@ export default function Page() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_40%,rgba(197,216,47,0.08)_0%,transparent_60%)] pointer-events-none" />
         </div>
 
-        {/* KOORDINAT RESMI DESA (SUBTLE DECORATIVE MARK) */}
+        {/* KOORDINAT RESMI DESA */}
         <div className="pointer-events-none absolute right-8 sm:right-16 top-28 z-10 hidden md:flex items-center gap-2.5 text-[10px] font-mono tracking-widest text-slate-300/40 uppercase">
           <span className="w-1.5 h-1.5 rounded-full bg-[#C5D82F] animate-pulse" />
           <span>7°22&apos;48&quot;S 112°44&apos;20&quot;E • GEDANGAN, SIDOARJO</span>
@@ -95,7 +96,6 @@ export default function Page() {
           {/* HEADLINE UTAMA */}
           <div className="my-auto max-w-2xl pt-16 relative">
             
-            {/* SUBTLE LIME GLOW BEHIND HEADLINE */}
             <div className="absolute -top-16 -left-12 w-80 h-80 rounded-full bg-[#C5D82F]/12 blur-3xl pointer-events-none animate-lime-glow -z-10" />
 
             {/* STATUS CHIP */}
@@ -111,7 +111,6 @@ export default function Page() {
               </span>
             </h2>
 
-            {/* PARAGRAF PENDUKUNG RESMI */}
             <p className="mt-5 text-sm sm:text-base text-slate-200/90 font-medium leading-relaxed max-w-xl">
               Wadah keterbukaan informasi publik, layanan surat mandiri, direktori potensi ekonomi UMKM, dan tata kelola keuangan desa berbasis transparansi digital.
             </p>
@@ -123,7 +122,7 @@ export default function Page() {
                 className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-[#C5D82F] px-8 py-3.5 text-xs font-black uppercase tracking-wider text-[#111827] shadow-xl shadow-[#C5D82F]/25 transition-all duration-300 hover:scale-105 hover:bg-[#b8cb26] hover:shadow-[#C5D82F]/40"
               >
                 <span>Sampaikan Pengaduan</span>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5 arrow-slide">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                 </svg>
               </a>
@@ -141,7 +140,7 @@ export default function Page() {
             </div>
           </div>
 
-          {/* BAGIAN BAVAH: DATA STATISTIK + SLIDER DOKUMENTASI RINGKAS */}
+          {/* BAGIAN BAWAH: DATA STATISTIK + SLIDER DOKUMENTASI RINGKAS */}
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 pt-8 border-t border-white/15">
             
             {/* STATISTIK KAPSUL MINIMALIS */}

@@ -1,175 +1,96 @@
 "use client";
 
-import React from "react";
-import { Star, MapPin, Check } from "lucide-react";
-
-const DATA_UMKM = [
-  {
-    id: 1,
-    nama: "Kue Khas Sawotratap",
-    kategori: "Kuliner Lokal",
-    harga: "Rp 15.000",
-    rating: "4.9",
-    lokasi: "RT 03 / RW 02",
-    foto: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=800",
-    fitur: [
-      "Bahan alami tanpa pengawet",
-      "Siap antar area Sawotratap",
-      "Menerima pesanan hajatan",
-      "Garansi produk segar",
-    ],
-  },
-  {
-    id: 2,
-    nama: "Batik Tulis Sidoarjo",
-    kategori: "Kerajinan Tangan",
-    harga: "Rp 120.000",
-    rating: "4.8",
-    lokasi: "RW 05, Sawotratap",
-    foto: "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb?auto=format&fit=crop&q=80&w=800",
-    fitur: [
-      "Motif khas daun & bunga",
-      "Kain katun primissima super",
-      "Buatan pengrajin lokal",
-      "Custom warna & ukuran",
-    ],
-  },
-  {
-    id: 3,
-    nama: "Kedai Kopi Kampoeng",
-    kategori: "Minuman & Olahan",
-    harga: "Rp 10.000",
-    rating: "4.9",
-    lokasi: "Jl. Raya Sawotratap No. 12",
-    foto: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=800",
-    fitur: [
-      "Biji kopi arabika nusantara",
-      "Area nongkrong outdoor adem",
-      "Free Wi-Fi warga 100 Mbps",
-      "Buka sampai jam 23.00 WIB",
-    ],
-  },
-];
+import React, { useState } from "react";
+import { DAFTAR_PRODUK_UMKM } from "@/app/data/umkm";
+import { Star, MapPin, ChevronRight, ShoppingBag } from "lucide-react";
 
 export default function UmkmSection() {
-  return (
-    <section id="umkm" className="relative z-10 bg-gradient-to-b from-[#FAF9F4] via-[#F4F8F1] to-[#FAF9F4] py-24 px-6 sm:px-10 lg:px-16 text-slate-900 border-t border-[#E3E8E2] overflow-hidden">
-      
-      {/* SUBTLE ORGANIC DECORATIVE PATTERN */}
-      <div className="pointer-events-none absolute -left-20 top-24 w-80 h-80 opacity-[0.035] -z-0">
-        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="w-full h-full text-[#047857]" fill="currentColor">
-          <path d="M41.7,-57.1C53.7,-49.2,63,-37.2,68.9,-23.1C74.8,-8.9,77.4,7.4,73.1,22.2C68.9,37,57.9,50.3,44.1,59.3C30.4,68.3,13.9,73,-2.2,76C-18.4,79,-34.2,80.3,-47.1,72.9C-60,65.5,-69.9,49.4,-75.4,32.4C-80.9,15.5,-82.1,-2.3,-77.2,-18.2C-72.3,-34.1,-61.4,-48.1,-47.5,-55.6C-33.6,-63.1,-16.8,-64,-0.4,-63.5C16.1,-62.9,29.8,-65.1,41.7,-57.1Z" transform="translate(100 100)" />
-        </svg>
-      </div>
+  const [kategoriUmkm, setKategoriUmkm] = useState("Semua");
 
-      <div className="mx-auto max-w-7xl relative z-10">
+  const filteredUmkm = DAFTAR_PRODUK_UMKM.filter(
+    (item) => kategoriUmkm === "Semua" || item.kategori === kategoriUmkm
+  );
+
+  return (
+    <section id="umkm" className="py-16 bg-[#FAF9F4] text-[#111827]">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 space-y-10">
         
-        {/* HEADER & JUDUL */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/80 bg-white px-3.5 py-1 text-xs font-bold text-[#064E3B] shadow-xs mb-3">
-            <span className="h-2 w-2 rounded-full bg-[#047857]" />
-            <span>Ekonomi Kreatif Warga</span>
+        {/* HEADER SECTION */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E3E8E2]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+              <ShoppingBag className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">Ekonomi Kerakyatan</span>
+              <h2 className="text-2xl sm:text-3xl font-black text-[#111827]">Etalase Produk UMKM Desa</h2>
+            </div>
           </div>
 
-          <h3 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#111827]">
-            Direktori UMKM Desa
-          </h3>
-          <p className="mt-3 text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-            Dukung potensi ekonomi warga Sawotratap. Temukan produk kuliner khas, kerajinan buatan tangan, dan jasa lokal berkualitas tinggi.
-          </p>
+          {/* FILTER KATEGORI */}
+          <div className="inline-flex rounded-xl bg-slate-200/70 p-1 text-xs font-bold">
+            {["Semua", "Kuliner", "Kerajinan"].map((kat) => (
+              <button
+                key={kat}
+                onClick={() => setKategoriUmkm(kat)}
+                className={`px-3 py-1.5 rounded-lg transition-all ${
+                  kategoriUmkm === kat ? "bg-white text-[#064E3B] shadow-xs font-extrabold" : "text-slate-600"
+                }`}
+              >
+                {kat}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* GRID CARD KAPSUL UMKM */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-          {DATA_UMKM.map((item) => (
-            <div
-              key={item.id}
-              className="group relative rounded-3xl border border-[#E3E8E2] bg-white p-6 shadow-xs transition-all duration-300 hover:shadow-xl hover:shadow-emerald-950/6 hover:border-emerald-300/80 flex flex-col justify-between card-interactive-2d"
-            >
+        {/* GRID PRODUK UMKM */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {filteredUmkm.map((u) => (
+            <div key={u.id} className="rounded-3xl border border-[#E3E8E2] bg-white overflow-hidden shadow-xs hover:shadow-xl transition-all flex flex-col justify-between group">
               <div>
-                {/* GAMBAR PRODUK */}
-                <div className="relative h-48 w-full overflow-hidden rounded-2xl bg-slate-100 mb-5">
-                  <img
-                    src={item.foto}
-                    alt={item.nama}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  
-                  {/* Rating Tag */}
-                  <div className="absolute top-3 right-3 rounded-full bg-white/95 backdrop-blur-md px-3 py-1 text-[11px] font-extrabold text-slate-800 shadow-sm border border-slate-100 flex items-center gap-1">
-                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    <span>{item.rating}</span>
-                  </div>
-
-                  <div className="absolute bottom-3 left-3 rounded-full bg-slate-950/70 backdrop-blur-md px-3 py-1 text-[10px] font-semibold text-white flex items-center gap-1">
-                    <MapPin className="w-3 h-3 text-emerald-400" />
-                    <span>{item.lokasi}</span>
-                  </div>
+                <div className="relative h-48 w-full overflow-hidden bg-slate-100">
+                  <img src={u.foto} alt={u.nama} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-2.5 py-1 text-[10px] font-black text-slate-800 rounded-full">
+                    {u.kategori}
+                  </span>
+                  <span className="absolute top-3 right-3 bg-amber-400 text-slate-950 px-2.5 py-1 text-[10px] font-black rounded-full flex items-center gap-1 shadow-sm">
+                    <Star className="w-3 h-3 fill-slate-950" /> {u.rating}
+                  </span>
                 </div>
 
-                {/* JUDUL DAN HARGA */}
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <div>
-                    <h4 className="text-lg font-extrabold text-[#111827] leading-tight group-hover:text-[#064E3B] transition-colors">
-                      {item.nama}
-                    </h4>
-                    <p className="text-xs font-semibold text-slate-400 mt-1">
-                      {item.kategori}
-                    </p>
-                  </div>
-                  
-                  <div className="text-right shrink-0">
-                    <span className="text-base font-extrabold text-[#064E3B]">
-                      {item.harga}
-                    </span>
-                    <p className="text-[10px] font-medium text-slate-400">
-                      Mulai dari
-                    </p>
+                <div className="p-5 space-y-2">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase">{u.penjual}</div>
+                  <h3 className="font-black text-sm text-[#111827] group-hover:text-[#064E3B] transition-colors line-clamp-1">{u.nama}</h3>
+                  <div className="flex items-center gap-1 text-xs text-slate-500">
+                    <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span className="truncate">{u.lokasi}</span>
                   </div>
                 </div>
-
-                {/* DAFTAR FITUR / KEUNGGULAN PRODUK */}
-                <ul className="mt-5 space-y-2.5 pt-4 border-t border-[#E3E8E2]/70">
-                  {item.fitur.map((f, idx) => (
-                    <li key={idx} className="flex items-center gap-2.5 text-xs text-slate-600 font-medium">
-                      <div className="h-4 w-4 rounded-full bg-emerald-100 text-[#064E3B] flex items-center justify-center shrink-0">
-                        <Check className="w-2.5 h-2.5 stroke-[3]" />
-                      </div>
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
 
-              {/* TOMBOL ORDER / HUBUNGI PENJUAL */}
-              <div className="mt-7">
+              <div className="p-5 pt-0 flex items-center justify-between border-t border-slate-100 mt-2">
+                <span className="font-extrabold text-emerald-700 text-xs">{u.harga}</span>
                 <a
-                  href={`https://wa.me/628123456789?text=Halo%20penjual%20${encodeURIComponent(item.nama)}`}
+                  href={`https://wa.me/6281234567890?text=Halo%2C%20saya%20tertarik%20pesan%20${encodeURIComponent(u.nama)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex w-full items-center justify-center gap-2 rounded-full bg-[#C5D82F] hover:bg-[#b8cb26] py-3.5 text-xs font-black uppercase tracking-wider text-[#111827] shadow-lg shadow-[#C5D82F]/20 hover:shadow-xl hover:shadow-[#C5D82F]/30 transition-all duration-300 hover:scale-[1.02] group/btn shine-hover"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#064E3B] text-xs font-black transition-colors"
                 >
-                  <span>Hubungi Penjual</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 arrow-slide">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                  </svg>
+                  <span>Pesan WA</span>
                 </a>
               </div>
-
             </div>
           ))}
         </div>
 
-        {/* FOOTER LIHAT SEMUA */}
-        <div className="mt-14 text-center">
+        {/* TOMBOL SELENGKAPNYA KE HALAMAN LAYANAN */}
+        <div className="flex justify-center pt-2">
           <a
             href="/layanan#umkm"
-            className="group inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-8 py-3.5 text-xs font-bold text-slate-800 shadow-xs hover:bg-[#111827] hover:text-white hover:border-[#111827] hover:shadow-lg transition-all duration-300 shine-hover"
+            className="inline-flex items-center gap-2 bg-[#111827] hover:bg-slate-800 text-white px-7 py-3.5 rounded-full text-xs font-extrabold transition-all shadow-md hover:scale-105"
           >
-            <span>Jelajahi Katalog UMKM Selengkapnya</span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 arrow-slide">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-            </svg>
+            <span>Lihat Seluruh Direktori UMKM Desa</span>
+            <ChevronRight className="w-4 h-4 text-[#C5D82F]" />
           </a>
         </div>
 

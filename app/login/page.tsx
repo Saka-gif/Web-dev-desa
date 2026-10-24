@@ -5,14 +5,12 @@ import {
   LogIn,
   ShieldCheck,
   User,
-  KeyRound,
-  ArrowLeft,
-  CheckCircle2,
   Building2,
   Lock,
-  Phone,
   Eye,
   EyeOff,
+  ArrowLeft,
+  CheckCircle2,
 } from "lucide-react";
 
 export default function LoginPage() {
@@ -20,6 +18,7 @@ export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -31,56 +30,63 @@ export default function LoginPage() {
     setIsSuccess(true);
   };
 
-  const handleQuickDemo = (role: string, name: string) => {
+  const handleQuickDemo = (role: "warga" | "pamong") => {
+    setLoginRole(role);
     setIdentifier(role === "warga" ? "3515112001000001" : "pamong.ptsp@sawotratap.desa.id");
     setPassword("password123");
     setIsSuccess(true);
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F4] text-[#111827] flex flex-col justify-between pt-24 sm:pt-28 pb-12 px-4 sm:px-8 font-sans">
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 sm:p-6 overflow-hidden font-sans">
       
-      {/* BACKGROUND DECORATIVE ACCENTS */}
-      <div className="pointer-events-none fixed -top-24 right-1/4 w-96 h-96 rounded-full bg-[#285726]/10 blur-3xl -z-0" />
-      <div className="pointer-events-none fixed -bottom-24 left-1/4 w-96 h-96 rounded-full bg-emerald-500/10 blur-3xl -z-0" />
-
-      {/* TOP BAR / BACK LINK */}
-      <div className="max-w-md mx-auto w-full mb-6">
-        <a
-          href="/"
-          className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-[#285726] transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Kembali ke Halaman Utama</span>
-        </a>
+      {/* 1. BACKGROUND PEMANDANGAN DESA DENGAN OVERLAY CINEMATIC */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src="/aset/pedesaan.jpg"
+          alt="Pemandangan Desa Sawotratap"
+          className="w-full h-full object-cover object-center scale-105 filter brightness-90 contrast-105"
+        />
+        {/* Layer Gradient Overlay agar teks & kartu kaca lebih kontras */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/60" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)]" />
       </div>
 
-      {/* MAIN LOGIN CARD */}
-      <div className="max-w-md mx-auto w-full rounded-3xl border border-slate-200/80 bg-white p-7 sm:p-9 shadow-2xl shadow-black/10 relative z-10 space-y-6">
+      {/* 2. TOMBOL KEMBALI DI POJOK KIRI ATAS */}
+      <a
+        href="/"
+        className="absolute top-6 left-6 z-20 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 hover:bg-black/60 text-white/90 hover:text-white border border-white/20 backdrop-blur-md text-xs font-bold transition-all shadow-lg hover:scale-105"
+      >
+        <ArrowLeft className="w-4 h-4 text-[#C5D82F]" />
+        <span>Kembali ke Beranda</span>
+      </a>
+
+      {/* 3. KARTU LOGIN GLASSMORPHISM (KACA BURAM TRANSPARAN) */}
+      <div className="relative z-10 w-full max-w-md my-auto rounded-3xl border border-white/30 bg-white/15 p-7 sm:p-9 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] backdrop-blur-xl text-white space-y-6">
         
-        {/* HEADER LOGO & TITLE */}
+        {/* HEADER LOGO & JUDUL */}
         <div className="text-center space-y-2">
-          <div className="w-14 h-14 rounded-2xl bg-[#285726] border border-emerald-700 text-white mx-auto flex items-center justify-center shadow-md">
+          <div className="w-14 h-14 rounded-2xl bg-[#064E3B]/80 border border-[#C5D82F]/40 text-white mx-auto flex items-center justify-center shadow-lg backdrop-blur-md">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className="w-7 h-7 text-[#C5D82F]">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5M4.5 21V10.5" />
             </svg>
           </div>
 
-          <div className="space-y-0.5 pt-1">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#285726] bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+          <div className="space-y-1 pt-1">
+            <span className="inline-block text-[10px] font-black uppercase tracking-widest text-[#C5D82F] bg-black/40 px-3 py-0.5 rounded-full border border-white/15 backdrop-blur-md">
               Sistem Informasi Desa (SID)
             </span>
-            <h1 className="text-2xl font-black text-[#111827]">
-              Portal Masuk Desa
+            <h1 className="text-2xl sm:text-3xl font-black text-white drop-shadow-md tracking-tight">
+              Portal Desa Sawotratap
             </h1>
-            <p className="text-xs text-slate-500 font-medium">
-              Desa Sawotratap • Kecamatan Gedangan, Sidoarjo
+            <p className="text-xs text-slate-200 font-medium drop-shadow-sm">
+              Kecamatan Gedangan, Kabupaten Sidoarjo
             </p>
           </div>
         </div>
 
-        {/* ROLE SELECTOR TABS */}
-        <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-2xl text-xs font-bold text-slate-600">
+        {/* TAB PILIHAN ROLE (WARGA / PAMONG) */}
+        <div className="grid grid-cols-2 p-1 bg-black/30 rounded-2xl text-xs font-bold text-slate-300 border border-white/10 backdrop-blur-md">
           <button
             type="button"
             onClick={() => {
@@ -89,11 +95,11 @@ export default function LoginPage() {
             }}
             className={`py-2 rounded-xl transition-all ${
               loginRole === "warga"
-                ? "bg-white text-[#285726] shadow-sm font-black"
-                : "hover:text-slate-900"
+                ? "bg-[#C5D82F] text-[#111827] shadow-md font-black"
+                : "hover:text-white"
             }`}
           >
-            Warga Sawotratap
+            Warga Desa
           </button>
           <button
             type="button"
@@ -103,27 +109,32 @@ export default function LoginPage() {
             }}
             className={`py-2 rounded-xl transition-all ${
               loginRole === "pamong"
-                ? "bg-white text-[#285726] shadow-sm font-black"
-                : "hover:text-slate-900"
+                ? "bg-[#C5D82F] text-[#111827] shadow-md font-black"
+                : "hover:text-white"
             }`}
           >
             Aparatur Pemdes
           </button>
         </div>
 
+        {/* TAMPILAN JIKA BERHASIL LOGIN */}
         {isSuccess ? (
-          <div className="p-6 rounded-2xl bg-emerald-50 border border-emerald-300 text-center space-y-3">
-            <CheckCircle2 className="w-10 h-10 text-emerald-700 mx-auto" />
-            <h3 className="text-base font-black text-emerald-950">
-              Autentikasi Berhasil!
-            </h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Selamat datang kembali di Portal Pelayanan Mandiri Desa Sawotratap. Anda dapat mengajukan permohonan surat atau memantau status berkas secara langsung.
-            </p>
-            <div className="pt-2 flex flex-col gap-2">
+          <div className="p-6 rounded-2xl bg-black/40 border border-emerald-400/40 text-center space-y-4 backdrop-blur-md animate-fade-in">
+            <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-400 text-emerald-400 mx-auto flex items-center justify-center">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+            <div>
+              <h3 className="text-base font-black text-white">
+                Autentikasi Berhasil!
+              </h3>
+              <p className="text-xs text-slate-200 mt-1 leading-relaxed">
+                Selamat datang di Portal Pelayanan Mandiri Desa Sawotratap.
+              </p>
+            </div>
+            <div className="pt-2 space-y-2">
               <a
                 href="/layanan#surat"
-                className="w-full py-2.5 rounded-xl bg-[#285726] text-white text-xs font-black uppercase tracking-wider"
+                className="block w-full py-3 rounded-xl bg-[#C5D82F] hover:bg-[#b8cb26] text-[#111827] text-xs font-black uppercase tracking-wider transition-all shadow-lg"
               >
                 Buka Layanan Surat Mandiri
               </a>
@@ -133,124 +144,138 @@ export default function LoginPage() {
                   setIdentifier("");
                   setPassword("");
                 }}
-                className="text-xs font-bold text-slate-500 hover:text-slate-800"
+                className="text-xs font-bold text-slate-300 hover:text-white underline transition-colors"
               >
-                Ganti Akun Lain
+                Ganti Akun
               </button>
             </div>
           </div>
         ) : (
+          /* FORM LOGIN GLASS */
           <form onSubmit={handleLogin} className="space-y-4 text-xs">
-            {loginRole === "warga" ? (
-              <div>
-                <label className="block font-bold text-slate-700 mb-1.5">
-                  Nomor Induk Kependudukan (NIK 16 Digit) *
-                </label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    required
-                    maxLength={16}
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value.replace(/\D/g, ""))}
-                    placeholder="Contoh: 351511xxxxxxxxxx"
-                    className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-300 font-mono text-xs sm:text-sm focus:outline-none focus:border-[#285726]"
-                  />
-                </div>
+            {/* INPUT IDENTIFIER */}
+            <div>
+              <label className="block font-bold text-slate-200 mb-1.5">
+                {loginRole === "warga"
+                  ? "Nomor Induk Kependudukan (NIK 16 Digit) *"
+                  : "Email Pamong / NIP Pegawai *"}
+              </label>
+              <div className="relative">
+                {loginRole === "warga" ? (
+                  <User className="w-4 h-4 text-slate-300 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                ) : (
+                  <Building2 className="w-4 h-4 text-slate-300 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                )}
+                <input
+                  type="text"
+                  required
+                  maxLength={loginRole === "warga" ? 16 : 50}
+                  value={identifier}
+                  onChange={(e) =>
+                    setIdentifier(
+                      loginRole === "warga"
+                        ? e.target.value.replace(/\D/g, "")
+                        : e.target.value
+                    )
+                  }
+                  placeholder={
+                    loginRole === "warga"
+                      ? "351511xxxxxxxxxx"
+                      : "pamong@sawotratap.desa.id"
+                  }
+                  className="w-full pl-10 pr-3.5 py-3 rounded-xl bg-black/30 border border-white/20 text-white placeholder-slate-400 text-xs sm:text-sm font-medium focus:outline-none focus:border-[#C5D82F] focus:ring-1 focus:ring-[#C5D82F] backdrop-blur-md transition-all"
+                />
               </div>
-            ) : (
-              <div>
-                <label className="block font-bold text-slate-700 mb-1.5">
-                  Email Pamong / NIP Pegawai *
-                </label>
-                <div className="relative">
-                  <Building2 className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    required
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder="pamong@sawotratap.desa.id"
-                    className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:border-[#285726]"
-                  />
-                </div>
-              </div>
-            )}
+            </div>
 
+            {/* INPUT PASSWORD */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block font-bold text-slate-700">
+                <label className="block font-bold text-slate-200">
                   {loginRole === "warga" ? "PIN Keamanan / Sandi Warga *" : "Kata Sandi Akun *"}
                 </label>
-                <a href="/kontak" className="text-[11px] font-bold text-emerald-800 hover:underline">
-                  Bantuan Login?
+                <a href="/kontak" className="text-[11px] font-bold text-[#C5D82F] hover:underline">
+                  Lupa Sandi?
                 </a>
               </div>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Lock className="w-4 h-4 text-slate-300 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:border-[#285726]"
+                  className="w-full pl-10 pr-10 py-3 rounded-xl bg-black/30 border border-white/20 text-white placeholder-slate-400 text-xs sm:text-sm font-medium focus:outline-none focus:border-[#C5D82F] focus:ring-1 focus:ring-[#C5D82F] backdrop-blur-md transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-white transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
+            {/* CHECKBOX REMEMBER ME */}
+            <div className="flex items-center justify-between pt-1">
+              <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-white/20 bg-black/30 text-[#064E3B] focus:ring-0 focus:ring-offset-0 cursor-pointer accent-[#C5D82F]"
+                />
+                <span className="text-xs text-slate-200 font-medium">Ingat Saya di Perangkat Ini</span>
+              </label>
+            </div>
+
+            {/* TOMBOL SUBMIT */}
             <button
               type="submit"
-              className="w-full py-3 rounded-2xl bg-[#285726] hover:bg-[#1e421c] text-white text-xs sm:text-sm font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-md"
+              className="w-full py-3.5 rounded-xl bg-[#C5D82F] hover:bg-[#b8cb26] text-[#111827] text-xs sm:text-sm font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xl hover:scale-[1.02]"
             >
               <LogIn className="w-4 h-4" />
-              <span>Masuk Sekarang</span>
+              <span>Masuk Portal Desa</span>
             </button>
 
-            {/* QUICK DEMO SHORTCUT BUTTONS */}
-            <div className="pt-2 border-t border-slate-100 space-y-2">
-              <span className="text-[10px] font-bold uppercase text-slate-400 block text-center">
-                Akses Cepat Pengujian:
+            {/* QUICK DEMO SHORTCUTS */}
+            <div className="pt-3 border-t border-white/15 space-y-2">
+              <span className="text-[10px] font-extrabold uppercase text-slate-300 block text-center tracking-wider">
+                Akses Pengujian Cepat:
               </span>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => handleQuickDemo("warga", "Budi Santoso")}
-                  className="p-2 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-200 text-slate-700 text-[11px] font-bold text-center transition-colors"
+                  onClick={() => handleQuickDemo("warga")}
+                  className="py-2 px-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-[11px] font-bold text-center transition-all backdrop-blur-md"
                 >
-                  Masuk sbg Warga
+                  Demo Warga
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleQuickDemo("pamong", "Petugas PTSP")}
-                  className="p-2 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-200 text-slate-700 text-[11px] font-bold text-center transition-colors"
+                  onClick={() => handleQuickDemo("pamong")}
+                  className="py-2 px-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-[11px] font-bold text-center transition-all backdrop-blur-md"
                 >
-                  Masuk sbg Pamong
+                  Demo Pamong
                 </button>
               </div>
             </div>
           </form>
         )}
 
-        {/* SECURITY FOOTER BADGE */}
-        <div className="pt-2 flex items-center justify-center gap-2 text-[10px] text-slate-400 font-semibold">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-          <span>Terenkripsi Standar Keamanan Disdukcapil Sidoarjo</span>
+        {/* SECURITY BADGE FOOTER */}
+        <div className="pt-2 flex items-center justify-center gap-2 text-[10px] text-slate-300 font-semibold border-t border-white/10">
+          <ShieldCheck className="w-4 h-4 text-[#C5D82F]" />
+          <span>Terenkripsi Keamanan Server Desa Sawotratap</span>
         </div>
 
       </div>
 
-      {/* FOOTER COPYRIGHT */}
-      <div className="text-center text-xs text-slate-400 mt-6">
-        © 2025 Pemerintah Desa Sawotratap, Gedangan, Sidoarjo.
+      {/* 4. FOOTER HAK CIPTA */}
+      <div className="absolute bottom-3 inset-x-0 text-center text-[11px] text-slate-300 font-medium drop-shadow-md z-10">
+        © 2026 Pemerintah Desa Sawotratap, Gedangan, Sidoarjo.
       </div>
 
     </div>
