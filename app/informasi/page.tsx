@@ -109,16 +109,17 @@ export default function InformasiPage() {
     }
   };
 
-  const filteredBerita = DAFTAR_BERITA.filter((item) =>
-    item.judul.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.ringkasan.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredBerita = DAFTAR_BERITA.filter(
+    (item) =>
+      item.judul.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.ringkasan.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="min-h-screen bg-[#FAF9F4] text-[#111827] pt-24 sm:pt-28 pb-24 font-sans">
+    <div className="min-h-screen bg-[#FAF9F4] text-[#111827] font-sans">
       
-      {/* 1. HERO HEADER INFORMASI */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#06261D] via-[#083327] to-[#0A1F17] text-white py-14 sm:py-20 px-6 sm:px-10 lg:px-16 border-b border-emerald-900/60">
+      {/* 1. HERO HEADER INFORMASI (DISAMAKAN JARAKNYA DENGAN HALAMAN LAIN: PT-36 / PT-44) */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#06261D] via-[#083327] to-[#0A1F17] text-white pt-36 sm:pt-44 pb-14 sm:pb-20 px-6 sm:px-10 lg:px-16 border-b border-emerald-900/60">
         
         <div className="pointer-events-none absolute -top-24 right-1/4 w-96 h-96 rounded-full bg-[#C5D82F]/10 blur-3xl" />
 
@@ -161,8 +162,8 @@ export default function InformasiPage() {
         </div>
       </section>
 
-      {/* 2. STICKY JUMP-TO NAVIGATION BAR */}
-      <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#E3E8E2] px-6 sm:px-10 lg:px-16 shadow-xs">
+      {/* 2. STICKY JUMP-TO NAVIGATION BAR (DISAMAKAN TOP-20) */}
+      <div className="sticky top-20 z-30 bg-white/95 backdrop-blur-md border-b border-[#E3E8E2] px-6 sm:px-10 lg:px-16 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center gap-2 sm:gap-4 overflow-x-auto py-3 no-scrollbar">
           
           <button
@@ -217,7 +218,7 @@ export default function InformasiPage() {
       </div>
 
       {/* 3. KONTEN BERDERET KE BAWAH (LONG SCROLL SATU HALAMAN) */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-16 space-y-28">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-16 space-y-28 pb-24">
         
         {/* ========================================================= */}
         {/* SECTION 1: WARTA & BERITA TERKINI (#berita) */}

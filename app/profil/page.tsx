@@ -52,10 +52,10 @@ export default function ProfilPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F4] text-[#111827] pt-24 sm:pt-28 pb-24 font-sans">
+    <div className="min-h-screen bg-[#FAF9F4] text-[#111827] font-sans">
       
-      {/* 1. HERO HEADER PROFIL DESA */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#06261D] via-[#083327] to-[#0A1F17] text-white py-14 sm:py-20 px-6 sm:px-10 lg:px-16 border-b border-emerald-900/60">
+      {/* 1. HERO HEADER PROFIL DESA (DISAMAKAN DENGAN PEMERINTAHAN: PT-36 / PT-44) */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#06261D] via-[#083327] to-[#0A1F17] text-white pt-36 sm:pt-44 pb-14 sm:pb-20 px-6 sm:px-10 lg:px-16 border-b border-emerald-900/60">
         
         <div className="pointer-events-none absolute -top-24 right-1/4 w-96 h-96 rounded-full bg-[#C5D82F]/10 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 left-1/4 w-96 h-96 rounded-full bg-emerald-500/10 blur-3xl" />
@@ -129,7 +129,7 @@ export default function ProfilPage() {
       </section>
 
       {/* 2. STICKY JUMP-TO NAVIGATION BAR */}
-      <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#E3E8E2] px-6 sm:px-10 lg:px-16 shadow-xs">
+      <div className="sticky top-20 z-30 bg-white/95 backdrop-blur-md border-b border-[#E3E8E2] px-6 sm:px-10 lg:px-16 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center gap-2 sm:gap-4 overflow-x-auto py-3 no-scrollbar">
           
           <button
@@ -165,7 +165,7 @@ export default function ProfilPage() {
             }`}
           >
             <MapPin className="w-3.5 h-3.5" />
-            <span>Peta Batas & 3D Spasial</span>
+            <span>Peta Batas & Spasial</span>
           </button>
 
           <button
@@ -184,7 +184,7 @@ export default function ProfilPage() {
       </div>
 
       {/* 3. KONTEN BERDERET KE BAWAH (LONG SCROLL SATU HALAMAN) */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-16 space-y-28">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-16 space-y-28 pb-24">
         
         {/* ========================================================= */}
         {/* SEJARAH & ASAL-USUL (#sejarah) */}
@@ -378,7 +378,7 @@ export default function ProfilPage() {
         </div>
 
         {/* ========================================================= */}
-        {/* PETA BATAS & GEOGRAFIS (#geografis) */}
+        {/* PETA BATAS & GEOGRAFIS (#geografis) - TANPA GAMBAR */}
         {/* ========================================================= */}
         <div id="geografis" className="scroll-mt-36 space-y-8">
           <div className="flex items-center gap-3 pb-3 border-b border-[#E3E8E2]">
@@ -418,24 +418,6 @@ export default function ProfilPage() {
               <div className="text-[10px] font-bold uppercase text-slate-500">Sebelah Barat</div>
               <div className="text-base font-black text-[#111827] mt-0.5">Lintasan Rel Kereta Api</div>
               <div className="text-xs text-slate-500 mt-1">Berbatasan rel Stasiun Waru-Gedangan & Desa Bohar.</div>
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-[#E3E8E2] bg-white overflow-hidden shadow-xs group">
-            <div className="relative h-64 sm:h-80 w-full overflow-hidden">
-              <img
-                src="/aset/peta-desa-3d.jpg"
-                alt="Visual 3D Isometrik Geografis Desa Sawotratap"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white text-xs bg-black/60 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/15">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#C5D82F]" />
-                  <span className="font-extrabold text-xs">Visualisasi 3D Spasial Wilayah Sawotratap</span>
-                </div>
-                <span className="text-[10px] text-emerald-300 font-bold hidden sm:inline">11 RW • Gedangan, Sidoarjo</span>
-              </div>
             </div>
           </div>
         </div>

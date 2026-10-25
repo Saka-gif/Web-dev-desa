@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, CheckCircle2 } from "lucide-react";
+import { X, CheckCircle2, ArrowRight } from "lucide-react";
 
 interface LayananItem {
   id: string;
@@ -10,7 +10,7 @@ interface LayananItem {
   kategori: string;
   estimasi: string;
   syarat: string[];
-  iconSvg: React.ReactNode;
+  foto: string;
 }
 
 const DAFTAR_LAYANAN: LayananItem[] = [
@@ -19,26 +19,18 @@ const DAFTAR_LAYANAN: LayananItem[] = [
     judul: "Pengajuan Surat Mandiri",
     deskripsi: "Ajukan berbagai jenis surat keterangan (KTP, Domisili, Usaha, Tidak Mampu) secara online tanpa antre di balai desa.",
     kategori: "Administrasi",
-    estimasi: "1x24 Jam Kerja",
+    estimasi: "1x24 Jam",
     syarat: ["Fotokopi KTP/KK", "Surat Pengantar RT/RW", "Pas Foto 3x4"],
-    iconSvg: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-8 h-8">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-      </svg>
-    ),
+    foto: "/aset/pedesaan.jpg",
   },
   {
     id: "pengaduan",
     judul: "Aspirasi & Pengaduan Warga",
     deskripsi: "Sampaikan saran, pengaduan infrastruktur, atau keluhan fasilitas umum secara langsung untuk ditindaklanjuti tim balai desa.",
     kategori: "Aspirasi",
-    estimasi: "Respon Max 2x24 Jam",
+    estimasi: "Max 2x24 Jam",
     syarat: ["Foto Bukti Kejadian", "Uraian Singkat Masalah"],
-    iconSvg: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-8 h-8">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 01-4.5-4.5v-3a4.5 4.5 0 014.5-4.5h12a4.5 4.5 0 014.5 4.5v3a4.5 4.5 0 01-4.5 4.5h-1.002c-.371 1.206-1.22 2.298-2.483 3.109-1.223.78-2.678 1.191-4.175 1.191V15.84z" />
-      </svg>
-    ),
+    foto: "https://images.unsplash.com/photo-1541888946425-d0fbb186a5b7?auto=format&fit=crop&q=80&w=800",
   },
   {
     id: "perizinan",
@@ -47,11 +39,7 @@ const DAFTAR_LAYANAN: LayananItem[] = [
     kategori: "Perizinan",
     estimasi: "2-3 Hari Kerja",
     syarat: ["KTP Penanggung Jawab", "Detail Rencana Kegiatan"],
-    iconSvg: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-8 h-8">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25h1.5c.83 0 1.57.45 1.95 1.136m-5.8 0a2.25 2.25 0 00-1.85 2.214v12.25c0 1.243 1.007 2.25 2.25 2.25h7.5c1.243 0 2.25-1.007 2.25-2.25V5.586a2.25 2.25 0 00-1.85-2.214M9 10.5h6M9 13.5h6m-6 3h4" />
-      </svg>
-    ),
+    foto: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800",
   },
 ];
 
@@ -77,147 +65,89 @@ export default function LayananSection() {
   };
 
   return (
-    <section id="layanan" className="relative z-10 bg-gradient-to-b from-[#FAF9F4] via-[#F3F6FA] to-[#FAF9F4] py-24 px-6 sm:px-10 lg:px-16 text-slate-900 border-t border-[#E3E8E2] overflow-hidden">
-      {/* Invisible anchors for #pengaduan, #surat */}
+    <section id="layanan" className="relative z-10 bg-[#FAF9F4] py-24 px-6 sm:px-10 lg:px-16 text-[#111827] border-t border-[#E3E8E2] overflow-hidden">
+      {/* Anchor tersembunyi untuk navigasi */}
       <div id="pengaduan" className="absolute -top-24 left-0 pointer-events-none" />
       <div id="surat" className="absolute -top-24 left-0 pointer-events-none" />
       
-      {/* SUBTLE CIVIC GRID BACKGROUND */}
-      <div className="pointer-events-none absolute right-0 bottom-0 w-96 h-96 opacity-[0.03] -z-0">
-        <svg viewBox="0 0 100 100" className="w-full h-full" fill="none" stroke="#111827" strokeWidth="0.5">
-          <circle cx="50" cy="50" r="45" />
-          <circle cx="50" cy="50" r="30" />
-          <circle cx="50" cy="50" r="15" />
-          <path d="M50 0v100M0 50h100" />
-        </svg>
-      </div>
-
-      <div className="mx-auto max-w-7xl relative z-10">
+      <div className="mx-auto max-w-7xl space-y-12">
         
-        {/* TATA LETAK SPLIT 2 KOLOM */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-          
-          {/* KOLOM KIRI: HEADLINE, SOSMED & KEY METRICS STATS */}
-          <div className="lg:col-span-6 space-y-8">
-            
-            {/* Tag Badge */}
-            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200/80 bg-white px-3.5 py-1 text-xs font-bold text-[#064E3B] shadow-xs">
-              <span className="h-2 w-2 rounded-full bg-[#C5D82F] animate-pulse" />
-              Layanan Digital Terpadu
-            </span>
-
-            {/* Judul Utama */}
-            <h3 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#111827] leading-tight">
-              Mengapa Warga Memilih Portal Smart Service Sawotratap?
-            </h3>
-
-            {/* Deskripsi Komitmen */}
-            <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed">
-              Dari pengurusan administrasi kependudukan hingga saluran aspirasi warga, kami menghadirkan pelayanan publik yang lebih cepat, transparan, dan dapat diakses kapan saja tanpa perlu antre di Balai Desa.
+        {/* HEADER SECTION */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-[#E3E8E2] pb-6">
+          <div className="space-y-2.5">
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50 px-4 py-1 text-xs font-bold text-emerald-800">
+              <span className="h-2 w-2 rounded-full bg-[#064E3B] animate-ping" />
+              <span>Portal Layanan Publik</span>
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#111827]">
+              Pilih Layanan <span className="text-[#064E3B]">Desa Sawotratap</span>
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 max-w-xl">
+              Akses pengurusan surat, aspirasi warga, dan perizinan secara cepat, transparan, dan tanpa antre.
             </p>
-
-            {/* BANNER 3D CLAYMORPHISM ICONS SHOWCASE */}
-            <div className="relative rounded-2xl overflow-hidden border border-[#E3E8E2] bg-white shadow-xs p-1 card-interactive-2d group">
-              <img
-                src="/aset/ikon-layanan-3d.jpg"
-                alt="3D Claymorphism Layanan Desa Sawotratap: Dokumen Kilat, Aduan Warga, Pasar UMKM"
-                className="w-full h-36 sm:h-44 object-cover rounded-xl transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="p-2.5 flex items-center justify-between text-[11px] text-slate-600 font-bold bg-[#FAF9F4] rounded-lg mt-1">
-                <span className="text-[#064E3B]">1. Surat Mandiri</span>
-                <span className="text-slate-300">•</span>
-                <span className="text-[#064E3B]">2. Suara Warga</span>
-                <span className="text-slate-300">•</span>
-                <span className="text-[#064E3B]">3. Pasar UMKM</span>
-              </div>
-            </div>
-
-            {/* METRIK STATISTIK LINGKARAN */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-[#E3E8E2]/80">
-              
-              <div className="text-center sm:text-left">
-                <div className="mx-auto sm:mx-0 h-12 w-12 rounded-2xl bg-gradient-to-br from-[#064E3B] to-[#111827] text-white flex items-center justify-center mb-2.5 shadow-md shadow-emerald-950/20">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-[#C5D82F]">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                  </svg>
-                </div>
-                <p className="text-xl font-black text-[#111827] tabular-nums">12K+</p>
-                <p className="text-[11px] font-semibold text-slate-500 leading-snug mt-0.5">Warga Terlayani</p>
-              </div>
-
-              <div className="text-center sm:text-left">
-                <div className="mx-auto sm:mx-0 h-12 w-12 rounded-2xl bg-gradient-to-br from-[#064E3B] to-[#111827] text-white flex items-center justify-center mb-2.5 shadow-md shadow-emerald-950/20">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-[#64A8E5]">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <p className="text-xl font-black text-[#111827] tabular-nums">99%</p>
-                <p className="text-[11px] font-semibold text-slate-500 leading-snug mt-0.5">Berkas Selesai</p>
-              </div>
-
-              <div className="text-center sm:text-left">
-                <div className="mx-auto sm:mx-0 h-12 w-12 rounded-2xl bg-gradient-to-br from-[#064E3B] to-[#111827] text-white flex items-center justify-center mb-2.5 shadow-md shadow-emerald-950/20">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-[#C5D82F]">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <p className="text-xl font-black text-[#111827] tabular-nums">24/7</p>
-                <p className="text-[11px] font-semibold text-slate-500 leading-snug mt-0.5">Layanan Mandiri</p>
-              </div>
-
-            </div>
-
           </div>
+        </div>
 
-          {/* KOLOM KANAN: KARTU LAYANAN HORISONTAL */}
-          <div className="lg:col-span-6 space-y-4.5">
-            {DAFTAR_LAYANAN.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => setSelectedLayanan(item)}
-                className="group relative rounded-3xl border border-[#E3E8E2] bg-white hover:bg-emerald-50/20 p-5 backdrop-blur-md shadow-xs transition-all duration-300 hover:shadow-xl hover:shadow-emerald-950/5 hover:border-emerald-300/80 cursor-pointer flex items-center gap-5 card-interactive-2d"
-              >
-                {/* WADAH IKON DENGAN IKON BESAR DI KIRI */}
-                <div className="h-20 w-20 sm:h-24 sm:w-24 shrink-0 rounded-2xl bg-gradient-to-br from-[#064E3B] via-[#093d30] to-[#111827] text-white flex items-center justify-center shadow-md shadow-emerald-950/20 group-hover:scale-105 transition-transform duration-300 border border-[#C5D82F]/20">
-                  <div className="text-[#C5D82F]">
-                    {item.iconSvg}
-                  </div>
+        {/* GRID KARTU VERTICAL ALA DESTINATION CARD */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {DAFTAR_LAYANAN.map((item) => (
+            <div
+              key={item.id}
+              className="group relative rounded-[2.5rem] overflow-hidden bg-[#06261D] text-white shadow-xl hover:shadow-2xl transition-all duration-500 flex flex-col justify-between border border-emerald-900/60"
+            >
+              {/* GAMBAR BACKGROUND DENGAN GRADASI */}
+              <div className="absolute inset-0 z-0">
+                <img
+                  src={item.foto}
+                  alt={item.judul}
+                  className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 opacity-40 brightness-75"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#06261D] via-[#06261D]/80 to-transparent" />
+              </div>
+
+              {/* KONTEN KARTU ATAS */}
+              <div className="relative z-10 p-7 sm:p-8 space-y-4">
+                {/* CHIP KATEGORI & ESTIMASI */}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="inline-block text-[10px] font-black uppercase tracking-wider text-emerald-200 bg-emerald-950/80 px-3 py-1 rounded-full border border-emerald-700/50">
+                    {item.kategori}
+                  </span>
+                  <span className="text-[10px] font-bold text-[#C5D82F] bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+                    {item.estimasi}
+                  </span>
                 </div>
 
-                {/* DETAIL TEKS SISI KANAN */}
-                <div className="flex-1 pr-2">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <h4 className="text-base sm:text-lg font-extrabold text-[#111827] group-hover:text-[#064E3B] transition-colors leading-snug">
-                      {item.judul}
-                    </h4>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/70">
-                      {item.estimasi}
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed font-medium">
+                <div className="space-y-2 pt-6">
+                  <h3 className="text-xl sm:text-2xl font-black text-white group-hover:text-[#C5D82F] transition-colors leading-snug">
+                    {item.judul}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal line-clamp-3">
                     {item.deskripsi}
                   </p>
-
-                  <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-[#064E3B] group-hover:text-[#047857] group-hover:translate-x-1 transition-all">
-                    <span>Ajukan Layanan Ini</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                    </svg>
-                  </div>
                 </div>
               </div>
-            ))}
-          </div>
 
+              {/* TOMBOL AKSI DI BAWAH (PERSIS SEPERTI TOMBOL RESERVE) */}
+              <div className="relative z-10 p-6 pt-0">
+                <button
+                  onClick={() => setSelectedLayanan(item)}
+                  className="w-full py-4 rounded-2xl bg-white hover:bg-[#C5D82F] text-[#111827] text-xs font-black uppercase tracking-wider transition-all duration-300 shadow-md flex items-center justify-center gap-2 group-hover:scale-[1.02]"
+                >
+                  <span>Ajukan Layanan</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+
+            </div>
+          ))}
         </div>
 
       </div>
 
       {/* MODAL POPUP FORM PENGAJUAN */}
       {selectedLayanan && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg rounded-3xl border border-[#E3E8E2] bg-white p-6 sm:p-8 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg rounded-[2.5rem] border border-[#E3E8E2] bg-white p-6 sm:p-8 shadow-2xl text-[#111827]">
             
             <button
               onClick={() => setSelectedLayanan(null)}
@@ -229,29 +159,29 @@ export default function LayananSection() {
 
             {submitted ? (
               <div className="py-8 text-center space-y-3">
-                <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center">
+                <div className="w-16 h-16 rounded-3xl bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center">
                   <CheckCircle2 className="w-9 h-9 text-emerald-600" />
                 </div>
-                <h4 className="text-xl font-bold text-slate-900">Pengajuan Berhasil Dikirim!</h4>
+                <h4 className="text-xl font-black">Pengajuan Berhasil Dikirim!</h4>
                 <p className="text-xs text-slate-600 max-w-xs mx-auto">
                   Pengajuan {selectedLayanan.judul} Anda telah masuk ke sistem Desa Sawotratap.
                 </p>
               </div>
             ) : (
               <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#064E3B] text-[#C5D82F] flex items-center justify-center shrink-0">
-                    {selectedLayanan.iconSvg}
+                <div className="flex items-center gap-3.5 mb-5 pb-4 border-b border-slate-100">
+                  <div className="w-11 h-11 rounded-2xl bg-[#064E3B] text-[#C5D82F] flex items-center justify-center shrink-0 font-black">
+                    ✓
                   </div>
                   <div>
-                    <h4 className="text-base font-extrabold text-[#111827] leading-snug">
+                    <h4 className="text-base font-black leading-sn0">
                       Form {selectedLayanan.judul}
                     </h4>
-                    <p className="text-xs text-slate-400 font-medium">Layanan Online Sawotratap</p>
+                    <p className="text-xs text-slate-500 font-medium">Layanan Online Sawotratap</p>
                   </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap KTP</label>
                     <input
@@ -260,11 +190,11 @@ export default function LayananSection() {
                       placeholder="Masukkan nama Anda"
                       value={formData.nama}
                       onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#047857] focus:bg-white transition-all"
+                      className="w-full rounded-2xl border border-slate-300 bg-slate-50/50 px-4 py-3 text-xs text-slate-800 focus:outline-none focus:border-[#064E3B] font-medium"
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-bold text-slate-700 mb-1">NIK (16 Digit)</label>
                       <input
@@ -273,8 +203,8 @@ export default function LayananSection() {
                         maxLength={16}
                         placeholder="3515..."
                         value={formData.nik}
-                        onChange={(e) => setFormData({ ...formData, nik: e.target.value })}
-                        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#047857] focus:bg-white transition-all"
+                        onChange={(e) => setFormData({ ...formData, nik: e.target.value.replace(/\D/g, "") })}
+                        className="w-full rounded-2xl border border-slate-300 bg-slate-50/50 px-4 py-3 text-xs text-slate-800 focus:outline-none focus:border-[#064E3B] font-mono"
                       />
                     </div>
                     <div>
@@ -285,7 +215,7 @@ export default function LayananSection() {
                         placeholder="0812..."
                         value={formData.telepon}
                         onChange={(e) => setFormData({ ...formData, telepon: e.target.value })}
-                        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#047857] focus:bg-white transition-all"
+                        className="w-full rounded-2xl border border-slate-300 bg-slate-50/50 px-4 py-3 text-xs text-slate-800 focus:outline-none focus:border-[#064E3B] font-mono"
                       />
                     </div>
                   </div>
@@ -298,15 +228,16 @@ export default function LayananSection() {
                       placeholder="Tuliskan alasan/rincian permohonan Anda..."
                       value={formData.keterangan}
                       onChange={(e) => setFormData({ ...formData, keterangan: e.target.value })}
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#047857] focus:bg-white transition-all"
+                      className="w-full rounded-2xl border border-slate-300 bg-slate-50/50 px-4 py-3 text-xs text-slate-800 focus:outline-none focus:border-[#064E3B] font-medium"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full mt-4 rounded-xl bg-[#C5D82F] hover:bg-[#b8cb26] py-3.5 text-xs font-black uppercase tracking-wider text-[#111827] shadow-lg shadow-[#C5D82F]/20 transition-all hover:scale-[1.01]"
+                    className="w-full mt-2 rounded-2xl bg-[#064E3B] hover:bg-[#047857] py-3.5 text-xs font-black uppercase tracking-wider text-white shadow-md transition-all flex items-center justify-center gap-2"
                   >
-                    Kirim Pengajuan
+                    <span>Kirim Pengajuan</span>
+                    <ArrowRight className="w-4 h-4 text-[#C5D82F]" />
                   </button>
                 </form>
               </div>
