@@ -7,6 +7,12 @@ export interface UmkmItem {
   lokasi: string;
   kategori: string;
   foto: string;
+  
+  // Tambahkan baris di bawah ini:
+  rw?: string;
+  deskripsi?: string;
+  pemilik?: string;
+  kontak?: string;
 }
 
 export const DAFTAR_PRODUK_UMKM: UmkmItem[] = [
