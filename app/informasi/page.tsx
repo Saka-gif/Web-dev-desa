@@ -13,6 +13,7 @@ import {
   Clock,
   Download,
   MapPin,
+  ShieldCheck,
 } from "lucide-react";
 
 interface PengumumanItem {
@@ -102,7 +103,6 @@ export default function InformasiPage() {
   const [daftarPengumuman, setDaftarPengumuman] = useState<PengumumanItem[]>(DAFTAR_PENGUMUMAN_FALLBACK);
   const [daftarAgenda, setDaftarAgenda] = useState<AgendaItem[]>(DAFTAR_AGENDA_FALLBACK);
 
-  // Ambil data live dari Supabase
   const loadDataFromSupabase = async () => {
     try {
       const [resBerita, resPengumuman, resAgenda] = await Promise.all([
@@ -133,7 +133,6 @@ export default function InformasiPage() {
   useEffect(() => {
     loadDataFromSupabase();
 
-    // Supabase Realtime channel
     const channel = supabase
       .channel("realtime-informasi-page")
       .on("postgres_changes", { event: "*", schema: "public", table: "berita" }, () => loadDataFromSupabase())
@@ -146,7 +145,6 @@ export default function InformasiPage() {
     };
   }, []);
 
-  // Deteksi section yang sedang aktif saat di-scroll ke bawah
   useEffect(() => {
     const handleScroll = () => {
       const sections = ["berita", "pengumuman", "agenda", "galeri"];
@@ -169,7 +167,6 @@ export default function InformasiPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Fungsi untuk scroll mulus saat menu diklik
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
@@ -186,33 +183,49 @@ export default function InformasiPage() {
   return (
     <div className="min-h-screen bg-[#FAF9F4] text-[#111827] font-sans">
       
-      {/* 1. HERO HEADER INFORMASI (DISAMAKAN JARAKNYA DENGAN HALAMAN LAIN: PT-36 / PT-44) */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#06261D] via-[#083327] to-[#0A1F17] text-white pt-36 sm:pt-44 pb-14 sm:pb-20 px-6 sm:px-10 lg:px-16 border-b border-emerald-900/60">
+      {/* 1. HERO HEADER INFORMASI (Background 1 Warna Hijau Gelap Solid, Tanpa Glow/Shadow) */}
+      <section className="relative overflow-hidden bg-[#06261D] text-white pt-36 sm:pt-44 pb-14 sm:pb-20 px-6 sm:px-10 lg:px-16 border-b border-emerald-900/60">
         
-        <div className="pointer-events-none absolute -top-24 right-1/4 w-96 h-96 rounded-full bg-[#C5D82F]/10 blur-3xl" />
-
-        <div className="relative z-10 max-w-7xl mx-auto space-y-4">
+        <div className="relative z-10 max-w-7xl mx-auto space-y-6">
+          
           <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-300/80">
             <a href="/" className="hover:text-[#C5D82F] transition-colors">Beranda</a>
             <span>/</span>
             <span className="text-white font-bold">Pusat Informasi</span>
           </div>
 
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-[#064E3B]/80 px-4 py-1 text-xs font-bold text-emerald-200 backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-[#C5D82F] animate-ping" />
-            <span>Keterbukaan Informasi Publik • Pemerintah Desa Sawotratap</span>
+          <div className="space-y-4">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1]">
+              Warta, Pengumuman & <br />
+              <span className="text-[#C5D82F] drop-shadow-[0_4px_24px_rgba(197,216,47,0.3)]">
+                Agenda Komunitas
+              </span>
+            </h1>
+
+            <p className="max-w-2xl text-xs sm:text-sm text-slate-200/90 leading-relaxed font-normal">
+              Kanal rilis resmi: berita pembangunan, surat edaran penting, jadwal posyandu, dan dokumentasi kegiatan warga 11 RW.
+            </p>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1]">
-            Warta, Pengumuman & <br />
-            <span className="text-[#C5D82F] drop-shadow-[0_4px_24px_rgba(197,216,47,0.3)]">
-              Agenda Komunitas
-            </span>
-          </h1>
-
-          <p className="max-w-2xl text-xs sm:text-sm text-slate-200/90 leading-relaxed font-normal">
-            Kanal rilis resmi: berita pembangunan, surat edaran penting, jadwal posyandu, dan dokumentasi kegiatan warga 11 RW.
-          </p>
+          {/* KAPSUL STATUS (1 Warna Menyatu dengan Background) */}
+          <div className="pt-2">
+            <div className="inline-flex items-center gap-3.5 px-5 py-3 rounded-2xl bg-[#06261D] border border-[#C5D82F]/30 shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-[#083327] border border-[#C5D82F]/40 flex items-center justify-center shrink-0 text-[#C5D82F]">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#C5D82F] shrink-0" />
+                  <span className="text-xs font-black tracking-wider text-[#C5D82F] uppercase">
+                    Keterbukaan Informasi Publik
+                  </span>
+                </div>
+                <p className="text-[11px] font-medium text-emerald-100/80">
+                  Pemerintah Desa Sawotratap • Transparan, Akurat & Terpercaya.
+                </p>
+              </div>
+            </div>
+          </div>
 
           {/* Search Box Visual */}
           <div className="pt-2 max-w-md">
@@ -227,58 +240,59 @@ export default function InformasiPage() {
               />
             </div>
           </div>
+
         </div>
       </section>
 
-      {/* 2. STICKY JUMP-TO NAVIGATION BAR (DISAMAKAN TOP-20) */}
-      <div className="sticky top-20 z-30 bg-white/95 backdrop-blur-md border-b border-[#E3E8E2] px-6 sm:px-10 lg:px-16 shadow-xs">
-        <div className="max-w-7xl mx-auto flex items-center gap-2 sm:gap-4 overflow-x-auto py-3 no-scrollbar">
+      {/* 2. STICKY JUMP-TO NAVIGATION BAR (Disamakan Kapsul di Tengah, Tanpa Kotak Luar) */}
+      <div className="sticky top-20 z-30 py-3 px-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar">
           
           <button
             onClick={() => scrollToSection("berita")}
-            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 ${
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 shadow-sm ${
               activeSection === "berita"
-                ? "bg-[#064E3B] text-white shadow-sm ring-2 ring-[#C5D82F]/40"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                ? "bg-white text-[#064E3B] shadow-md ring-2 ring-[#064E3B]/20"
+                : "bg-white/80 backdrop-blur-md text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-200/60"
             }`}
           >
-            <Megaphone className="w-3.5 h-3.5 text-[#C5D82F]" />
+            <Megaphone className="w-3.5 h-3.5 text-[#064E3B]" />
             <span>Warta & Berita</span>
           </button>
 
           <button
             onClick={() => scrollToSection("pengumuman")}
-            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 ${
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 shadow-sm ${
               activeSection === "pengumuman"
-                ? "bg-[#064E3B] text-white shadow-sm ring-2 ring-[#C5D82F]/40"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                ? "bg-white text-[#064E3B] shadow-md ring-2 ring-[#064E3B]/20"
+                : "bg-white/80 backdrop-blur-md text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-200/60"
             }`}
           >
-            <FileText className="w-3.5 h-3.5" />
+            <FileText className="w-3.5 h-3.5 text-[#064E3B]" />
             <span>Papan Edaran Resmi</span>
           </button>
 
           <button
             onClick={() => scrollToSection("agenda")}
-            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 ${
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 shadow-sm ${
               activeSection === "agenda"
-                ? "bg-[#064E3B] text-white shadow-sm ring-2 ring-[#C5D82F]/40"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                ? "bg-white text-[#064E3B] shadow-md ring-2 ring-[#064E3B]/20"
+                : "bg-white/80 backdrop-blur-md text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-200/60"
             }`}
           >
-            <Calendar className="w-3.5 h-3.5" />
+            <Calendar className="w-3.5 h-3.5 text-[#064E3B]" />
             <span>Jadwal Agenda</span>
           </button>
 
           <button
             onClick={() => scrollToSection("galeri")}
-            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 ${
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 shadow-sm ${
               activeSection === "galeri"
-                ? "bg-[#064E3B] text-white shadow-sm ring-2 ring-[#C5D82F]/40"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                ? "bg-white text-[#064E3B] shadow-md ring-2 ring-[#064E3B]/20"
+                : "bg-white/80 backdrop-blur-md text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-200/60"
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-3.5 h-3.5 text-[#064E3B]" />
             <span>Galeri Foto</span>
           </button>
 
@@ -286,7 +300,7 @@ export default function InformasiPage() {
       </div>
 
       {/* 3. KONTEN BERDERET KE BAWAH (LONG SCROLL SATU HALAMAN) */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-16 space-y-28 pb-24">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-12 space-y-28 pb-24">
         
         {/* ========================================================= */}
         {/* SECTION 1: WARTA & BERITA TERKINI (#berita) */}
@@ -314,7 +328,6 @@ export default function InformasiPage() {
                 className="rounded-3xl border border-[#E3E8E2] bg-white overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
               >
                 <div>
-                  {/* Foto Berita */}
                   <div className="relative h-60 w-full overflow-hidden bg-slate-100">
                     <img
                       src={item.foto}
@@ -330,7 +343,6 @@ export default function InformasiPage() {
                     </div>
                   </div>
 
-                  {/* Metadata & Judul */}
                   <div className="p-6">
                     <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                       {item.penulis}
