@@ -20,6 +20,7 @@ import {
 export default function ProfilPage() {
   const [activeSection, setActiveSection] = useState("sejarah");
 
+  // Deteksi section yang sedang aktif saat discroll ke bawah
   useEffect(() => {
     const handleScroll = () => {
       const sections = ["sejarah", "visi-misi", "geografis", "demografi"];
@@ -42,6 +43,7 @@ export default function ProfilPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Fungsi untuk scroll mulus saat menu diklik
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
@@ -52,7 +54,7 @@ export default function ProfilPage() {
   return (
     <div className="min-h-screen bg-[#FAF9F4] text-[#111827] font-sans">
       
-      {/* 1. HERO HEADER PROFIL DESA (Background Solid Hijau Gelap) */}
+      {/* 1. HERO HEADER PROFIL DESA */}
       <section className="relative overflow-hidden bg-[#06261D] text-white pt-36 sm:pt-44 pb-14 sm:pb-20 px-6 sm:px-10 lg:px-16 border-b border-emerald-900/60">
         
         <div className="relative z-10 max-w-7xl mx-auto space-y-6">
@@ -298,7 +300,7 @@ export default function ProfilPage() {
                 <div className="text-[10px] text-slate-400 font-bold pt-3 border-t border-slate-200 mt-3">Fase Urbanisasi</div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-[#064E3B] to-[#0A1F17] text-white border border-emerald-800 shadow-md flex flex-col justify-between">
+              <div className="p-4 rounded-2xl bg-[#06261D] text-white shadow-md flex flex-col justify-between">
                 <div>
                   <span className="text-xs font-mono font-black text-[#C5D82F] bg-white/10 px-2.5 py-0.5 rounded border border-white/20">2024 - Sekarang</span>
                   <h4 className="text-sm font-black text-white mt-3">Desa Mandiri Digital</h4>
@@ -322,10 +324,10 @@ export default function ProfilPage() {
             </div>
           </div>
 
-          <div className="rounded-3xl bg-gradient-to-r from-[#064E3B] via-[#047857] to-[#0A1F17] text-white p-6 sm:p-10 shadow-lg">
+          <div className="rounded-3xl bg-[#06261D] text-white p-6 sm:p-10 shadow-lg border border-emerald-900/40">
             <div className="max-w-3xl space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3.5 py-1 text-xs font-bold text-[#C5D82F]">
-                <Target className="w-3.5 h-3.5" />
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#083327] border border-[#C5D82F]/30 px-3.5 py-1 text-xs font-bold text-[#C5D82F]">
+                <Target className="w-3.5 h-3.5 text-[#C5D82F]" />
                 <span>Visi Kepemimpinan Kepala Desa & Pamong</span>
               </div>
               <h3 className="text-xl sm:text-3xl font-black leading-snug tracking-tight text-white">
@@ -380,7 +382,7 @@ export default function ProfilPage() {
               <div className="mt-3 pt-2 border-t border-slate-100 text-[10px] font-bold text-rose-700">Target: Lingkungan Aman & Guyub</div>
             </div>
 
-            <div className="p-5 rounded-3xl bg-emerald-950 text-white flex flex-col justify-between shadow-md">
+            <div className="p-5 rounded-3xl bg-[#06261D] text-white flex flex-col justify-between shadow-md border border-emerald-900/40">
               <div>
                 <span className="text-[10px] font-bold text-[#C5D82F] uppercase">Realisasi Anggaran</span>
                 <h4 className="text-base font-black text-white mt-1">Dukungan APBDes 2026</h4>
