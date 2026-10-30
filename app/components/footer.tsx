@@ -1,10 +1,26 @@
 "use client";
 
 import React from "react";
+import { usePathname } from "next/navigation";
 import { MapPin, Clock, Plane } from "lucide-react";
 
 export default function Footer() {
+  const pathname = usePathname();
   const currentYear = 2025;
+
+  // Sembunyikan Footer di halaman login, register, dan dashboard admin
+  if (
+    pathname === "/login" ||
+    pathname?.startsWith("/login") ||
+    pathname === "/register" ||
+    pathname?.startsWith("/register") ||
+    pathname === "/admin" ||
+    pathname?.startsWith("/admin") ||
+    pathname === "/kades" ||
+    pathname?.startsWith("/kades")
+  ) {
+    return null;
+  }
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -38,11 +54,11 @@ export default function Footer() {
             
             {/* Logo & Brand Name */}
             <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 bg-gradient-to-br from-[#064E3B] via-[#0b3c2f] to-[#111827] border border-[#C5D82F]/40 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-950/50">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-[#C5D82F]">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5M4.5 21V10.5" />
-                </svg>
-              </div>
+              <img
+                src="/Logo/IMG_1650.GIF"
+                alt="Logo Resmi Pemerintah Desa Sawotratap"
+                className="w-12 h-12 object-contain drop-shadow-md"
+              />
               <div className="flex flex-col">
                 <span className="font-extrabold text-sm tracking-wider text-white leading-none">
                   PEMERINTAH DESA SAWOTRATAP

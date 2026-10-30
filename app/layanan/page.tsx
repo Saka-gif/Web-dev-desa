@@ -15,6 +15,12 @@ import {
   ChevronRight,
   Check,
   ExternalLink,
+  UploadCloud,
+  Trash2,
+  Paperclip,
+  Loader2,
+  Camera,
+  ImagePlus,
 } from "lucide-react";
 
 interface LayananOption {
@@ -70,7 +76,8 @@ const DAFTAR_SURAT: LayananOption[] = [
   },
 ];
 
-import { DAFTAR_PRODUK_UMKM } from "@/app/data/umkm";
+import { DAFTAR_PRODUK_UMKM, UmkmItem } from "@/app/data/umkm";
+import { supabase } from "@/lib/supabase";
 
 const SAMPLE_TRACKING_DATA: Record<string, {
   ticketId: string;
@@ -82,6 +89,7 @@ const SAMPLE_TRACKING_DATA: Record<string, {
   statusColor: string;
   estimasiSelesai: string;
   catatan: string;
+  berkas?: Array<{ name: string; url: string }>;
 }> = {
   "SWT-2024-8842": {
     ticketId: "SWT-2024-8842",
@@ -155,25 +163,67 @@ export default function LayananPage() {
   const [trackingInput, setTrackingInput] = useState("SWT-2024-8842");
   const [currentTracking, setCurrentTracking] = useState<any>(SAMPLE_TRACKING_DATA["SWT-2024-8842"]);
   const [hasSearched, setHasSearched] = useState(false);
+  const [isSearchingTracking, setIsSearchingTracking] = useState(false);
 
-  const handleSearchTracking = (codeToSearch?: string) => {
+  const handleSearchTracking = async (codeToSearch?: string) => {
     const query = (codeToSearch || trackingInput).trim().toUpperCase();
+    if (!query) return;
     setHasSearched(true);
+    setIsSearchingTracking(true);
+
+    try {
+      // Cari langsung ke API Supabase
+      const res = await fetch(`/api/pengajuan-surat?ticket=${encodeURIComponent(query)}`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          const d = json.data;
+          const tanggalFormatted = new Date(d.created_at).toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          }) + " WIB";
+
+          setCurrentTracking({
+            ticketId: d.id,
+            nama: d.nama_pemohon,
+            jenisSurat: d.jenis_surat,
+            tanggal: tanggalFormatted,
+            step: d.step || 1,
+            statusLabel: d.status_label || "Sedang Dalam Antrean Verifikasi",
+            statusColor: d.status_color || "bg-amber-100 text-amber-800 border-amber-300",
+            estimasiSelesai: d.estimasi_selesai || "1 x 24 Jam Kerja",
+            catatan: d.catatan || "Permohonan nomor registrasi ini sedang ditelaah oleh Seksi Pelayanan Balai Desa.",
+            berkas: d.berkas_urls || [],
+          });
+          setIsSearchingTracking(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("Gagal fetch dari database, mengecek data sampel:", err);
+    }
+
+    // Fallback data sampel
     if (SAMPLE_TRACKING_DATA[query]) {
       setCurrentTracking(SAMPLE_TRACKING_DATA[query]);
     } else {
       setCurrentTracking({
-        ticketId: query || "SWT-2024-BARU",
+        ticketId: query || "SWT-2026-BARU",
         nama: "Warga Desa Sawotratap",
         jenisSurat: "Permohonan Layanan Surat Mandiri",
         tanggal: "Hari Ini, Baru Saja",
-        step: 2,
+        step: 1,
         statusLabel: "Sedang Dalam Antrean Verifikasi",
         statusColor: "bg-amber-100 text-amber-800 border-amber-300",
         estimasiSelesai: "1 x 24 Jam Kerja",
         catatan: "Permohonan nomor registrasi ini sedang ditelaah oleh Seksi Pelayanan Balai Desa.",
+        berkas: [],
       });
     }
+    setIsSearchingTracking(false);
   };
 
   // Form State Surat
@@ -184,39 +234,183 @@ export default function LayananPage() {
   const [rwPemohon, setRwPemohon] = useState("RW 01");
   const [keperluan, setKeperluan] = useState("");
   const [ticketId, setTicketId] = useState<string | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitResult, setSubmitResult] = useState<any>(null);
 
   // Form State Pengaduan
   const [kategoriAduan, setKategoriAduan] = useState("Infrastruktur Jalan Berlubang");
   const [lokasiAduan, setLokasiAduan] = useState("");
+  const [namaPelapor, setNamaPelapor] = useState("");
+  const [kontakPelapor, setKontakPelapor] = useState("");
   const [isiAduan, setIsIduan] = useState("");
+  const [aduanPhotos, setAduanPhotos] = useState<File[]>([]);
+  const [isSubmittingAduan, setIsSubmittingAduan] = useState(false);
   const [aduanSubmitted, setAduanSubmitted] = useState(false);
+  const [aduanResult, setAduanResult] = useState<any>(null);
 
-  // Filter UMKM
+  // Filter UMKM Live Supabase
+  const [daftarUmkm, setDaftarUmkm] = useState<UmkmItem[]>(DAFTAR_PRODUK_UMKM);
   const [kategoriUmkm, setKategoriUmkm] = useState("Semua");
 
-  const handleSubmitSurat = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchUmkm = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("umkm")
+          .select("*")
+          .eq("status", "disetujui")
+          .order("urutan", { ascending: true });
+        if (!error && data && data.length > 0) {
+          setDaftarUmkm(data);
+        }
+      } catch (e) {
+        // fallback to DAFTAR_PRODUK_UMKM
+      }
+    };
+    fetchUmkm();
+  }, []);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      const validFiles = newFiles.filter((f) => {
+        if (f.size > 10 * 1024 * 1024) {
+          alert(`File ${f.name} melebihi batas 10MB.`);
+          return false;
+        }
+        return true;
+      });
+      setUploadedFiles((prev) => [...prev, ...validFiles]);
+    }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      const validFiles = newFiles.filter((f) => {
+        if (f.size > 10 * 1024 * 1024) {
+          alert(`Foto ${f.name} melebihi batas 10MB.`);
+          return false;
+        }
+        return true;
+      });
+      setAduanPhotos((prev) => [...prev, ...validFiles]);
+    }
+  };
+
+  const handleRemovePhoto = (index: number) => {
+    setAduanPhotos((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const currentSuratObj = DAFTAR_SURAT.find((s) => s.id === selectedSurat) || DAFTAR_SURAT[0];
+
+  const handleSubmitSurat = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!namaPemohon || !nikPemohon || !teleponPemohon) {
       alert("Harap lengkapi Nama, NIK, dan Nomor Telepon.");
       return;
     }
-    const randomNum = Math.floor(1000 + Math.random() * 9000);
-    const newTicket = `SWT-2024-${randomNum}`;
-    setTicketId(newTicket);
-  };
-
-  const handleSubmitAduan = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!lokasiAduan || !isiAduan) {
-      alert("Harap isi lokasi dan deskripsi aduan.");
+    if (nikPemohon.length !== 16) {
+      alert("NIK harus terdiri dari 16 digit angka sesuai KTP.");
       return;
     }
-    setAduanSubmitted(true);
+
+    setIsSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append("namaPemohon", namaPemohon);
+      formData.append("nikPemohon", nikPemohon);
+      formData.append("teleponPemohon", teleponPemohon);
+      formData.append("rwPemohon", rwPemohon);
+      formData.append("keperluan", keperluan || "-");
+      formData.append("jenisSuratId", currentSuratObj.id);
+      formData.append("jenisSuratNama", currentSuratObj.nama);
+
+      uploadedFiles.forEach((file) => {
+        formData.append("files", file);
+      });
+
+      const res = await fetch("/api/pengajuan-surat", {
+        method: "POST",
+        body: formData,
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        setTicketId(json.ticketId);
+        setSubmitResult(json);
+        setTrackingInput(json.ticketId);
+      } else {
+        alert(json.message || "Gagal mengirimkan pengajuan surat.");
+      }
+    } catch (err: any) {
+      console.error("Gagal submit surat:", err);
+      const randomNum = Math.floor(1000 + Math.random() * 9000);
+      const fallbackTicket = `SWT-2026-${randomNum}`;
+      setTicketId(fallbackTicket);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const currentSuratObj = DAFTAR_SURAT.find((s) => s.id === selectedSurat) || DAFTAR_SURAT[0];
-  const filteredUmkm = DAFTAR_PRODUK_UMKM.filter(
-    (item) => kategoriUmkm === "Semua" || item.kategori === kategoriUmkm
+  const handleSubmitAduan = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!lokasiAduan || !isiAduan) {
+      alert("Harap isi lokasi kejadian dan uraian deskripsi aduan.");
+      return;
+    }
+
+    setIsSubmittingAduan(true);
+    try {
+      const formData = new FormData();
+      formData.append("kategori", kategoriAduan);
+      formData.append("lokasi", lokasiAduan);
+      formData.append("namaPelapor", namaPelapor || "Warga Sawotratap (Anonim)");
+      formData.append("kontakPelapor", kontakPelapor || "-");
+      formData.append("isiAduan", isiAduan);
+
+      aduanPhotos.forEach((photo) => {
+        formData.append("photos", photo);
+      });
+
+      const res = await fetch("/api/pengaduan", {
+        method: "POST",
+        body: formData,
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        setAduanResult(json);
+        setAduanSubmitted(true);
+      } else {
+        alert(json.message || "Gagal mengirimkan laporan pengaduan.");
+      }
+    } catch (err: any) {
+      console.error("Gagal submit aduan:", err);
+      setAduanResult({
+        aduanId: `ADU-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        data: {
+          kategori: kategoriAduan,
+          lokasi: lokasiAduan,
+          nama_pelapor: namaPelapor || "Warga Sawotratap",
+          kontak_pelapor: kontakPelapor || "-",
+          isi_aduan: isiAduan,
+        },
+        files: [],
+      });
+      setAduanSubmitted(true);
+    } finally {
+      setIsSubmittingAduan(false);
+    }
+  };
+
+  const filteredUmkm = daftarUmkm.filter(
+    (item) => kategoriUmkm === "Semua" || item.kategori.toLowerCase() === kategoriUmkm.toLowerCase()
   );
 
   return (
@@ -399,12 +593,12 @@ export default function LayananPage() {
 
               <div>
                 <span className="inline-block text-[11px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-100 px-3 py-0.5 rounded-full mb-2">
-                  Pengajuan Berhasil Diproses
+                  Pengajuan Berhasil Disimpan
                 </span>
                 <h3 className="text-3xl font-black font-mono text-[#064E3B] tracking-wider">
                   {ticketId}
                 </h3>
-                <div className="text-xs text-slate-500 mt-1">Simpan nomor resi ini untuk pengambilan berkas fisik</div>
+                <div className="text-xs text-slate-500 mt-1">Simpan nomor resi ini untuk melacak status dan verifikasi fisik</div>
               </div>
 
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left text-xs space-y-2">
@@ -420,23 +614,73 @@ export default function LayananPage() {
                   <span className="text-slate-500">Jenis Surat:</span>
                   <strong className="text-emerald-800">{currentSuratObj.nama}</strong>
                 </div>
+                <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                  <span className="text-slate-500">Wilayah:</span>
+                  <strong className="text-slate-900">{rwPemohon} Sawotratap</strong>
+                </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Lokasi Pengambilan:</span>
-                  <strong className="text-slate-900">Loket PTSP Balai Desa</strong>
+                  <strong className="text-slate-900">Loket PTSP Balai Desa Sawotratap</strong>
                 </div>
               </div>
 
-              <button
-                onClick={() => {
-                  setTicketId(null);
-                  setNamaPemohon("");
-                  setNikPemohon("");
-                  setKeperluan("");
-                }}
-                className="w-full py-3.5 rounded-2xl bg-[#064E3B] text-white text-xs font-black uppercase tracking-wider hover:bg-[#047857] transition-all shadow-md"
-              >
-                Ajukan Permohonan Surat Lainnya
-              </button>
+              {/* Tampilkan Daftar Berkas yang Terunggah */}
+              {submitResult?.files && submitResult.files.length > 0 && (
+                <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-left text-xs space-y-2">
+                  <div className="font-black text-emerald-900 flex items-center gap-1.5">
+                    <Paperclip className="w-4 h-4 text-emerald-600" />
+                    <span>{submitResult.files.length} Berkas Syarat Berhasil Diunggah ke S3:</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {submitResult.files.map((f: any, idx: number) => (
+                      <a
+                        key={idx}
+                        href={f.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-2 rounded-xl bg-white border border-emerald-200 hover:border-emerald-500 text-[11px] font-semibold text-emerald-800 transition-colors group"
+                      >
+                        <span className="truncate flex items-center gap-1.5 max-w-[280px]">
+                          <FileText className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span className="truncate">{f.name}</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-[10px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md group-hover:bg-emerald-200 shrink-0 ml-2">
+                          Lihat Berkas <ExternalLink className="w-3 h-3" />
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    scrollToSection("status");
+                    handleSearchTracking(ticketId);
+                  }}
+                  className="py-3 rounded-xl bg-[#064E3B] hover:bg-[#047857] text-white text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-1.5"
+                >
+                  <Search className="w-3.5 h-3.5 text-[#C5D82F]" />
+                  <span>Cek Status Berkas</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTicketId(null);
+                    setSubmitResult(null);
+                    setUploadedFiles([]);
+                    setNamaPemohon("");
+                    setNikPemohon("");
+                    setKeperluan("");
+                  }}
+                  className="py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-black uppercase tracking-wider transition-all border border-slate-300"
+                >
+                  Ajukan Surat Baru
+                </button>
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -540,12 +784,121 @@ export default function LayananPage() {
                   />
                 </div>
 
+                {/* UPLOAD BERKAS PERSYARATAN */}
+                <div className="pt-2 border-t border-slate-100 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-slate-800">
+                      Unggah Berkas / Dokumen Persyaratan
+                    </label>
+                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                      Format: PDF, JPG, PNG (Maks 10MB)
+                    </span>
+                  </div>
+
+                  {/* Dokumen yang diperlukan berdasarkan surat yang dipilih */}
+                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1.5">
+                    <div className="flex items-center gap-1.5 font-bold text-slate-800">
+                      <Paperclip className="w-3.5 h-3.5 text-emerald-700" />
+                      <span>Berkas yang diperlukan untuk {currentSuratObj.nama}:</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {currentSuratObj.persyaratan.map((syarat, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-[11px] font-semibold text-slate-700 shadow-2xs"
+                        >
+                          <Check className="w-3 h-3 text-emerald-600" />
+                          <span>{syarat}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Drag-and-drop / Click Upload Area */}
+                  <div className="relative border-2 border-dashed border-emerald-300 hover:border-emerald-500 rounded-2xl p-5 text-center bg-emerald-50/20 hover:bg-emerald-50/50 transition-all cursor-pointer group">
+                    <input
+                      type="file"
+                      id="file-upload-input"
+                      multiple
+                      accept=".pdf,.jpg,.jpeg,.png,.webp"
+                      onChange={handleFileChange}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                    <div className="flex flex-col items-center justify-center gap-1.5">
+                      <div className="w-10 h-10 rounded-full bg-emerald-100 group-hover:bg-emerald-200 text-emerald-800 flex items-center justify-center transition-colors">
+                        <UploadCloud className="w-5 h-5 text-emerald-700" />
+                      </div>
+                      <div>
+                        <span className="text-xs font-bold text-emerald-900 group-hover:underline">
+                          Pilih Berkas dari Perangkat
+                        </span>
+                        <span className="text-xs text-slate-500"> atau seret file ke sini</span>
+                      </div>
+                      <p className="text-[11px] text-slate-400">
+                        Anda dapat memilih beberapa file sekaligus (KTP, KK, Surat RT, dll.)
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Daftar Berkas yang Terpilih */}
+                  {uploadedFiles.length > 0 && (
+                    <div className="space-y-1.5 pt-1">
+                      <div className="text-[11px] font-bold text-slate-600 flex items-center justify-between">
+                        <span>Berkas siap diunggah ({uploadedFiles.length}):</span>
+                        <button
+                          type="button"
+                          onClick={() => setUploadedFiles([])}
+                          className="text-[10px] text-rose-600 hover:underline"
+                        >
+                          Hapus Semua
+                        </button>
+                      </div>
+                      <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                        {uploadedFiles.map((file, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200 text-xs shadow-2xs"
+                          >
+                            <div className="flex items-center gap-2 overflow-hidden">
+                              <FileText className="w-4 h-4 text-emerald-600 shrink-0" />
+                              <div className="truncate">
+                                <p className="font-semibold text-slate-800 truncate">{file.name}</p>
+                                <p className="text-[10px] text-slate-400">
+                                  {(file.size / 1024).toFixed(1)} KB • {file.type || "Dokumen"}
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveFile(idx)}
+                              className="text-slate-400 hover:text-rose-600 p-1 rounded-lg hover:bg-rose-50 transition-colors shrink-0 ml-2"
+                              title="Hapus file ini"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-2xl bg-[#064E3B] hover:bg-[#047857] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-2"
+                  disabled={isSubmitting}
+                  className="w-full py-3.5 rounded-2xl bg-[#064E3B] hover:bg-[#047857] disabled:bg-slate-400 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-2"
                 >
-                  <FileText className="w-4 h-4 text-[#C5D82F]" />
-                  <span>Terbitkan Resi Pengajuan Surat</span>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-[#C5D82F]" />
+                      <span>Mengunggah Berkas ke S3 & Memproses Resi...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="w-4 h-4 text-[#C5D82F]" />
+                      <span>Terbitkan Resi Pengajuan Surat</span>
+                    </>
+                  )}
                 </button>
               </form>
 
@@ -603,21 +956,91 @@ export default function LayananPage() {
           </div>
 
           {aduanSubmitted ? (
-            <div className="max-w-xl mx-auto p-8 rounded-3xl border-2 border-emerald-500 bg-emerald-50 text-emerald-950 text-center space-y-3">
-              <CheckCircle2 className="w-12 h-12 text-emerald-700 mx-auto" />
-              <h4 className="text-xl font-black">Laporan Berhasil Terkirim!</h4>
-              <p className="text-xs text-slate-600">
-                Aspirasi Anda telah diterima sistem dan diteruskan ke Kepala Dusun serta Seksi Trantib untuk peninjauan langsung.
-              </p>
+            <div className="max-w-2xl mx-auto rounded-3xl border-2 border-rose-500 bg-white p-8 shadow-2xl text-center space-y-5">
+              <div className="w-16 h-16 rounded-3xl bg-rose-100 text-rose-700 mx-auto flex items-center justify-center shadow-sm">
+                <CheckCircle2 className="w-9 h-9 text-rose-600" />
+              </div>
+
+              <div>
+                <span className="inline-block text-[11px] font-black uppercase tracking-wider text-rose-800 bg-rose-100 px-3 py-0.5 rounded-full mb-2">
+                  Laporan Pengaduan Berhasil Masuk
+                </span>
+                <h3 className="text-3xl font-black font-mono text-rose-900 tracking-wider">
+                  {aduanResult?.aduanId || "ADU-2026-BERHASIL"}
+                </h3>
+                <div className="text-xs text-slate-500 mt-1">
+                  Nomor registrasi ini digunakan untuk melacak penanganan masalah oleh petugas lapangan
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left text-xs space-y-2">
+                <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                  <span className="text-slate-500">Kategori Aduan:</span>
+                  <strong className="text-rose-900">{kategoriAduan}</strong>
+                </div>
+                <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                  <span className="text-slate-500">Lokasi Kejadian:</span>
+                  <strong className="text-slate-900">{lokasiAduan}</strong>
+                </div>
+                <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                  <span className="text-slate-500">Pelapor:</span>
+                  <strong className="text-slate-900">{namaPelapor || "Warga Sawotratap (Anonim)"}</strong>
+                </div>
+                <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                  <span className="text-slate-500">Status Penanganan:</span>
+                  <span className="font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 text-[11px]">
+                    Menunggu Verifikasi Seksi Trantib & Kades
+                  </span>
+                </div>
+                <div className="pt-1 text-slate-600">
+                  <strong className="text-slate-900 block mb-0.5">Deskripsi Masalah:</strong>
+                  <p className="line-clamp-3 italic">"{isiAduan}"</p>
+                </div>
+              </div>
+
+              {/* Tampilkan Daftar Foto Dokumentasi yang Berhasil Diunggah */}
+              {aduanResult?.files && aduanResult.files.length > 0 && (
+                <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-200 text-left text-xs space-y-2">
+                  <div className="font-black text-rose-950 flex items-center gap-1.5">
+                    <Camera className="w-4 h-4 text-rose-600" />
+                    <span>{aduanResult.files.length} Foto Dokumentasi Tersimpan di Folder S3 CloudKilat:</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {aduanResult.files.map((f: any, idx: number) => (
+                      <a
+                        key={idx}
+                        href={f.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-2 rounded-xl bg-white border border-rose-200 hover:border-rose-400 text-[11px] font-semibold text-rose-900 transition-colors group"
+                      >
+                        <span className="truncate flex items-center gap-1.5 max-w-[280px]">
+                          <ImagePlus className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                          <span className="truncate">{f.name}</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-[10px] text-rose-700 bg-rose-100 px-2 py-0.5 rounded-md group-hover:bg-rose-200 shrink-0 ml-2">
+                          Buka Foto <ExternalLink className="w-3 h-3" />
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <button
+                type="button"
                 onClick={() => {
                   setAduanSubmitted(false);
-                  setIsIduan("");
+                  setAduanResult(null);
+                  setAduanPhotos([]);
                   setLokasiAduan("");
+                  setIsIduan("");
+                  setNamaPelapor("");
+                  setKontakPelapor("");
                 }}
-                className="px-6 py-2.5 rounded-xl bg-[#064E3B] text-white text-xs font-black uppercase tracking-wider"
+                className="w-full py-3.5 rounded-2xl bg-rose-700 hover:bg-rose-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-md"
               >
-                Kirim Aduan Baru
+                Kirim Laporan Pengaduan Lainnya
               </button>
             </div>
           ) : (
@@ -628,7 +1051,7 @@ export default function LayananPage() {
                   <select
                     value={kategoriAduan}
                     onChange={(e) => setKategoriAduan(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm font-semibold bg-white"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm font-semibold bg-white focus:outline-none focus:border-rose-600"
                   >
                     <option>Infrastruktur Jalan Berlubang</option>
                     <option>Drainase & Saluran Mampet</option>
@@ -646,7 +1069,35 @@ export default function LayananPage() {
                     value={lokasiAduan}
                     onChange={(e) => setLokasiAduan(e.target.value)}
                     placeholder="Contoh: Jl. Kenanga RT 02 / RW 03"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:border-rose-600"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Nama Pelapor <span className="text-slate-400 font-normal">(Opsional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={namaPelapor}
+                    onChange={(e) => setNamaPelapor(e.target.value)}
+                    placeholder="Boleh anonim / nama terang"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:border-rose-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Nomor WhatsApp <span className="text-slate-400 font-normal">(Opsional)</span>
+                  </label>
+                  <input
+                    type="tel"
+                    value={kontakPelapor}
+                    onChange={(e) => setKontakPelapor(e.target.value)}
+                    placeholder="Untuk info perkembangan"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:border-rose-600 font-mono"
                   />
                 </div>
               </div>
@@ -658,17 +1109,107 @@ export default function LayananPage() {
                   rows={4}
                   value={isiAduan}
                   onChange={(e) => setIsIduan(e.target.value)}
-                  placeholder="Jelaskan detail permasalahan secara jelas..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm"
+                  placeholder="Jelaskan detail permasalahan secara jelas agar memudahkan petugas lapangan..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:border-rose-600"
                 />
+              </div>
+
+              {/* UPLOAD FOTO DOKUMENTASI KERUSAKAN (OPSIONAL) */}
+              <div className="pt-2 border-t border-slate-100 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-800">
+                    Unggah Dokumentasi / Foto Kerusakan
+                  </label>
+                  <span className="text-[10px] font-bold text-rose-800 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
+                    Opsional • JPG, PNG, WEBP (Maks 10MB)
+                  </span>
+                </div>
+
+                {/* Dropzone Foto */}
+                <div className="relative border-2 border-dashed border-rose-300 hover:border-rose-500 rounded-2xl p-5 text-center bg-rose-50/20 hover:bg-rose-50/50 transition-all cursor-pointer group">
+                  <input
+                    type="file"
+                    id="photo-upload-input"
+                    multiple
+                    accept=".jpg,.jpeg,.png,.webp"
+                    onChange={handlePhotoChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  />
+                  <div className="flex flex-col items-center justify-center gap-1.5">
+                    <div className="w-10 h-10 rounded-full bg-rose-100 group-hover:bg-rose-200 text-rose-700 flex items-center justify-center transition-colors">
+                      <Camera className="w-5 h-5 text-rose-700" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-rose-950 group-hover:underline">
+                        Pilih Foto Kerusakan dari Perangkat
+                      </span>
+                      <span className="text-xs text-slate-500"> (Opsional)</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400">
+                      Foto akan otomatis tersimpan dalam folder khusus laporan ini di CloudKilat S3
+                    </p>
+                  </div>
+                </div>
+
+                {/* List of Chosen Photos */}
+                {aduanPhotos.length > 0 && (
+                  <div className="space-y-1.5 pt-1">
+                    <div className="text-[11px] font-bold text-slate-600 flex items-center justify-between">
+                      <span>Foto terpilih ({aduanPhotos.length}):</span>
+                      <button
+                        type="button"
+                        onClick={() => setAduanPhotos([])}
+                        className="text-[10px] text-rose-600 hover:underline"
+                      >
+                        Hapus Semua
+                      </button>
+                    </div>
+                    <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                      {aduanPhotos.map((photo, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200 text-xs shadow-2xs"
+                        >
+                          <div className="flex items-center gap-2 overflow-hidden">
+                            <ImagePlus className="w-4 h-4 text-rose-600 shrink-0" />
+                            <div className="truncate">
+                              <p className="font-semibold text-slate-800 truncate">{photo.name}</p>
+                              <p className="text-[10px] text-slate-400">
+                                {(photo.size / 1024).toFixed(1)} KB • {photo.type}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePhoto(idx)}
+                            className="text-slate-400 hover:text-rose-600 p-1 rounded-lg hover:bg-rose-50 transition-colors shrink-0 ml-2"
+                            title="Hapus foto ini"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3.5 rounded-2xl bg-rose-700 hover:bg-rose-800 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-2"
+                disabled={isSubmittingAduan}
+                className="w-full py-3.5 rounded-2xl bg-rose-700 hover:bg-rose-800 disabled:bg-slate-400 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-2"
               >
-                <Megaphone className="w-4 h-4 text-rose-200" />
-                <span>Kirimkan Laporan Aspirasi</span>
+                {isSubmittingAduan ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-rose-200" />
+                    <span>Mengirimkan Laporan & Mengunggah Foto ke S3...</span>
+                  </>
+                ) : (
+                  <>
+                    <Megaphone className="w-4 h-4 text-rose-200" />
+                    <span>Kirimkan Laporan Aspirasi</span>
+                  </>
+                )}
               </button>
             </form>
           )}
@@ -727,7 +1268,7 @@ export default function LayananPage() {
                 <div className="px-6 pb-6 pt-2 border-t border-slate-100 flex items-center justify-between">
                   <span className="text-xs font-bold text-emerald-700">{item.pemilik}</span>
                   <a
-                    href={`https://wa.me/${item.kontak}?text=Halo%20saya%20tertarik%20dengan%20produk%20Anda`}
+                    href={`https://wa.me/${(item.kontak_wa || item.kontak || "6281234567801").replace(/[^0-9]/g, "")}?text=Halo%20${encodeURIComponent(item.pemilik || "Penjual")},%20saya%20tertarik%20dengan%20produk%20*${encodeURIComponent(item.nama)}*%20di%20Website%20Resmi%20Desa%20Sawotratap.`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-black transition-colors"
@@ -768,9 +1309,17 @@ export default function LayananPage() {
                 />
                 <button
                   onClick={() => handleSearchTracking()}
-                  className="px-6 py-2.5 rounded-2xl bg-[#064E3B] text-white text-xs font-black uppercase tracking-wider hover:bg-[#047857] transition-all shadow-sm"
+                  disabled={isSearchingTracking}
+                  className="px-6 py-2.5 rounded-2xl bg-[#064E3B] hover:bg-[#047857] disabled:bg-slate-400 text-white text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-1.5"
                 >
-                  Cek Status
+                  {isSearchingTracking ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#C5D82F]" />
+                      <span>Mencari...</span>
+                    </>
+                  ) : (
+                    <span>Cek Status</span>
+                  )}
                 </button>
               </div>
             </div>
@@ -794,6 +1343,31 @@ export default function LayananPage() {
                   <div><strong className="text-slate-500">Waktu Masuk:</strong> <span className="text-slate-900">{currentTracking.tanggal}</span></div>
                   <div><strong className="text-slate-500">Estimasi Selesai:</strong> <span className="text-emerald-700 font-bold">{currentTracking.estimasiSelesai}</span></div>
                 </div>
+
+                {/* Berkas Syarat yang Terlampir */}
+                {currentTracking.berkas && currentTracking.berkas.length > 0 && (
+                  <div className="p-3.5 rounded-xl bg-white border border-slate-200 text-xs space-y-2">
+                    <strong className="text-slate-800 flex items-center gap-1.5">
+                      <Paperclip className="w-3.5 h-3.5 text-purple-700" />
+                      <span>Lampiran Berkas Syarat Terverifikasi ({currentTracking.berkas.length}):</span>
+                    </strong>
+                    <div className="flex flex-wrap gap-2 pt-0.5">
+                      {currentTracking.berkas.map((b: any, bIdx: number) => (
+                        <a
+                          key={bIdx}
+                          href={b.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-[11px] font-semibold text-slate-700 hover:text-emerald-800 transition-colors"
+                        >
+                          <FileText className="w-3 h-3 text-emerald-600" />
+                          <span className="max-w-[150px] truncate">{b.name}</span>
+                          <ExternalLink className="w-2.5 h-2.5 text-slate-400" />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="p-3.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-700">
                   <strong>Catatan Petugas PTSP:</strong> {currentTracking.catatan}

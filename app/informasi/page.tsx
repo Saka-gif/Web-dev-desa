@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { DAFTAR_BERITA } from "@/app/data/berita";
+import { DAFTAR_BERITA, BeritaItem } from "@/app/data/berita";
+import { supabase } from "@/lib/supabase";
 import {
   Megaphone,
   FileText,
@@ -14,7 +15,27 @@ import {
   MapPin,
 } from "lucide-react";
 
-const DAFTAR_PENGUMUMAN = [
+interface PengumumanItem {
+  id: string;
+  nomor: string;
+  judul: string;
+  waktu: string;
+  lokasi: string;
+  syarat: string;
+  status: string;
+  statusColor?: string;
+  status_color?: string;
+}
+
+interface AgendaItem {
+  id?: string;
+  tanggal: string;
+  jam: string;
+  kegiatan: string;
+  lokasi: string;
+}
+
+const DAFTAR_PENGUMUMAN_FALLBACK: PengumumanItem[] = [
   {
     id: "p1",
     nomor: "140/082/2024",
@@ -47,7 +68,7 @@ const DAFTAR_PENGUMUMAN = [
   },
 ];
 
-const DAFTAR_AGENDA = [
+const DAFTAR_AGENDA_FALLBACK: AgendaItem[] = [
   {
     tanggal: "28 Okt 2024",
     jam: "19.30 WIB",
@@ -77,6 +98,53 @@ const DAFTAR_AGENDA = [
 export default function InformasiPage() {
   const [activeSection, setActiveSection] = useState("berita");
   const [searchQuery, setSearchQuery] = useState("");
+  const [daftarBerita, setDaftarBerita] = useState<BeritaItem[]>(DAFTAR_BERITA);
+  const [daftarPengumuman, setDaftarPengumuman] = useState<PengumumanItem[]>(DAFTAR_PENGUMUMAN_FALLBACK);
+  const [daftarAgenda, setDaftarAgenda] = useState<AgendaItem[]>(DAFTAR_AGENDA_FALLBACK);
+
+  // Ambil data live dari Supabase
+  const loadDataFromSupabase = async () => {
+    try {
+      const [resBerita, resPengumuman, resAgenda] = await Promise.all([
+        supabase.from("berita").select("*").order("id", { ascending: true }),
+        supabase.from("pengumuman").select("*").order("id", { ascending: true }),
+        supabase.from("agenda").select("*").order("id", { ascending: true }),
+      ]);
+
+      if (!resBerita.error && resBerita.data && resBerita.data.length > 0) {
+        setDaftarBerita(resBerita.data);
+      }
+      if (!resPengumuman.error && resPengumuman.data && resPengumuman.data.length > 0) {
+        setDaftarPengumuman(
+          resPengumuman.data.map((p) => ({
+            ...p,
+            statusColor: p.status_color || p.statusColor || "bg-emerald-100 text-emerald-800 border-emerald-300",
+          }))
+        );
+      }
+      if (!resAgenda.error && resAgenda.data && resAgenda.data.length > 0) {
+        setDaftarAgenda(resAgenda.data);
+      }
+    } catch (err) {
+      console.warn("Gagal memuat data dari Supabase, menggunakan data lokal:", err);
+    }
+  };
+
+  useEffect(() => {
+    loadDataFromSupabase();
+
+    // Supabase Realtime channel
+    const channel = supabase
+      .channel("realtime-informasi-page")
+      .on("postgres_changes", { event: "*", schema: "public", table: "berita" }, () => loadDataFromSupabase())
+      .on("postgres_changes", { event: "*", schema: "public", table: "pengumuman" }, () => loadDataFromSupabase())
+      .on("postgres_changes", { event: "*", schema: "public", table: "agenda" }, () => loadDataFromSupabase())
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   // Deteksi section yang sedang aktif saat di-scroll ke bawah
   useEffect(() => {
@@ -109,7 +177,7 @@ export default function InformasiPage() {
     }
   };
 
-  const filteredBerita = DAFTAR_BERITA.filter(
+  const filteredBerita = daftarBerita.filter(
     (item) =>
       item.judul.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.ringkasan.toLowerCase().includes(searchQuery.toLowerCase())
@@ -305,7 +373,7 @@ export default function InformasiPage() {
           </div>
 
           <div className="space-y-4">
-            {DAFTAR_PENGUMUMAN.map((p) => (
+            {daftarPengumuman.map((p) => (
               <div
                 key={p.id}
                 className="rounded-3xl border border-[#E3E8E2] bg-white p-6 shadow-xs hover:border-emerald-400 hover:shadow-md transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
@@ -358,7 +426,7 @@ export default function InformasiPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {DAFTAR_AGENDA.map((ag, idx) => (
+            {daftarAgenda.map((ag, idx) => (
               <div
                 key={idx}
                 className="rounded-3xl border border-[#E3E8E2] bg-white p-5 shadow-xs hover:border-amber-400 hover:shadow-md transition-all flex flex-col justify-between"

@@ -1,57 +1,158 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   LogIn,
   ShieldCheck,
   User,
-  Building2,
   Lock,
   Eye,
   EyeOff,
   ArrowLeft,
   CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Sparkles,
+  ArrowRight,
+  LogOut,
 } from "lucide-react";
 
+interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  nik?: string;
+  role: "admin" | "kades" | "user" | string;
+  avatar?: string;
+  telepon?: string;
+  rw?: string;
+}
+
 export default function LoginPage() {
-  const [loginRole, setLoginRole] = useState<"warga" | "pamong">("warga");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+
+  // Cek sesi login tersimpan
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("sawotratap_user");
+      if (saved) {
+        const u = JSON.parse(saved);
+        if (u.role === "admin") {
+          window.location.href = "/admin";
+          return;
+        }
+        if (u.role === "kades") {
+          window.location.href = "/kades";
+          return;
+        }
+        if (u.role === "user") {
+          window.location.href = "/";
+          return;
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // Submit Login (Role otomatis dibaca dari akun/email oleh backend)
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!identifier) {
-      alert("Harap masukkan identitas Anda.");
+    if (!identifier.trim() || !password) {
+      setErrorMessage("Harap masukkan email atau NIK dan kata sandi Anda.");
       return;
     }
-    setIsSuccess(true);
+
+    setIsLoading(true);
+    setErrorMessage("");
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          identifier: identifier.trim(),
+          password: password.trim(),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success && data.user) {
+        setCurrentUser(data.user);
+        try {
+          localStorage.setItem("sawotratap_user", JSON.stringify(data.user));
+        } catch {
+          // ignore
+        }
+        if (data.user.role === "kades") {
+          window.location.href = "/kades";
+          return;
+        }
+        if (data.user.role === "admin") {
+          window.location.href = "/admin";
+          return;
+        }
+        // Role user / warga desa: langsung diarahkan ke landing page ("/")
+        window.location.href = "/";
+        return;
+      } else {
+        setErrorMessage(data.message || "Email atau kata sandi tidak cocok.");
+      }
+    } catch (err: any) {
+      console.error("Login request error:", err);
+      setErrorMessage("Gagal terhubung ke server autentikasi.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleQuickDemo = (role: "warga" | "pamong") => {
-    setLoginRole(role);
-    setIdentifier(role === "warga" ? "3515112001000001" : "pamong.ptsp@sawotratap.desa.id");
-    setPassword("password123");
-    setIsSuccess(true);
+  // Logout
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // ignore
+    }
+    setCurrentUser(null);
+    localStorage.removeItem("sawotratap_user");
+    setIdentifier("");
+    setPassword("");
+    setErrorMessage("");
   };
 
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#FAF9F4] text-[#111827] font-sans selection:bg-[#064E3B] selection:text-[#C5D82F]">
       
-      {/* 1. SISI KIRI: FORM LOGIN BERSIH (LIGHT MODE) */}
+      {/* 1. SISI KIRI: FORM LOGIN BERSIH */}
       <div className="flex-1 flex flex-col justify-between p-6 sm:p-12 lg:p-16 relative">
         
         {/* TOMBOL KEMBALI */}
-        <div>
+        <div className="flex items-center justify-between">
           <a
             href="/"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all border border-slate-200"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all border border-slate-200 hover:scale-105"
           >
             <ArrowLeft className="w-4 h-4 text-[#064E3B]" />
             <span>Kembali ke Beranda</span>
           </a>
+
+          {currentUser && (
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Keluar</span>
+            </button>
+          )}
         </div>
 
         {/* KONTEN FORM */}
@@ -59,16 +160,21 @@ export default function LoginPage() {
           
           {/* LOGO & HEADER */}
           <div className="space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-[#064E3B] text-[#C5D82F] flex items-center justify-center shadow-md">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className="w-7 h-7">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5M4.5 21V10.5" />
-              </svg>
+            <div className="flex items-center gap-3">
+              <img
+                src="/Logo/IMG_1650.GIF"
+                alt="Logo Resmi Desa Sawotratap"
+                className="w-12 h-12 object-contain drop-shadow-md"
+              />
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  Sistem Informasi Desa (SID)
+                </span>
+                <p className="text-xs font-bold text-slate-500">Pemerintah Desa Sawotratap</p>
+              </div>
             </div>
 
             <div>
-              <span className="inline-block text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 mb-2">
-                Sistem Informasi Desa (SID)
-              </span>
               <h1 className="text-3xl sm:text-4xl font-black text-[#111827] tracking-tight">
                 Selamat Datang
               </h1>
@@ -78,116 +184,40 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* TAB PILIHAN ROLE (WARGA / PAMONG) */}
-          <div className="grid grid-cols-2 p-1.5 bg-slate-100 rounded-2xl text-xs font-bold text-slate-600 border border-slate-200">
-            <button
-              type="button"
-              onClick={() => {
-                setLoginRole("warga");
-                setIsSuccess(false);
-              }}
-              className={`py-2.5 rounded-xl transition-all ${
-                loginRole === "warga"
-                  ? "bg-[#064E3B] text-white shadow-sm font-black"
-                  : "hover:text-slate-900"
-              }`}
-            >
-              Warga Desa
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setLoginRole("pamong");
-                setIsSuccess(false);
-              }}
-              className={`py-2.5 rounded-xl transition-all ${
-                loginRole === "pamong"
-                  ? "bg-[#064E3B] text-white shadow-sm font-black"
-                  : "hover:text-slate-900"
-              }`}
-            >
-              Aparatur Pemdes
-            </button>
-          </div>
-
-          {/* TAMPILAN JIKA BERHASIL LOGIN */}
-          {isSuccess ? (
-            <div className="p-6 rounded-3xl bg-emerald-50 border border-emerald-300 text-center space-y-4 animate-in fade-in">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center">
-                <CheckCircle2 className="w-8 h-8 text-emerald-600" />
-              </div>
-              <div>
-                <h3 className="text-base font-black text-slate-900">
-                  Autentikasi Berhasil!
-                </h3>
-                <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  Selamat datang kembali di Portal Pelayanan Mandiri Desa Sawotratap.
-                </p>
-              </div>
-              <div className="pt-2 space-y-2">
-                <a
-                  href="/layanan#surat"
-                  className="block w-full py-3.5 rounded-2xl bg-[#064E3B] hover:bg-[#047857] text-white text-xs font-black uppercase tracking-wider transition-all shadow-md"
-                >
-                  Buka Layanan Surat Mandiri
-                </a>
-                <button
-                  onClick={() => {
-                    setIsSuccess(false);
-                    setIdentifier("");
-                    setPassword("");
-                  }}
-                  className="text-xs font-bold text-slate-500 hover:text-slate-800 underline transition-colors"
-                >
-                  Ganti Akun
-                </button>
-              </div>
-            </div>
-          ) : (
-            /* FORM LOGIN */
-            <form onSubmit={handleLogin} className="space-y-4 text-xs">
+          {/* FORM INPUT LOGIN (BERSIH & RESPONSIF) */}
+          <form onSubmit={handleLogin} className="space-y-4 text-xs">
               
+              {errorMessage && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                  <span>{errorMessage}</span>
+                </div>
+              )}
+
+              {/* INPUT EMAIL ATAU NIK */}
               <div>
                 <label className="block font-bold text-slate-700 mb-1.5">
-                  {loginRole === "warga"
-                    ? "Nomor Induk Kependudukan (NIK 16 Digit) *"
-                    : "Email Pamong / NIP Pegawai *"}
+                  Email atau Nomor Induk Kependudukan (NIK) *
                 </label>
                 <div className="relative">
-                  {loginRole === "warga" ? (
-                    <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  ) : (
-                    <Building2 className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  )}
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     required
-                    maxLength={loginRole === "warga" ? 16 : 50}
                     value={identifier}
-                    onChange={(e) =>
-                      setIdentifier(
-                        loginRole === "warga"
-                          ? e.target.value.replace(/\D/g, "")
-                          : e.target.value
-                      )
-                    }
-                    placeholder={
-                      loginRole === "warga"
-                        ? "351511xxxxxxxxxx"
-                        : "pamong@sawotratap.desa.id"
-                    }
-                    className="w-full pl-10 pr-3.5 py-3 rounded-2xl border border-slate-300 bg-slate-50/50 text-[#111827] placeholder-slate-400 text-xs sm:text-sm font-medium focus:outline-none focus:border-[#064E3B] focus:bg-white transition-all"
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    placeholder="nama@sawotratap.com atau NIK 16 digit"
+                    className="w-full pl-10 pr-3.5 py-3 rounded-2xl border border-slate-300 bg-white text-[#111827] placeholder-slate-400 text-xs sm:text-sm font-medium focus:outline-none focus:border-[#064E3B] shadow-2xs transition-all"
                   />
                 </div>
               </div>
 
+              {/* INPUT PASSWORD */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block font-bold text-slate-700">
-                    {loginRole === "warga" ? "PIN Keamanan / Sandi Warga *" : "Kata Sandi Akun *"}
-                  </label>
+                  <label className="block font-bold text-slate-700">Kata Sandi Akun *</label>
                   <a href="/kontak" className="text-[11px] font-bold text-emerald-700 hover:underline">
-                    Lupa Sandi?
+                    Bantuan Akun?
                   </a>
                 </div>
                 <div className="relative">
@@ -198,19 +228,19 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full pl-10 pr-10 py-3 rounded-2xl border border-slate-300 bg-slate-50/50 text-[#111827] placeholder-slate-400 text-xs sm:text-sm font-medium focus:outline-none focus:border-[#064E3B] focus:bg-white transition-all"
+                    className="w-full pl-10 pr-10 py-3 rounded-2xl border border-slate-300 bg-white text-[#111827] placeholder-slate-400 text-xs sm:text-sm font-medium focus:outline-none focus:border-[#064E3B] shadow-2xs transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center justify-between pt-0.5">
                 <label className="inline-flex items-center gap-2 cursor-pointer select-none">
                   <input
                     type="checkbox"
@@ -224,36 +254,29 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                className="w-full py-3.5 rounded-2xl bg-[#064E3B] hover:bg-[#047857] text-white text-xs sm:text-sm font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-md hover:scale-[1.01]"
+                disabled={isLoading}
+                className="w-full py-3.5 rounded-2xl bg-[#064E3B] hover:bg-[#054030] text-white text-xs sm:text-sm font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_4px_0_#02261c] active:translate-y-1 active:shadow-none disabled:opacity-50 cursor-pointer select-none"
               >
-                <LogIn className="w-4 h-4 text-[#C5D82F]" />
-                <span>Masuk Portal Desa</span>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-[#C5D82F]" />
+                    <span>Memverifikasi Akun...</span>
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="w-4 h-4 text-[#C5D82F]" />
+                    <span>Masuk Portal Desa</span>
+                  </>
+                )}
               </button>
 
-              {/* QUICK DEMO SHORTCUTS */}
-              <div className="pt-4 border-t border-slate-200 space-y-2">
-                <span className="text-[10px] font-bold uppercase text-slate-400 block text-center tracking-wider">
-                  Akses Pengujian Cepat:
-                </span>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleQuickDemo("warga")}
-                    className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-[11px] font-bold text-center transition-all"
-                  >
-                    Demo Warga
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickDemo("pamong")}
-                    className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-[11px] font-bold text-center transition-all"
-                  >
-                    Demo Pamong
-                  </button>
-                </div>
+              <div className="text-center pt-2 text-xs text-slate-500">
+                Belum memiliki akun warga?{" "}
+                <a href="/register" className="font-bold text-[#064E3B] hover:underline">
+                  Daftar Akun Baru
+                </a>
               </div>
             </form>
-          )}
 
           <div className="pt-2 flex items-center justify-center gap-2 text-[11px] text-slate-500 font-medium">
             <ShieldCheck className="w-4 h-4 text-emerald-700" />
@@ -263,7 +286,7 @@ export default function LoginPage() {
         </div>
 
         {/* FOOTER KIRI */}
-        <div className="text-xs text-slate-400 font-medium">
+        <div className="text-xs text-slate-400 font-medium text-center sm:text-left pt-4">
           © 2026 Pemerintah Desa Sawotratap, Gedangan, Sidoarjo.
         </div>
 
@@ -291,12 +314,15 @@ export default function LoginPage() {
 
         {/* HEADLINE UTAMA */}
         <div className="relative z-10 max-w-lg space-y-4 my-auto">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-white/10 text-xs font-bold text-[#C5D82F] border border-white/15">
+            <span>Portal Sistem Informasi Desa (SID)</span>
+          </div>
           <h2 className="text-4xl lg:text-5xl font-black tracking-tight leading-[1.1] text-white">
             Digitalisasi Tata Kelola <br />
             <span className="text-[#C5D82F]">Desa Sawotratap</span>
           </h2>
           <p className="text-sm text-slate-300 font-normal leading-relaxed">
-            Sistem terpadu pelayanan administrasi kependudukan, pengaduan lingkungan, dan transparansi anggaran desa untuk seluruh warga Gedangan, Sidoarjo.
+            Sistem terpadu pelayanan administrasi kependudukan, disposisi pengaduan, dan transparansi anggaran desa untuk seluruh warga Gedangan, Sidoarjo.
           </p>
         </div>
 

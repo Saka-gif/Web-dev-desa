@@ -17,7 +17,7 @@ export const DAFTAR_BERITA: BeritaItem[] = [
     ringkasan: "Warga bersama Karang Taruna serentak bersihkan saluran air dan tanam peneduh menyambut musim hujan.",
     tanggal: "22 Okt 2024",
     penulis: "Humas Pemdes",
-    foto: "/aset/gotong-royong.jpg",
+    foto: "https://s3-id-jkt-1.kilatstorage.id/sawotratap-image/berita/gotong-royong.jpg",
     badge: "Lingkungan",
   },
   {
@@ -27,7 +27,7 @@ export const DAFTAR_BERITA: BeritaItem[] = [
     ringkasan: "Balai Desa hadirkan sistem verifikasi digital terpadu untuk pengurusan administrasi tanpa antre.",
     tanggal: "18 Okt 2024",
     penulis: "PTSP Desa",
-    foto: "/aset/pelayanan.jpg",
+    foto: "https://s3-id-jkt-1.kilatstorage.id/sawotratap-image/berita/pelayanan.jpg",
     badge: "Layanan Publik",
   },
   {
@@ -37,7 +37,7 @@ export const DAFTAR_BERITA: BeritaItem[] = [
     ringkasan: "Fasilitasi sertifikasi halal dan perizinan usaha gratis bagi pedagang kuliner dan perajin lokal.",
     tanggal: "12 Okt 2024",
     penulis: "Pokja UMKM",
-    foto: "/aset/umkm-desa.jpg",
+    foto: "https://s3-id-jkt-1.kilatstorage.id/sawotratap-image/berita/umkm-desa.jpg",
     badge: "Ekonomi",
   },
   {
@@ -47,7 +47,7 @@ export const DAFTAR_BERITA: BeritaItem[] = [
     ringkasan: "Fasilitas baru ramah disabilitas, ruang laktasi, dan WiFi desa gratis siap digunakan musyawarah warga.",
     tanggal: "05 Okt 2024",
     penulis: "Kaur Perencanaan",
-    foto: "/aset/balai-desa.jpg",
+    foto: "https://s3-id-jkt-1.kilatstorage.id/sawotratap-image/berita/balai-desa.jpg",
     badge: "Infrastruktur",
   },
-];
+];

@@ -2,11 +2,19 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import {
   LogIn,
+  LogOut,
   Menu,
   X,
   Home,
+  FileText,
+  Store,
+  ChevronDown,
+  User,
+  LayoutDashboard,
+  ShieldCheck,
 } from "lucide-react";
 
 interface SubMenuItem {
@@ -29,12 +37,22 @@ export default function Navbar() {
   const [dropdownLeft, setDropdownLeft] = useState<number>(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileExpandedTab, setMobileExpandedTab] = useState<string | null>(null);
+  const [user, setUser] = useState<{ name: string; role: string } | null>(null);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navRef = useRef<HTMLElement | null>(null);
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    try {
+      const saved = localStorage.getItem("sawotratap_user");
+      if (saved) setUser(JSON.parse(saved));
+    } catch {
+      // ignore
+    }
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
@@ -42,6 +60,57 @@ export default function Navbar() {
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Tutup user dropdown saat klik di luar area
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem("sawotratap_user");
+    } catch {}
+    setUser(null);
+    setIsUserMenuOpen(false);
+    setIsMobileMenuOpen(false);
+    window.location.href = "/";
+  };
+
+  const handleNavigateAnchor = (hash: string) => {
+    setIsUserMenuOpen(false);
+    setIsMobileMenuOpen(false);
+    if (typeof window !== "undefined") {
+      if (window.location.pathname === "/") {
+        const el = document.querySelector(hash);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+          window.history.pushState(null, "", hash);
+          return;
+        }
+      }
+      window.location.href = "/" + hash;
+    }
+  };
+
+  // Sembunyikan Navbar di halaman login, register, dan dashboard admin
+  if (
+    pathname === "/login" ||
+    pathname?.startsWith("/login") ||
+    pathname === "/register" ||
+    pathname?.startsWith("/register") ||
+    pathname === "/admin" ||
+    pathname?.startsWith("/admin") ||
+    pathname === "/kades" ||
+    pathname?.startsWith("/kades")
+  ) {
+    return null;
+  }
 
   const navItems: MenuItem[] = [
     { name: "Home", href: "/" },
@@ -163,11 +232,11 @@ export default function Navbar() {
       >
         {/* BRAND LOGO */}
         <a href="/" className="flex items-center gap-3 group shrink-0">
-          <div className="w-10 h-10 rounded-2xl bg-[#064E3B] border border-emerald-600 flex items-center justify-center text-white shadow-sm transition-transform group-hover:scale-105">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className="w-5 h-5 text-[#C5D82F]">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5M4.5 21V10.5" />
-            </svg>
-          </div>
+          <img
+            src="/Logo/IMG_1650.GIF"
+            alt="Logo Resmi Desa Sawotratap"
+            className="w-10 h-10 object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-105"
+          />
           <div className="flex flex-col">
             <div className="flex items-center gap-1.5">
               <span className="font-extrabold text-[11px] sm:text-xs tracking-wider text-slate-300 uppercase">
@@ -306,15 +375,163 @@ export default function Navbar() {
           </div>
         </nav>
 
-        {/* TOMBOL LOGIN */}
+        {/* TOMBOL LOGIN / STATUS AKUN & DROPDOWN USER */}
         <div className="hidden lg:flex items-center">
-          <a
-            href="/login"
-            className="shine-hover inline-flex items-center justify-center gap-2 rounded-2xl bg-[#C5D82F] hover:bg-[#b8cb26] text-[#06261D] px-6 py-2.5 text-sm sm:text-base font-black shadow-md transition-all duration-300 hover:scale-105"
-          >
-            <LogIn className="w-4 h-4" />
-            <span>Login</span>
-          </a>
+          {user ? (
+            <div className="relative" ref={userMenuRef}>
+              <button
+                type="button"
+                onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                className="inline-flex items-center gap-2 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/25 text-white px-3.5 py-2 text-xs font-bold transition-all backdrop-blur-md hover:scale-105 shadow-sm cursor-pointer"
+                aria-expanded={isUserMenuOpen}
+                aria-label="Menu akun pengguna"
+              >
+                <span className="w-2 h-2 rounded-full bg-[#C5D82F] animate-pulse" />
+                <span className="max-w-[120px] truncate">{user.name?.split(" ")[0]}</span>
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                    user.role === "admin"
+                      ? "bg-purple-200 text-purple-900"
+                      : user.role === "kades"
+                      ? "bg-amber-200 text-amber-900"
+                      : "bg-emerald-200 text-emerald-900"
+                  }`}
+                >
+                  {user.role}
+                </span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                    isUserMenuOpen ? "rotate-180 text-[#C5D82F]" : "text-slate-300"
+                  }`}
+                />
+              </button>
+
+              {/* DROPDOWN USER: LAPORAN & UMKM */}
+              {isUserMenuOpen && (
+                <div className="absolute right-0 top-full mt-2.5 w-72 rounded-3xl bg-white p-3 shadow-2xl shadow-emerald-950/25 border border-slate-100 text-[#111827] z-50 animate-in fade-in zoom-in-95 duration-150">
+                  {/* USER INFO HEADER */}
+                  <div className="p-3 bg-gradient-to-br from-emerald-50 via-slate-50 to-emerald-50/50 rounded-2xl border border-emerald-100/80 mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-[#064E3B] text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
+                        {user.name ? user.name.charAt(0).toUpperCase() : <User className="w-5 h-5" />}
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="text-xs font-black text-slate-900 truncate">
+                          {user.name || "Warga Sawotratap"}
+                        </p>
+                        <p className="text-[10px] text-emerald-800 font-semibold flex items-center gap-1 mt-0.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                          <span className="uppercase tracking-wider">
+                            {user.role === "admin"
+                              ? "Administrator Desa"
+                              : user.role === "kades"
+                              ? "Kepala Desa"
+                              : "Warga Terdaftar"}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* MENU ITEMS */}
+                  <div className="space-y-1">
+                    {/* 1. MENU LAPORAN KHUSUS WARGA */}
+                    <Link
+                      href="/laporan"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="w-full flex items-center gap-3 p-2.5 rounded-2xl hover:bg-emerald-50 text-slate-800 hover:text-[#064E3B] transition-all group text-left cursor-pointer"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-emerald-100/80 text-[#064E3B] flex items-center justify-center shrink-0 group-hover:bg-[#064E3B] group-hover:text-white transition-colors">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs font-bold leading-snug">Laporan Saya</p>
+                        <p className="text-[11px] text-slate-500 group-hover:text-emerald-700">
+                          Surat, kerusakan & perizinan
+                        </p>
+                      </div>
+                      <span className="text-xs text-slate-400 group-hover:text-[#064E3B] group-hover:translate-x-0.5 transition-all">
+                        →
+                      </span>
+                    </Link>
+
+                    {/* 2. MENU UMKM */}
+                    <button
+                      type="button"
+                      onClick={() => handleNavigateAnchor("#umkm")}
+                      className="w-full flex items-center gap-3 p-2.5 rounded-2xl hover:bg-emerald-50 text-slate-800 hover:text-[#064E3B] transition-all group text-left cursor-pointer"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-lime-100/80 text-emerald-800 flex items-center justify-center shrink-0 group-hover:bg-[#064E3B] group-hover:text-white transition-colors">
+                        <Store className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs font-bold leading-snug">UMKM</p>
+                        <p className="text-[11px] text-slate-500 group-hover:text-emerald-700">
+                          Katalog produk warga & binaan
+                        </p>
+                      </div>
+                      <span className="text-xs text-slate-400 group-hover:text-[#064E3B] group-hover:translate-x-0.5 transition-all">
+                        →
+                      </span>
+                    </button>
+
+                    {/* SHORTCUT PANEL (JIKA ADMIN / KADES) */}
+                    {user.role === "admin" && (
+                      <a
+                        href="/admin"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="w-full flex items-center gap-3 p-2.5 rounded-2xl hover:bg-purple-50 text-purple-900 transition-all group text-left"
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center shrink-0 group-hover:bg-purple-800 group-hover:text-white transition-colors">
+                          <LayoutDashboard className="w-4 h-4" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs font-bold leading-snug">Dashboard Admin</p>
+                          <p className="text-[11px] text-purple-600">Kelola web, surat & data</p>
+                        </div>
+                      </a>
+                    )}
+
+                    {user.role === "kades" && (
+                      <a
+                        href="/kades"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="w-full flex items-center gap-3 p-2.5 rounded-2xl hover:bg-amber-50 text-amber-900 transition-all group text-left"
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 group-hover:bg-amber-800 group-hover:text-white transition-colors">
+                          <ShieldCheck className="w-4 h-4" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs font-bold leading-snug">Dashboard Kades</p>
+                          <p className="text-[11px] text-amber-600">Verifikasi surat & disposisi</p>
+                        </div>
+                      </a>
+                    )}
+                  </div>
+
+                  {/* TOMBOL LOGOUT */}
+                  <div className="pt-2 mt-2 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-2xl text-rose-600 hover:bg-rose-50 text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Keluar (Logout)</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <a
+              href="/login"
+              className="shine-hover inline-flex items-center justify-center gap-2 rounded-2xl bg-[#C5D82F] hover:bg-[#b8cb26] text-[#06261D] px-6 py-2.5 text-sm sm:text-base font-black shadow-md transition-all duration-300 hover:scale-105"
+            >
+              <LogIn className="w-4 h-4" />
+              <span>Login</span>
+            </a>
+          )}
         </div>
 
         {/* HAMBURGER BUTTON MOBILE */}
@@ -395,14 +612,84 @@ export default function Navbar() {
           </div>
 
           <div className="pt-2">
-            <a
-              href="/login"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="w-full py-3 rounded-2xl bg-[#C5D82F] text-[#06261D] text-sm font-black flex items-center justify-center gap-2 shadow-md"
-            >
-              <LogIn className="w-4 h-4" />
-              <span>Login Aparatur / Warga</span>
-            </a>
+            {user ? (
+              <div className="rounded-2xl border border-emerald-800/60 bg-emerald-950/60 p-4 space-y-3">
+                <div className="flex items-center gap-3 pb-2.5 border-b border-white/10">
+                  <div className="w-9 h-9 rounded-xl bg-[#C5D82F] text-[#06261D] flex items-center justify-center font-bold text-xs shrink-0">
+                    {user.name ? user.name.charAt(0).toUpperCase() : <User className="w-4 h-4" />}
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-xs font-bold text-white truncate">{user.name}</p>
+                    <p className="text-[10px] text-emerald-300 font-semibold uppercase tracking-wider">
+                      {user.role === "admin"
+                        ? "Admin Desa"
+                        : user.role === "kades"
+                        ? "Kepala Desa"
+                        : "Warga Terdaftar"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    href="/laporan"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all text-center cursor-pointer"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-[#C5D82F]" />
+                    <span>Laporan</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => handleNavigateAnchor("#umkm")}
+                    className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all text-center cursor-pointer"
+                  >
+                    <Store className="w-3.5 h-3.5 text-[#C5D82F]" />
+                    <span>UMKM</span>
+                  </button>
+                </div>
+
+                {user.role === "admin" && (
+                  <a
+                    href="/admin"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-purple-900/60 border border-purple-500/40 text-purple-200 text-xs font-bold"
+                  >
+                    <LayoutDashboard className="w-3.5 h-3.5" />
+                    <span>Dashboard Admin</span>
+                  </a>
+                )}
+
+                {user.role === "kades" && (
+                  <a
+                    href="/kades"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-amber-900/60 border border-amber-500/40 text-amber-200 text-xs font-bold"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Dashboard Kades</span>
+                  </a>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-bold transition-colors cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Keluar (Logout)</span>
+                </button>
+              </div>
+            ) : (
+              <a
+                href="/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-full py-3 rounded-2xl bg-[#C5D82F] text-[#06261D] text-sm font-black flex items-center justify-center gap-2 shadow-md"
+              >
+                <LogIn className="w-4 h-4" />
+                <span>Login Aparatur / Warga</span>
+              </a>
+            )}
           </div>
         </div>
       )}

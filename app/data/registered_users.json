@@ -1,0 +1,52 @@
+[
+  {
+    "id": "usr-warga-288168-2990",
+    "name": "Siti Aminah",
+    "email": "siti.aminah@sawotratap.com",
+    "nik": "3515114508950001",
+    "password": "password123",
+    "role": "user",
+    "avatar": "/Logo/IMG_1650.GIF",
+    "telepon": "081298765432",
+    "rw": "RW 02",
+    "alamat": "Jl. Garuda No. 15 RT 02 / RW 02 (Samping timur toko kelontong Bu Yuni)",
+    "is_active": true
+  },
+  {
+    "id": "usr-warga-378249-5993",
+    "name": "Rahmat Santoso",
+    "email": "rahmat@example.com",
+    "nik": "3515112001990008",
+    "password": "password123",
+    "role": "user",
+    "avatar": "/Logo/IMG_1650.GIF",
+    "telepon": "081299998888",
+    "rw": "RW 04",
+    "alamat": "",
+    "is_active": true
+  },
+  {
+    "id": "usr-warga-437272-8943",
+    "name": "Siti Rahmawati",
+    "email": "sitirahma@example.com",
+    "nik": "3515115508990002",
+    "password": "password123",
+    "role": "user",
+    "avatar": "/Logo/IMG_1650.GIF",
+    "telepon": "081344445555",
+    "rw": "RW 02",
+    "is_active": true
+  },
+  {
+    "id": "usr-warga-951895-7276",
+    "name": "Hadi Purnomo",
+    "email": "hadi@sawotratap.com",
+    "nik": "3515082103900001",
+    "password": "password123",
+    "role": "user",
+    "avatar": "/Logo/IMG_1650.GIF",
+    "telepon": "081234567890",
+    "rw": "RW 01",
+    "is_active": true
+  }
+]

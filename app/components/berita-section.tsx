@@ -1,12 +1,51 @@
 "use client";
 
-import React from "react";
-import { DAFTAR_BERITA } from "@/app/data/berita";
+import React, { useState, useEffect } from "react";
+import { DAFTAR_BERITA, BeritaItem } from "@/app/data/berita";
+import { supabase } from "@/lib/supabase";
 import { Clock, ChevronRight, ArrowUpRight } from "lucide-react";
 
 export default function BeritaSection() {
-  // Mengambil 3 berita terbaru dari file data terpusat
-  const beritaTerbaru = DAFTAR_BERITA.slice(0, 3);
+  const [daftarBerita, setDaftarBerita] = useState<BeritaItem[]>(DAFTAR_BERITA);
+
+  // Ambil data live dari Supabase & pasang realtime listener
+  useEffect(() => {
+    async function loadBerita() {
+      try {
+        const { data, error } = await supabase
+          .from("berita")
+          .select("*")
+          .order("id", { ascending: true });
+
+        if (!error && data && data.length > 0) {
+          setDaftarBerita(data);
+        }
+      } catch (err) {
+        console.warn("Gagal memuat berita dari Supabase, menggunakan data cadangan:", err);
+      }
+    }
+
+    loadBerita();
+
+    // Supabase Realtime: Otomatis perbarui tampilan saat ada edit di database
+    const channel = supabase
+      .channel("realtime-berita-home")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "berita" },
+        () => {
+          loadBerita();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // Mengambil 3 berita terbaru
+  const beritaTerbaru = daftarBerita.slice(0, 3);
 
   return (
     <section id="berita" className="py-16 bg-[#FAF9F4] text-[#111827]">
