@@ -37,13 +37,11 @@ export default function KontakPage() {
   const externalMapsLink = "https://www.google.com/maps/place/Sawotratap,+Gedangan,+Sidoarjo+Regency,+East+Java";
 
   return (
-    <div className="min-h-screen bg-[#FAF9F4] text-[#111827] pt-24 sm:pt-28 pb-20 font-sans">
+    <div className="min-h-screen bg-[#FAF9F4] text-[#111827] font-sans">
       
-      {/* 1. HERO HEADER KONTAK */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#06261D] via-[#083327] to-[#0A1F17] text-white py-14 sm:py-20 px-6 sm:px-10 lg:px-16 border-b border-emerald-900/60">
+      {/* 1. HERO HEADER KONTAK (Warna Hijau Gelap Solid, Tanpa Gradasi & Glow) */}
+      <section className="relative overflow-hidden bg-[#06261D] text-white pt-36 sm:pt-44 pb-14 sm:pb-20 px-6 sm:px-10 lg:px-16 border-b border-emerald-900/60">
         
-        <div className="pointer-events-none absolute -top-24 right-1/4 w-96 h-96 rounded-full bg-[#C5D82F]/10 blur-3xl" />
-
         <div className="relative z-10 max-w-7xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-300/80">
             <a href="/" className="hover:text-[#C5D82F] transition-colors">Beranda</a>
@@ -70,7 +68,7 @@ export default function KontakPage() {
       </section>
 
       {/* 2. KONTEN DETAIL KONTAK & PETA */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-10 space-y-16">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-10 pb-24 space-y-16">
         
         {/* GRID KARTU KONTAK UTAMA (VISUAL CARDS) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

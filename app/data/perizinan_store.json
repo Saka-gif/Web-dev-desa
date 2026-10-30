@@ -1,0 +1,177 @@
+[
+  {
+    "id": "PRZ-2026-1568",
+    "user_id": "user-hadi",
+    "user_name": "Hadi Purnomo",
+    "user_nik": "3515112001000001",
+    "user_email": "hadi@sawotratap.com",
+    "untuk_siapa": "keluarga",
+    "jenis_perizinan": "Peminjaman Balai Pertemuan & Gedung Serbaguna",
+    "kategori": "Fasilitas Desa",
+    "nama_pemohon": "Alea Akbar",
+    "nik_pemohon": "3515112001990002",
+    "telepon_pemohon": "081234567891",
+    "rw_pemohon": "RW 03",
+    "nama_kegiatan": "Syukuran Khitanan Keluarga",
+    "tanggal_mulai": "2026-11-20",
+    "tanggal_selesai": "2026-11-20",
+    "waktu_kegiatan": "09.00 - 13.00 WIB",
+    "lokasi_fasilitas": "Balai Pertemuan & Gedung Serbaguna Desa",
+    "jumlah_peserta": "50 Orang",
+    "keterangan": "Acara syukuran keluarga",
+    "berkas_urls": [
+      {
+        "__meta": true,
+        "user_id": "user-hadi",
+        "user_name": "Hadi Purnomo",
+        "user_nik": "3515112001000001",
+        "user_email": "hadi@sawotratap.com",
+        "untuk_siapa": "keluarga"
+      }
+    ],
+    "status": "Menunggu Verifikasi",
+    "status_label": "Menunggu Verifikasi Seksi Pemerintahan",
+    "status_color": "bg-amber-100 text-amber-900 border-amber-300",
+    "catatan_petugas": "Permohonan perizinan atas nama Alea Akbar (Anggota Keluarga / Perwakilan) telah diterima sistem dan dijadwalkan verifikasi administrasi.",
+    "created_at": "2026-10-30T19:42:08.893Z",
+    "estimasi_selesai": "2 - 3 Hari Kerja"
+  },
+  {
+    "id": "PRZ-2026-7705",
+    "user_id": "user-hadi",
+    "user_name": "Hadi Purnomo",
+    "user_nik": "3515112001000001",
+    "untuk_siapa": "sendiri",
+    "jenis_perizinan": "Izin Keramaian & Penutupan Sebagian Jalan Lingkungan",
+    "kategori": "Izin Kegiatan",
+    "nama_pemohon": "Hadi Purnomo",
+    "nik_pemohon": "3515112001000001",
+    "telepon_pemohon": "081234567893",
+    "rw_pemohon": "RW 03",
+    "nama_kegiatan": "Tasyakuran Warga & Doa Bersama RT 02 / RW 03",
+    "tanggal_mulai": "2026-11-12",
+    "tanggal_selesai": "2026-11-12",
+    "waktu_kegiatan": "19.00 - 22.00 WIB",
+    "lokasi_fasilitas": "Jl. Merpati RT 02 / RW 03",
+    "jumlah_peserta": "65 Orang",
+    "keterangan": "Pemasangan tenda acara tasyakuran warga lingkungan RT 02 RW 03 dengan menyisakan 1 lajur sepeda motor.",
+    "berkas_urls": [
+      {
+        "name": "KTP_Pemohon_Hadi.pdf",
+        "url": "https://s3-id-jkt-1.kilatstorage.id/sawotratap-image/berita/gotong-royong.jpg",
+        "size": 145000,
+        "type": "application/pdf"
+      },
+      {
+        "name": "Persetujuan_Warga_Lingkungan.pdf",
+        "url": "https://s3-id-jkt-1.kilatstorage.id/sawotratap-image/berita/pelayanan.jpg",
+        "size": 210000,
+        "type": "application/pdf"
+      }
+    ],
+    "status": "Menunggu Persetujuan Kades",
+    "step": 2,
+    "status_label": "Diteruskan ke Meja Kepala Desa untuk Persetujuan",
+    "status_color": "bg-blue-100 text-blue-800 border-blue-300",
+    "catatan_petugas": "Berkas telah diverifikasi lengkap oleh Staf Admin Desa dan diteruskan ke Kepala Desa.",
+    "catatan_admin": "Persyaratan izin warga dan denah lalu lintas alternatif telah lengkap diverifikasi.",
+    "created_at": "2026-10-30T11:00:00.000Z",
+    "estimasi_selesai": "1 - 2 Hari Kerja"
+  },
+  {
+    "id": "PRZ-2026-7701",
+    "jenis_perizinan": "Peminjaman Balai Pertemuan & Gedung Serbaguna",
+    "kategori": "Fasilitas Desa",
+    "nama_pemohon": "Bambang Sudarsono",
+    "nik_pemohon": "3515111204780003",
+    "telepon_pemohon": "081233445566",
+    "rw_pemohon": "RW 03",
+    "nama_kegiatan": "Resepsi Pernikahan Putri Pertama",
+    "tanggal_mulai": "2026-11-15",
+    "tanggal_selesai": "2026-11-15",
+    "waktu_kegiatan": "09.00 - 15.00 WIB",
+    "lokasi_fasilitas": "Gedung Serbaguna Balai Desa Sawotratap",
+    "jumlah_peserta": "250 Orang",
+    "keterangan": "Peminjaman gedung dan fasilitas kursi untuk acara syukuran pernikahan warga RW 03.",
+    "berkas_urls": [
+      {
+        "name": "KTP_Bambang_Sudarsono.pdf",
+        "url": "https://s3-id-jkt-1.kilatstorage.id/sawotratap-image/berita/pelayanan.jpg",
+        "size": 245000,
+        "type": "application/pdf"
+      },
+      {
+        "name": "Surat_Pengantar_RT02_RW03.pdf",
+        "url": "https://s3-id-jkt-1.kilatstorage.id/sawotratap-image/berita/gotong-royong.jpg",
+        "size": 180000,
+        "type": "application/pdf"
+      }
+    ],
+    "status": "Disetujui Kades",
+    "status_label": "Peminjaman Telah Disetujui Kepala Desa",
+    "status_color": "bg-emerald-100 text-emerald-800 border-emerald-300",
+    "catatan_petugas": "Jadwal telah dikunci di kalender inventaris desa. Kunci gedung dapat diambil H-1 di kantor desa.",
+    "created_at": "2026-10-28T09:30:00.000Z",
+    "estimasi_selesai": "Selesai"
+  },
+  {
+    "id": "PRZ-2026-7702",
+    "jenis_perizinan": "Izin Keramaian & Penutupan Jalan Lingkungan",
+    "kategori": "Izin Kegiatan",
+    "nama_pemohon": "Kuswanto",
+    "nik_pemohon": "3515112508820001",
+    "telepon_pemohon": "085677889900",
+    "rw_pemohon": "RW 05",
+    "nama_kegiatan": "Pentas Musik Karang Taruna RW 05",
+    "tanggal_mulai": "2026-11-08",
+    "tanggal_selesai": "2026-11-08",
+    "waktu_kegiatan": "18.30 - 22.00 WIB",
+    "lokasi_fasilitas": "Jalan Mawar RT 03 / RW 05",
+    "jumlah_peserta": "120 Orang",
+    "keterangan": "Penggunaan badan jalan untuk panggung pertunjukan warga dan bazar kuliner lokal.",
+    "berkas_urls": [
+      {
+        "name": "KTP_Penanggung_Jawab.jpg",
+        "url": "https://s3-id-jkt-1.kilatstorage.id/sawotratap-image/berita/pelayanan.jpg",
+        "size": 310000,
+        "type": "image/jpeg"
+      }
+    ],
+    "status": "Menunggu Verifikasi",
+    "status_label": "Menunggu Verifikasi Seksi Pemerintahan",
+    "status_color": "bg-amber-100 text-amber-900 border-amber-300",
+    "catatan_petugas": "Sedang dikoordinasikan dengan Babinsa dan Bhabinkamtibmas terkait rekayasa arus lalu lintas.",
+    "created_at": "2026-10-30T10:15:00.000Z",
+    "estimasi_selesai": "2 Hari Kerja"
+  },
+  {
+    "id": "PRZ-2026-7703",
+    "jenis_perizinan": "Rekomendasi Izin Usaha Mikro & Kecil (IUMK)",
+    "kategori": "Perizinan Usaha",
+    "nama_pemohon": "Siti Nurhaliza",
+    "nik_pemohon": "3515116409950007",
+    "telepon_pemohon": "081399887711",
+    "rw_pemohon": "RW 01",
+    "nama_kegiatan": "Usaha Olahan Sambal Kemasan Bu Siti",
+    "tanggal_mulai": "2026-11-01",
+    "tanggal_selesai": "2027-11-01",
+    "waktu_kegiatan": "Setiap Hari Kerja",
+    "lokasi_fasilitas": "Jl. Sedati Raya No. 12 RT 01 / RW 01",
+    "jumlah_peserta": "5 Karyawan",
+    "keterangan": "Pengajuan surat rekomendasi legalitas usaha mikro untuk syarat sertifikasi halal dan izin P-IRT dinas kesehatan.",
+    "berkas_urls": [
+      {
+        "name": "KTP_dan_Foto_Produk.pdf",
+        "url": "https://s3-id-jkt-1.kilatstorage.id/sawotratap-image/berita/umkm-desa.jpg",
+        "size": 420000,
+        "type": "application/pdf"
+      }
+    ],
+    "status": "Diverifikasi Admin",
+    "status_label": "Diverifikasi Admin Desa (Diteruskan ke Kades)",
+    "status_color": "bg-blue-100 text-blue-800 border-blue-300",
+    "catatan_petugas": "Data legalitas usaha telah valid, menunggu tanda tangan rekomendasi Kepala Desa.",
+    "created_at": "2026-10-29T14:20:00.000Z",
+    "estimasi_selesai": "1 Hari Kerja"
+  }
+]

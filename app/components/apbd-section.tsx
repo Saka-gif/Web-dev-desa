@@ -4,6 +4,10 @@ import React, { useState, useEffect } from "react";
 import {
   CheckCircle2,
   CloudSun,
+  Sun,
+  Cloud,
+  CloudRain,
+  CloudLightning,
   Droplets,
   Download,
   ArrowUpRight,
@@ -16,6 +20,7 @@ import {
   Check,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { exportApbdesToPdf } from "@/app/utils/generate-apbdes-pdf";
 
 export interface ApbdRingkasan {
   id: string;
@@ -151,6 +156,18 @@ const KATEGORI_COLORS: Record<string, string> = {
   Lingkungan: "bg-emerald-50 text-emerald-800 border-emerald-200",
 };
 
+interface CuacaData {
+  temperature: number;
+  humidity: number;
+  weatherText: string;
+  weatherIcon: "sun" | "cloud-sun" | "cloud" | "cloud-rain" | "cloud-lightning";
+  stasiun: string;
+  aqiText: string;
+  aqiColor: string;
+  aqiPercent: number;
+  aqiBarGradient: string;
+}
+
 export default function ApbdSection() {
   const [ringkasan, setRingkasan] = useState<ApbdRingkasan>(DEFAULT_RINGKASAN);
   const [daftarProgram, setDaftarProgram] = useState<ProgramDesa[]>(DEFAULT_PROGRAM);
@@ -158,6 +175,17 @@ export default function ApbdSection() {
   const [kategoriFilter, setKategoriFilter] = useState<string>("Semua");
   const [searchQuery, setSearchQuery] = useState("");
   const [isDownloading, setIsDownloading] = useState(false);
+  const [cuaca, setCuaca] = useState<CuacaData>({
+    temperature: 30,
+    humidity: 62,
+    weatherText: "Cerah Berawan",
+    weatherIcon: "cloud-sun",
+    stasiun: "Sidoarjo, Jawa Timur • Stasiun BMKG Juanda",
+    aqiText: "Baik & Sehat",
+    aqiColor: "text-emerald-700",
+    aqiPercent: 85,
+    aqiBarGradient: "from-emerald-500 to-[#C5D82F]",
+  });
 
   // Ambil data live dari Supabase
   const loadApbdFromSupabase = async () => {
@@ -181,6 +209,28 @@ export default function ApbdSection() {
   useEffect(() => {
     loadApbdFromSupabase();
 
+    // Ambil data cuaca & AQI asli secara live dari stasiun terdekat (Juanda / Sidoarjo)
+    fetch("/api/cuaca")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.success) {
+          setCuaca({
+            temperature: data.temperature,
+            humidity: data.humidity,
+            weatherText: data.weatherText,
+            weatherIcon: data.weatherIcon,
+            stasiun: data.stasiun,
+            aqiText: data.aqiText,
+            aqiColor: data.aqiColor,
+            aqiPercent: data.aqiPercent,
+            aqiBarGradient: data.aqiBarGradient || "from-emerald-500 to-[#C5D82F]",
+          });
+        }
+      })
+      .catch((err) => {
+        console.warn("Gagal memuat data cuaca real-time:", err);
+      });
+
     // Supabase Realtime Subscription: Update otomatis saat diedit di admin Supabase
     const channel = supabase
       .channel("realtime-apbd-sync")
@@ -192,6 +242,21 @@ export default function ApbdSection() {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  const renderWeatherIcon = () => {
+    switch (cuaca.weatherIcon) {
+      case "sun":
+        return <Sun className="w-4 h-4 text-amber-500" />;
+      case "cloud":
+        return <Cloud className="w-4 h-4 text-slate-500" />;
+      case "cloud-rain":
+        return <CloudRain className="w-4 h-4 text-sky-500" />;
+      case "cloud-lightning":
+        return <CloudLightning className="w-4 h-4 text-amber-600" />;
+      default:
+        return <CloudSun className="w-4 h-4 text-amber-500" />;
+    }
+  };
 
   // Filter program
   const filteredProgram = daftarProgram.filter((prog) => {
@@ -207,12 +272,16 @@ export default function ApbdSection() {
   const jumlahSelesai = daftarProgram.filter((p) => p.status === "selesai").length;
   const jumlahProses = daftarProgram.filter((p) => p.status === "proses").length;
 
-  const handleDownloadPdf = () => {
-    setIsDownloading(true);
-    setTimeout(() => {
+  const handleDownloadPdf = async () => {
+    try {
+      setIsDownloading(true);
+      await exportApbdesToPdf(ringkasan, daftarProgram);
+    } catch (err) {
+      console.error("Gagal mengekspor PDF APBDes:", err);
+      alert("Terjadi kendala saat menghasilkan PDF. Silakan coba kembali.");
+    } finally {
       setIsDownloading(false);
-      alert("Dokumen Transparansi APBDes 2026 berhasil diunduh (Salinan Resmi APBD Desa Sawotratap).");
-    }, 1200);
+    }
   };
 
   return (
@@ -289,10 +358,10 @@ export default function ApbdSection() {
             <button
               onClick={handleDownloadPdf}
               disabled={isDownloading}
-              className="inline-flex items-center gap-2 rounded-full bg-[#111827] hover:bg-[#064E3B] text-white px-5 py-3 text-xs font-black uppercase tracking-wider transition-all shadow-md shrink-0 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-full bg-[#111827] hover:bg-[#064E3B] text-white px-5 py-3 text-xs font-black uppercase tracking-wider transition-all shadow-md shrink-0 disabled:opacity-50 cursor-pointer"
             >
-              <Download className="w-4 h-4 text-[#C5D82F]" />
-              <span>{isDownloading ? "Mengunduh..." : "Unduh PDF APBDes"}</span>
+              <Download className={`w-4 h-4 text-[#C5D82F] ${isDownloading ? "animate-bounce" : ""}`} />
+              <span>{isDownloading ? "Menyiapkan PDF..." : "Unduh PDF APBDes"}</span>
             </button>
           </div>
         </div>
@@ -354,35 +423,41 @@ export default function ApbdSection() {
 
           </div>
 
-          {/* WIDGET CUACA & KONDISI WILAYAH */}
+          {/* WIDGET CUACA & KONDISI WILAYAH (DATA ASLI REAL-TIME) */}
           <div className="lg:col-span-5 rounded-[2.5rem] border border-[#E3E8E2] bg-gradient-to-br from-white via-[#FAF9F5] to-amber-50/20 p-7 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Kondisi Wilayah Sawotratap</span>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Kondisi Wilayah Sawotratap</span>
+              </div>
               <div className="flex items-center gap-2 text-xs font-bold text-slate-700 bg-white px-3.5 py-1.5 rounded-full border border-slate-200/80 shadow-xs">
                 <span className="inline-flex items-center gap-1.5 text-slate-700">
-                  <CloudSun className="w-4 h-4 text-amber-500" />
-                  <span>Cerah Berawan</span>
+                  {renderWeatherIcon()}
+                  <span>{cuaca.weatherText}</span>
                 </span>
                 <span className="text-slate-300">•</span>
                 <span className="inline-flex items-center gap-1.5 text-slate-700">
                   <Droplets className="w-4 h-4 text-sky-500" />
-                  <span>62% Hum</span>
+                  <span>{cuaca.humidity}% Hum</span>
                 </span>
               </div>
             </div>
 
             <div className="text-center my-6">
-              <span className="text-6xl font-black text-[#111827] tabular-nums tracking-tight">30°C</span>
-              <p className="text-xs text-slate-500 font-medium mt-1.5">Sidoarjo, Jawa Timur • Stasiun BMKG Juanda</p>
+              <span className="text-6xl font-black text-[#111827] tabular-nums tracking-tight">{cuaca.temperature}°C</span>
+              <p className="text-xs text-slate-500 font-medium mt-1.5">{cuaca.stasiun}</p>
             </div>
 
             <div className="space-y-2 pt-4 border-t border-slate-200/60">
               <div className="flex justify-between text-xs font-bold text-slate-600">
                 <span>Indeks Kualitas Udara</span>
-                <span className="text-emerald-700">Baik & Sehat</span>
+                <span className={cuaca.aqiColor}>{cuaca.aqiText}</span>
               </div>
               <div className="w-full h-3 rounded-full bg-slate-100 overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-emerald-500 to-[#C5D82F] rounded-full w-[85%]" />
+                <div
+                  className={`h-full bg-gradient-to-r ${cuaca.aqiBarGradient} rounded-full transition-all duration-500`}
+                  style={{ width: `${cuaca.aqiPercent}%` }}
+                />
               </div>
             </div>
           </div>

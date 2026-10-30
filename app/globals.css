@@ -59,18 +59,33 @@ body {
 
 /* Custom modern scrollbar */
 ::-webkit-scrollbar {
-  width: 9px;
-  height: 9px;
+  width: 6px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: #F1F4EE;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #064E3B;
+  background: #cbd5e1;
   border-radius: 9999px;
-  border: 2px solid #F1F4EE;
 }
 ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Main page vertical scrollbar */
+html::-webkit-scrollbar {
+  width: 8px;
+}
+html::-webkit-scrollbar-track {
+  background: #f1f4ee;
+}
+html::-webkit-scrollbar-thumb {
+  background: #064E3B;
+  border-radius: 9999px;
+  border: 2px solid #f1f4ee;
+}
+html::-webkit-scrollbar-thumb:hover {
   background: #047857;
 }
 

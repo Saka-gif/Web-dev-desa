@@ -181,7 +181,7 @@ export default function InformasiPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#FAF9F4] text-[#111827] font-sans">
+    <div className="min-h-screen bg-[#F4F5F7] text-[#111827] font-sans">
       
       {/* 1. HERO HEADER INFORMASI (Background 1 Warna Hijau Gelap Solid, Tanpa Glow/Shadow) */}
       <section className="relative overflow-hidden bg-[#06261D] text-white pt-36 sm:pt-44 pb-14 sm:pb-20 px-6 sm:px-10 lg:px-16 border-b border-emerald-900/60">

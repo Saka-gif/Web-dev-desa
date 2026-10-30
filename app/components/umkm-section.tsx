@@ -50,9 +50,22 @@ export default function UmkmSection() {
   });
   const [fileFoto, setFileFoto] = useState<File | null>(null);
 
-  // Ambil data live dari Supabase (Hanya yang status = 'disetujui')
-  const loadUmkmFromSupabase = async () => {
+  // Ambil data live dari database (Hanya yang status = 'disetujui')
+  const loadLiveUmkm = async () => {
     try {
+      // 1. Prioritaskan API resmi yang terhubung langsung ke Supabase database
+      const res = await fetch("/api/umkm");
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+        setDaftarUmkm(json.data);
+        return;
+      }
+    } catch (apiErr) {
+      console.warn("Notice fetch /api/umkm:", apiErr);
+    }
+
+    try {
+      // 2. Query langsung ke Supabase client sebagai fallback
       const { data, error } = await supabase
         .from("umkm")
         .select("*")
@@ -60,26 +73,38 @@ export default function UmkmSection() {
         .order("urutan", { ascending: true })
         .order("created_at", { ascending: false });
 
-      if (!error && data && data.length > 0) {
+      if (!error && Array.isArray(data) && data.length > 0) {
         setDaftarUmkm(data);
       }
     } catch (err) {
-      console.warn("Gagal mengambil data live UMKM dari Supabase, menggunakan data lokal:", err);
+      console.warn("Gagal mengambil data live UMKM dari Supabase:", err);
     }
   };
 
   useEffect(() => {
-    loadUmkmFromSupabase();
+    loadLiveUmkm();
 
-    // Supabase Realtime Subscription: Update otomatis saat admin meng-ACC atau mengedit UMKM
+    // Dengarkan event update saat admin meng-ACC atau warga mendaftar
+    const handleDataUpdated = () => {
+      loadLiveUmkm();
+    };
+
+    window.addEventListener("admin-data-updated", handleDataUpdated);
+    window.addEventListener("umkm-data-updated", handleDataUpdated);
+    window.addEventListener("storage", handleDataUpdated);
+
+    // Supabase Realtime Subscription: Update otomatis saat ada perubahan di tabel umkm
     const channel = supabase
-      .channel("realtime-umkm-sync")
+      .channel("realtime-umkm-landing")
       .on("postgres_changes", { event: "*", schema: "public", table: "umkm" }, () => {
-        loadUmkmFromSupabase();
+        loadLiveUmkm();
       })
       .subscribe();
 
     return () => {
+      window.removeEventListener("admin-data-updated", handleDataUpdated);
+      window.removeEventListener("umkm-data-updated", handleDataUpdated);
+      window.removeEventListener("storage", handleDataUpdated);
       supabase.removeChannel(channel);
     };
   }, []);
@@ -294,7 +319,7 @@ export default function UmkmSection() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filterProduk.slice(0, 8).map((item) => (
+              {filterProduk.slice(0, 12).map((item) => (
                 <div
                   key={item.id}
                   className="rounded-[2rem] border border-[#E3E8E2] bg-white overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
@@ -373,8 +398,8 @@ export default function UmkmSection() {
           )}
         </div>
 
-        {/* BANNER AJAKAN DAFTAR UMKM UNTUK WARGA */}
-        <div className="rounded-3xl border border-emerald-200/80 bg-gradient-to-r from-emerald-900 via-[#064E3B] to-[#043327] p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+        {/* BANNER AJAKAN DAFTAR UMKM UNTUK WARGA (WARNA SOLID TANPA GRADASI) */}
+        <div className="rounded-3xl border border-emerald-900/60 bg-[#06261D] p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-md">
           <div className="space-y-2 text-center md:text-left">
             <span className="text-[10px] font-black uppercase tracking-wider text-[#C5D82F] bg-white/10 px-3 py-1 rounded-full">
               Pemberdayaan Ekonomi Desa
@@ -389,7 +414,7 @@ export default function UmkmSection() {
 
           <button
             onClick={() => setIsDaftarOpen(true)}
-            className="inline-flex items-center gap-2 rounded-2xl bg-[#C5D82F] hover:bg-[#b8cb26] text-[#06261D] px-6 py-3.5 text-xs font-black shadow-lg transition-all hover:scale-105 shrink-0 cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-2xl bg-[#C5D82F] hover:bg-[#b8cb26] text-[#06261D] px-6 py-3.5 text-xs font-black shadow-md transition-colors shrink-0 cursor-pointer"
           >
             <PlusCircle className="w-4 h-4 text-[#06261D]" />
             <span>Formulir Pendaftaran UMKM</span>

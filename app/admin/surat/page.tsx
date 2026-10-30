@@ -40,10 +40,11 @@ import {
   FileCode,
   Info,
   Phone,
-  Sparkles,
   Paperclip,
 } from "lucide-react";
 import LottieSuccessModal from "@/app/components/lottie-success-modal";
+import ConfirmDeleteModal from "@/app/components/confirm-delete-modal";
+import AdminSidebar from "@/app/components/admin-sidebar";
 
 interface BerkasItem {
   name: string;
@@ -72,6 +73,10 @@ interface SuratItem {
   created_at: string;
   butuh_kades: boolean;
   kategori_otoritas: "kades" | "admin";
+  user_id?: string;
+  user_name?: string;
+  user_nik?: string;
+  untuk_siapa?: string;
 }
 
 export default function AdminSuratVerificationPage() {
@@ -203,6 +208,7 @@ export default function AdminSuratVerificationPage() {
         setForwardModalSurat(null);
         setForwardNote("");
         fetchSuratData();
+        window.dispatchEvent(new Event("admin-data-updated"));
         setSuccessPopup({
           isOpen: true,
           title: "Surat Berhasil Diteruskan!",
@@ -255,6 +261,7 @@ export default function AdminSuratVerificationPage() {
         setSoftfileUrl("");
         setIssueNote("");
         fetchSuratData();
+        window.dispatchEvent(new Event("admin-data-updated"));
         setSuccessPopup({
           isOpen: true,
           title: "Surat Resmi Berhasil Diterbitkan!",
@@ -270,9 +277,19 @@ export default function AdminSuratVerificationPage() {
     }
   };
 
-  // Action 4: Selesaikan Pelayanan
-  const handleMarkCompleted = async (item: SuratItem) => {
-    if (!confirm(`Tandai pelayanan surat ${item.id} untuk ${item.nama_pemohon} telah SELESAI TUNTAS?`)) return;
+  // Modal Konfirmasi Selesai
+  const [completeConfirmItem, setCompleteConfirmItem] = useState<SuratItem | null>(null);
+  const [isCompleting, setIsCompleting] = useState(false);
+
+  // Action 4: Selesaikan Pelayanan (Buka Modal Kustom)
+  const handleMarkCompleted = (item: SuratItem) => {
+    setCompleteConfirmItem(item);
+  };
+
+  const executeMarkCompleted = async () => {
+    if (!completeConfirmItem) return;
+    setIsCompleting(true);
+    const item = completeConfirmItem;
 
     try {
       const res = await fetch("/api/admin/surat", {
@@ -287,15 +304,21 @@ export default function AdminSuratVerificationPage() {
 
       const json = await res.json();
       if (json.success) {
+        setCompleteConfirmItem(null);
         fetchSuratData();
+        window.dispatchEvent(new Event("admin-data-updated"));
         setSuccessPopup({
           isOpen: true,
           title: "Pelayanan Selesai!",
           message: `Surat ${item.id} berhasil ditandai Selesai Tuntas.`,
         });
+      } else {
+        console.error("Gagal menyelesaikan surat:", json.message);
       }
-    } catch (err) {
-      alert("Terjadi kesalahan.");
+    } catch (err: any) {
+      console.error("Terjadi kesalahan:", err.message);
+    } finally {
+      setIsCompleting(false);
     }
   };
 
@@ -373,166 +396,13 @@ export default function AdminSuratVerificationPage() {
     <div className="min-h-screen bg-[#F4F5F7] text-[#111827] flex font-sans antialiased">
       
       {/* ========================================================================= */}
-      {/* 1. SIDEBAR KIRI KONSISTEN DENGAN DASHBOARD ADMIN */}
+      {/* 1. SIDEBAR PATOKAN RESMI ADMIN DESA */}
       {/* ========================================================================= */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-[#E3E8E2] flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <div className="flex flex-col h-full justify-between">
-          <div>
-            {/* LOGO BRAND */}
-            <div className="h-16 px-6 flex items-center justify-between border-b border-[#F0F2F0]">
-              <div className="flex items-center gap-3">
-                <img
-                  src="/Logo/IMG_1650.GIF"
-                  alt="Logo Desa Sawotratap"
-                  className="w-8 h-8 object-contain drop-shadow-xs"
-                />
-                <div>
-                  <h1 className="text-sm font-black tracking-tight text-[#064E3B] leading-none">
-                    SID Sawotratap
-                  </h1>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    Panel Tata Kelola
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setIsSidebarOpen(false)}
-                className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* NAVIGASI MENU */}
-            <div className="p-4 space-y-6 overflow-y-auto max-h-[calc(100vh-140px)]">
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3">
-                  Menu Utama
-                </span>
-
-                <a
-                  href="/admin"
-                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <LayoutDashboard className="w-4 h-4" />
-                    <span>Dashboard Utama</span>
-                  </div>
-                </a>
-
-                <a
-                  href="/admin/surat"
-                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-black bg-[#064E3B] text-white shadow-xs transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-4 h-4" />
-                    <span>Verifikasi Surat</span>
-                  </div>
-                  {countAntrean > 0 && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-[#06261D]">
-                      {countAntrean}
-                    </span>
-                  )}
-                </a>
-
-                <a
-                  href="/admin"
-                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <MessageSquareQuote className="w-4 h-4" />
-                    <span>Aduan Warga</span>
-                  </div>
-                </a>
-
-                <a
-                  href="/admin"
-                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <Store className="w-4 h-4" />
-                    <span>Direktori UMKM</span>
-                  </div>
-                </a>
-
-                <a
-                  href="/admin"
-                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <Coins className="w-4 h-4" />
-                    <span>Transparansi APBD</span>
-                  </div>
-                </a>
-
-                <a
-                  href="/admin"
-                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <Newspaper className="w-4 h-4" />
-                    <span>Warta & Informasi</span>
-                  </div>
-                </a>
-              </div>
-
-              {/* TAUTAN WEB PUBLIK */}
-              <div className="space-y-1 pt-2 border-t border-[#F0F2F0]">
-                <a
-                  href="/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 transition-all"
-                >
-                  <div className="flex items-center gap-2">
-                    <Home className="w-4 h-4" />
-                    <span>Buka Web Publik</span>
-                  </div>
-                  <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* USER CARD */}
-          <div className="p-3 border-t border-[#F0F2F0] bg-[#FAF9F5]">
-            <div className="flex items-center justify-between p-2 rounded-2xl bg-white border border-[#E3E8E2] shadow-2xs">
-              <div className="flex items-center gap-2.5">
-                <img
-                  src="/Logo/IMG_1650.GIF"
-                  alt="Admin"
-                  className="w-9 h-9 rounded-xl object-contain bg-emerald-50 p-1 border border-emerald-200"
-                />
-                <div className="overflow-hidden">
-                  <p className="text-xs font-black text-slate-900 truncate">Admin Pelayanan</p>
-                  <p className="text-[10px] text-slate-400 truncate">admin@sawotratap.com</p>
-                </div>
-              </div>
-
-              <a
-                href="/login"
-                title="Keluar"
-                className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-              </a>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* OVERLAY MOBILE */}
-      {isSidebarOpen && (
-        <div
-          onClick={() => setIsSidebarOpen(false)}
-          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-xs lg:hidden"
-        />
-      )}
+      <AdminSidebar
+        activeItem="surat"
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
 
       {/* ========================================================================= */}
       {/* 2. KONTEN UTAMA VERIFIKASI SURAT */}
@@ -864,9 +734,23 @@ export default function AdminSuratVerificationPage() {
                               {item.nama_pemohon?.charAt(0) || "W"}
                             </div>
                             <div>
-                              <p className="font-bold text-slate-900 leading-tight">{item.nama_pemohon}</p>
+                              <div className="flex items-center gap-1.5">
+                                <p className="font-bold text-slate-900 leading-tight">{item.nama_pemohon}</p>
+                                {item.untuk_siapa === "keluarga" && (
+                                  <span className="text-[9px] font-bold text-amber-800 bg-amber-50 border border-amber-200/80 px-1.5 py-0.2 rounded">
+                                    Keluarga
+                                  </span>
+                                )}
+                              </div>
                               <p className="font-mono text-[10px] text-slate-400">{item.nik_pemohon}</p>
-                              <span className="text-[10px] font-bold text-emerald-800">{item.rw_pemohon}</span>
+                              <div className="flex items-center gap-1 mt-0.5">
+                                <span className="text-[10px] font-bold text-emerald-800">{item.rw_pemohon}</span>
+                                {item.user_name && item.untuk_siapa === "keluarga" && (
+                                  <span className="text-[9px] text-slate-400">
+                                    • Akun: {item.user_name}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </td>
@@ -1388,6 +1272,17 @@ export default function AdminSuratVerificationPage() {
         />
       )}
 
+      {/* POPUP KONFIRMASI (CUSTOM MODAL) */}
+      <ConfirmDeleteModal
+        isOpen={completeConfirmItem !== null}
+        title="Selesaikan Pelayanan Surat?"
+        message="Apakah Anda yakin ingin menandai pelayanan surat ini telah SELESAI TUNTAS? Dokumen telah diserahkan dan proses administrasi desa telah rampung."
+        itemName={completeConfirmItem ? `${completeConfirmItem.id} - ${completeConfirmItem.nama_pemohon} (${completeConfirmItem.jenis_surat})` : undefined}
+        confirmText="Ya, Selesaikan"
+        isLoading={isCompleting}
+        onConfirm={executeMarkCompleted}
+        onCancel={() => setCompleteConfirmItem(null)}
+      />
     </div>
   );
 }

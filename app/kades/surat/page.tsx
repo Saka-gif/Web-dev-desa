@@ -40,9 +40,11 @@ import {
   Phone,
   Sparkles,
   XCircle,
+  Wrench,
 } from "lucide-react";
 import Link from "next/link";
 import LottieSuccessModal from "@/app/components/lottie-success-modal";
+import KadesSidebar from "@/app/components/kades-sidebar";
 
 interface BerkasItem {
   name: string;
@@ -274,7 +276,7 @@ export default function KadesSuratVerificationPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#FBFBFA] text-slate-800 font-sans flex flex-col lg:flex-row antialiased selection:bg-purple-200 selection:text-purple-900">
+    <div className="min-h-screen bg-[#F4F5F7] text-slate-800 font-sans flex flex-col lg:flex-row antialiased selection:bg-emerald-200 selection:text-emerald-900">
       
       {/* TOAST NOTIFIKASI */}
       {toastMessage && (
@@ -285,206 +287,38 @@ export default function KadesSuratVerificationPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* 1. SIDEBAR KEPALA DESA */}
+      {/* 1. SIDEBAR KEPALA DESA (PATOKAN TUNGGAL RESMI) */}
       {/* ========================================================================= */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-40 w-72 bg-white border-r border-[#EBECE9] flex flex-col justify-between transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-0 max-lg:-translate-x-full"
-        }`}
-      >
-        <div className="flex flex-col h-full">
-          {/* HEADER SIDEBAR: LOGO & IDENTITY */}
-          <div className="p-5 border-b border-[#F0F2F0] flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#064E3B] flex items-center justify-center p-1.5 shadow-xs border border-emerald-900/30">
-                <img
-                  src="/Logo/IMG_1650.GIF"
-                  alt="Logo Sawotratap"
-                  className="w-full h-full object-contain filter brightness-110"
-                />
-              </div>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <h1 className="font-black text-sm tracking-tight text-slate-900 leading-tight">
-                    Desa Sawotratap
-                  </h1>
-                </div>
-                <div className="flex items-center gap-1 mt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse"></span>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded-md border border-purple-200/60">
-                    Meja Kepala Desa
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setIsSidebarOpen(false)}
-              className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* NAVIGASI MENU KADES */}
-          <div className="p-4 space-y-6 overflow-y-auto flex-1">
-            
-            {/* GROUP 1: UTAMA */}
-            <div className="space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3">
-                Otoritas Eksekutif
-              </span>
-
-              <Link
-                href="/kades"
-                className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <LayoutDashboard className="w-4 h-4" />
-                  <span>Dashboard Kades</span>
-                </div>
-              </Link>
-
-              {/* MENU VERIFIKASI SURAT KHUSUS KADES (AKTIF) */}
-              <div className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-black bg-[#064E3B] text-white shadow-xs">
-                <div className="flex items-center gap-3">
-                  <Stamp className="w-4 h-4 text-amber-300" />
-                  <span>Disposisi & TTD Kades</span>
-                </div>
-                {countMenungguKades > 0 ? (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white shadow-xs">
-                    {countMenungguKades} TTD
-                  </span>
-                ) : (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-emerald-100">
-                    0
-                  </span>
-                )}
-              </div>
-
-              <Link
-                href="/kades"
-                className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <MessageSquareQuote className="w-4 h-4" />
-                  <span>Aduan Masyarakat</span>
-                </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800">
-                  2
-                </span>
-              </Link>
-
-              <Link
-                href="/kades"
-                className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <Coins className="w-4 h-4" />
-                  <span>Anggaran & APBD Desa</span>
-                </div>
-              </Link>
-            </div>
-
-            {/* GROUP 2: TAUTAN LAIN */}
-            <div className="space-y-1 pt-2 border-t border-[#F0F2F0]">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3">
-                Navigasi Cepat
-              </span>
-
-              <a
-                href="/admin/surat"
-                className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-all"
-              >
-                <div className="flex items-center gap-2">
-                  <FolderArchive className="w-4 h-4 text-slate-500" />
-                  <span>Loket Pelayanan Admin</span>
-                </div>
-                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-              </a>
-
-              <a
-                href="/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 transition-all"
-              >
-                <div className="flex items-center gap-2">
-                  <Home className="w-4 h-4" />
-                  <span>Buka Web Publik</span>
-                </div>
-                <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
-              </a>
-            </div>
-
-          </div>
-
-          {/* USER PROFILE CARD KEPALA DESA */}
-          <div className="p-3 border-t border-[#F0F2F0] bg-[#FAF9F5]">
-            <div className="flex items-center justify-between p-2.5 rounded-2xl bg-white border border-[#E3E8E2] shadow-2xs">
-              <div className="flex items-center gap-2.5 overflow-hidden">
-                <div className="relative shrink-0">
-                  <img
-                    src="/aset/kades.jpg"
-                    alt="Kepala Desa Sawotratap"
-                    className="w-10 h-10 rounded-xl object-cover border-2 border-purple-600/30 shadow-xs"
-                  />
-                  <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
-                </div>
-                <div className="overflow-hidden">
-                  <p className="text-xs font-black text-slate-900 truncate">Kepala Desa</p>
-                  <p className="text-[10px] text-purple-700 font-bold truncate">kades@sawotratap.desa.id</p>
-                </div>
-              </div>
-
-              <a
-                href="/login"
-                title="Keluar / Logout"
-                className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0"
-              >
-                <LogOut className="w-4 h-4" />
-              </a>
-            </div>
-          </div>
-
-        </div>
-      </aside>
-
-      {/* OVERLAY MOBILE */}
-      {isSidebarOpen && (
-        <div
-          onClick={() => setIsSidebarOpen(false)}
-          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-xs lg:hidden"
-        />
-      )}
+      <KadesSidebar
+        activeItem="surat"
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
 
       {/* ========================================================================= */}
       {/* 2. AREA KONTEN UTAMA VERIFIKASI SURAT KADES */}
       {/* ========================================================================= */}
-      <main className="flex-1 lg:pl-72 flex flex-col min-w-0">
+      <main className="flex-1 lg:pl-64 flex flex-col min-w-0">
         
-        {/* TOPBAR */}
-        <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-[#EBECE9] px-4 sm:px-8 py-3.5 flex items-center justify-between gap-4">
+        {/* HEADER TOP BAR */}
+        <header className="h-16 px-6 sm:px-8 bg-white border-b border-[#E3E8E2] flex items-center justify-between sticky top-0 z-20">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100"
+              className="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100"
             >
               <Menu className="w-5 h-5" />
             </button>
+
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                  Disposisi & Tanda Tangan Kepala Desa
-                </h2>
-                <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-purple-800 border border-purple-200">
-                  <Stamp className="w-3 h-3 text-purple-700" />
-                  Otoritas Pengesahan
-                </span>
+              <div className="flex items-center gap-2 text-[11px] text-slate-400 font-medium">
+                <Link href="/kades" className="hover:text-emerald-700">Dashboard</Link>
+                <span>/</span>
+                <span className="text-slate-800 font-bold">Disposisi & TTD Kades</span>
               </div>
-              <p className="text-xs text-slate-500 font-medium hidden sm:block">
-                Verifikasi dokumen yang memerlukan tandatangan basah / persetujuan resmi Kepala Desa Sawotratap
-              </p>
+              <h2 className="text-base sm:text-lg font-black text-[#111827] leading-tight">
+                Disposisi & Tanda Tangan Dokumen Surat
+              </h2>
             </div>
           </div>
 
@@ -492,19 +326,25 @@ export default function KadesSuratVerificationPage() {
             <button
               onClick={fetchSuratData}
               disabled={isRefreshing}
-              title="Perbarui Data Supabase"
-              className="p-2 sm:px-3 sm:py-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:border-slate-300 font-bold text-xs flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all cursor-pointer"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-purple-600" : ""}`} />
-              <span className="hidden sm:inline">Refresh Data</span>
+              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-emerald-700" : ""}`} />
+              <span className="hidden sm:inline">Segarkan Data</span>
             </button>
+
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all"
+            >
+              <Home className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Beranda</span>
+            </Link>
           </div>
         </header>
 
         {/* BODY KONTEN */}
         <div className="p-4 sm:p-8 space-y-6 max-w-7xl">
           
-
 
           {/* FILTER BAR DROPDOWN PREMIUM */}
           <div className="bg-white p-4 rounded-2xl border border-[#E8ECE7] shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -515,9 +355,9 @@ export default function KadesSuratVerificationPage() {
                 <button
                   type="button"
                   onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
-                  className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 transition-all shadow-2xs focus:outline-hidden focus:ring-2 focus:ring-purple-500/20"
+                  className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 transition-all shadow-2xs focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20"
                 >
-                  <Filter className="w-3.5 h-3.5 text-purple-700" />
+                  <Filter className="w-3.5 h-3.5 text-emerald-700" />
                   <span>
                     {statusFilter === "kades_perlu" && `Menunggu TTD Kades (${countMenungguKades})`}
                     {statusFilter === "acc_kades" && `Telah Disetujui Kades (${countDisetujuiKades})`}
@@ -532,7 +372,7 @@ export default function KadesSuratVerificationPage() {
                   <div className="absolute left-0 mt-1.5 w-64 bg-white rounded-2xl border border-[#E3E8E2] shadow-xl py-1.5 z-30 animate-in fade-in zoom-in-95 duration-100">
                     <button
                       onClick={() => { setStatusFilter("kades_perlu"); setIsStatusDropdownOpen(false); }}
-                      className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left transition-colors cursor-pointer ${statusFilter === "kades_perlu" ? "bg-purple-50 text-purple-900 font-black" : "text-slate-700 hover:bg-slate-50 font-bold"}`}
+                      className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left transition-colors cursor-pointer ${statusFilter === "kades_perlu" ? "bg-amber-50 text-amber-900 font-black" : "text-slate-700 hover:bg-slate-50 font-bold"}`}
                     >
                       <span className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-rose-500"></span>
@@ -567,10 +407,10 @@ export default function KadesSuratVerificationPage() {
 
                     <button
                       onClick={() => { setStatusFilter("semua_wajib_kades"); setIsStatusDropdownOpen(false); }}
-                      className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left transition-colors cursor-pointer ${statusFilter === "semua_wajib_kades" ? "bg-purple-50 text-purple-900 font-black" : "text-slate-700 hover:bg-slate-50 font-bold"}`}
+                      className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left transition-colors cursor-pointer ${statusFilter === "semua_wajib_kades" ? "bg-slate-100 text-slate-900 font-black" : "text-slate-700 hover:bg-slate-50 font-bold"}`}
                     >
                       <span>Semua Surat Wajib Kades</span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-purple-800">{countWajibKades}</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-800">{countWajibKades}</span>
                     </button>
 
                     <button
@@ -602,10 +442,10 @@ export default function KadesSuratVerificationPage() {
                       <button
                         key={rw}
                         onClick={() => { setRwFilter(rw); setIsRwDropdownOpen(false); }}
-                        className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left transition-colors cursor-pointer ${rwFilter === rw ? "bg-purple-50 text-purple-900 font-black" : "text-slate-700 hover:bg-slate-50 font-bold"}`}
+                        className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left transition-colors cursor-pointer ${rwFilter === rw ? "bg-emerald-50 text-emerald-900 font-black" : "text-slate-700 hover:bg-slate-50 font-bold"}`}
                       >
                         <span>{rw}</span>
-                        {rwFilter === rw && <Check className="w-3.5 h-3.5 text-purple-700" />}
+                        {rwFilter === rw && <Check className="w-3.5 h-3.5 text-emerald-700" />}
                       </button>
                     ))}
                   </div>
@@ -621,7 +461,7 @@ export default function KadesSuratVerificationPage() {
                 placeholder="Cari ID resi, nama pemohon, NIK..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-slate-200 text-xs bg-slate-50/50 focus:bg-white focus:outline-hidden focus:border-purple-600 transition-all"
+                className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-slate-200 text-xs bg-slate-50/50 focus:bg-white focus:outline-hidden focus:border-emerald-700 transition-all"
               />
               {searchQuery && (
                 <button
@@ -654,12 +494,12 @@ export default function KadesSuratVerificationPage() {
 
             {isLoading ? (
               <div className="py-20 text-center text-slate-400 text-sm flex flex-col items-center justify-center gap-3">
-                <RefreshCw className="w-6 h-6 animate-spin text-purple-600" />
+                <RefreshCw className="w-6 h-6 animate-spin text-emerald-700" />
                 <p>Mengambil berkas pengajuan surat dari Supabase...</p>
               </div>
             ) : filteredSurat.length === 0 ? (
               <div className="py-20 text-center text-slate-500 text-sm flex flex-col items-center justify-center gap-3 px-4">
-                <div className="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
                   <CheckCircle2 className="w-7 h-7" />
                 </div>
                 <p className="font-bold text-slate-800 text-base">Tidak Ada Berkas Ditemukan</p>
@@ -710,8 +550,8 @@ export default function KadesSuratVerificationPage() {
                             <p className="font-black text-slate-900 text-xs leading-snug">{surat.jenis_surat}</p>
                             <div className="mt-1.5 flex flex-wrap gap-1">
                               {surat.butuh_kades || surat.kategori_otoritas === "kades" ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black bg-purple-50 text-purple-800 border border-purple-200">
-                                  <Stamp className="w-2.5 h-2.5 text-purple-700" />
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black bg-amber-50 text-amber-900 border border-amber-200">
+                                  <Stamp className="w-2.5 h-2.5 text-amber-700" />
                                   Wajib TTD Kades
                                 </span>
                               ) : (
@@ -739,9 +579,9 @@ export default function KadesSuratVerificationPage() {
                             <div className="mt-1.5 flex items-center gap-2">
                               <button
                                 onClick={() => setSelectedSurat(surat)}
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-purple-200 bg-purple-50/70 hover:bg-purple-100 text-[11px] font-bold text-purple-800 transition-colors shadow-2xs cursor-pointer"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100 text-[11px] font-bold text-emerald-800 transition-colors shadow-2xs cursor-pointer"
                               >
-                                <Paperclip className="w-3 h-3 text-purple-600 shrink-0" />
+                                <Paperclip className="w-3 h-3 text-emerald-700 shrink-0" />
                                 <span>{surat.berkas_urls?.length || 0} Lampiran Berkas</span>
                               </button>
                             </div>
@@ -750,9 +590,15 @@ export default function KadesSuratVerificationPage() {
                           {/* STATUS TERKINI */}
                           <td className="py-4 px-4 align-middle min-w-[190px] max-w-[250px]">
                             <span
-                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black border ${surat.status_color || "bg-slate-100 text-slate-800 border-slate-200"}`}
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black border ${
+                                surat.status === "Menunggu Persetujuan Kades"
+                                  ? "bg-amber-50 text-amber-900 border-amber-300/80"
+                                  : surat.status_color && !surat.status_color.includes("purple")
+                                  ? surat.status_color
+                                  : "bg-slate-100 text-slate-800 border-slate-200"
+                              }`}
                             >
-                              {isWaitingKades && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>}
+                              {isWaitingKades && <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>}
                               {surat.status}
                             </span>
                             {surat.catatan && (
@@ -785,7 +631,7 @@ export default function KadesSuratVerificationPage() {
                                     setRejectModalSurat(surat);
                                     setRejectReason("");
                                   }}
-                                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-[0_3px_0_0_#9f1239] active:translate-y-0.5 active:shadow-none transition-all cursor-pointer"
+                                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-[0_3px_0_0_#9f1239] active:translate-y-0.5 active:shadow-none transition-all cursor-pointer"
                                   title="Tolak permohonan surat"
                                 >
                                   <XCircle className="w-3.5 h-3.5 text-white" />
@@ -837,7 +683,7 @@ export default function KadesSuratVerificationPage() {
           <div className="bg-white rounded-3xl max-w-xl w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-[#FAFBF9]">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
                   <Stamp className="w-4 h-4" />
                 </div>
                 <div>
@@ -881,7 +727,7 @@ export default function KadesSuratVerificationPage() {
                 <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
                   Keperluan Pemohon:
                 </label>
-                <div className="p-3 rounded-xl bg-purple-50/60 border border-purple-100 text-xs text-purple-950 font-medium">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 font-medium">
                   {selectedSurat.keperluan}
                 </div>
               </div>
@@ -895,10 +741,10 @@ export default function KadesSuratVerificationPage() {
                     selectedSurat.berkas_urls.map((file, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-purple-300 transition-colors"
+                        className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 transition-colors"
                       >
                         <div className="flex items-center gap-2.5 overflow-hidden">
-                          <Paperclip className="w-4 h-4 text-purple-600 shrink-0" />
+                          <Paperclip className="w-4 h-4 text-emerald-700 shrink-0" />
                           <div className="overflow-hidden">
                             <p className="text-xs font-bold text-slate-900 truncate">{file.name}</p>
                             <p className="text-[10px] text-slate-400">
@@ -911,7 +757,7 @@ export default function KadesSuratVerificationPage() {
                           href={file.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-purple-100 text-slate-700 hover:text-purple-900 font-bold text-xs flex items-center gap-1 shrink-0 transition-colors"
+                          className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-900 font-bold text-xs flex items-center gap-1 shrink-0 transition-colors"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>Buka Lampiran</span>
@@ -955,7 +801,7 @@ export default function KadesSuratVerificationPage() {
       {/* ========================================================================= */}
       {accModalSurat && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full border border-purple-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-3xl max-w-lg w-full border border-emerald-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div className="p-6 bg-gradient-to-r from-[#064E3B] to-[#093529] text-white">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-amber-400 text-[#06261D] flex items-center justify-center font-black shadow-xs">
@@ -973,17 +819,17 @@ export default function KadesSuratVerificationPage() {
             </div>
 
             <div className="p-6 space-y-4">
-              <div className="p-4 rounded-2xl bg-purple-50/80 border border-purple-200 text-xs space-y-1.5">
+              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-xs space-y-1.5">
                 <div className="flex justify-between">
-                  <span className="text-purple-800 font-bold">Nomor Resi:</span>
-                  <span className="font-mono font-black text-purple-950">{accModalSurat.id}</span>
+                  <span className="text-emerald-800 font-bold">Nomor Resi:</span>
+                  <span className="font-mono font-black text-slate-900">{accModalSurat.id}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-purple-800 font-bold">Pemohon:</span>
+                  <span className="text-emerald-800 font-bold">Pemohon:</span>
                   <span className="font-black text-slate-900">{accModalSurat.nama_pemohon} ({accModalSurat.rw_pemohon})</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-purple-800 font-bold">Jenis Dokumen:</span>
+                  <span className="text-emerald-800 font-bold">Jenis Dokumen:</span>
                   <span className="font-black text-slate-900">{accModalSurat.jenis_surat}</span>
                 </div>
               </div>
@@ -996,7 +842,7 @@ export default function KadesSuratVerificationPage() {
                   rows={3}
                   value={accNote}
                   onChange={(e) => setAccNote(e.target.value)}
-                  className="w-full p-3 rounded-xl border border-slate-200 text-xs focus:outline-hidden focus:border-purple-600 bg-slate-50/50 focus:bg-white"
+                  className="w-full p-3 rounded-xl border border-slate-200 text-xs focus:outline-hidden focus:border-emerald-700 bg-slate-50/50 focus:bg-white"
                   placeholder="Contoh: Telah ditinjau dan disetujui resmi oleh Kepala Desa Sawotratap..."
                 />
                 <p className="text-[11px] text-slate-400 mt-1">

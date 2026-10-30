@@ -149,8 +149,9 @@ export default function Navbar() {
       dropdown: [
         { title: "Surat Mandiri Online", href: "/layanan#surat" },
         { title: "Pengaduan Warga", href: "/layanan#pengaduan" },
+        { title: "Perizinan & Fasilitas Desa", href: "/layanan#perizinan" },
         { title: "Direktori Pasar UMKM", href: "/layanan#umkm" },
-        { title: "Cek Status Berkas", href: "/layanan#status" },
+        { title: "Pengajuan UMKM Baru", href: "/layanan#daftar-umkm" },
       ],
     },
     { name: "Kontak", href: "/kontak" },
@@ -358,19 +359,6 @@ export default function Navbar() {
                   );
                 })}
 
-              <div className="pt-3.5 mt-3 border-t border-slate-100">
-                <a
-                  href="/"
-                  onClick={() => {
-                    setActiveDropdown(null);
-                    setPrevActiveDropdown(null);
-                  }}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-2xl bg-emerald-50 hover:bg-[#064E3B] text-[#064E3B] hover:text-white border border-emerald-200 text-xs font-black uppercase tracking-wider shadow-xs transition-all duration-300 group/home"
-                >
-                  <Home className="w-4 h-4 text-[#064E3B] group-hover/home:text-white transition-colors" />
-                  <span>Kembali ke Beranda</span>
-                </a>
-              </div>
             </div>
           </div>
         </nav>
@@ -455,39 +443,39 @@ export default function Navbar() {
                       </span>
                     </Link>
 
-                    {/* 2. MENU UMKM */}
-                    <button
-                      type="button"
-                      onClick={() => handleNavigateAnchor("#umkm")}
+                    {/* 2. MENU UMKM SAYA */}
+                    <Link
+                      href="/umkm-saya"
+                      onClick={() => setIsUserMenuOpen(false)}
                       className="w-full flex items-center gap-3 p-2.5 rounded-2xl hover:bg-emerald-50 text-slate-800 hover:text-[#064E3B] transition-all group text-left cursor-pointer"
                     >
                       <div className="w-9 h-9 rounded-xl bg-lime-100/80 text-emerald-800 flex items-center justify-center shrink-0 group-hover:bg-[#064E3B] group-hover:text-white transition-colors">
                         <Store className="w-4 h-4" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-xs font-bold leading-snug">UMKM</p>
+                        <p className="text-xs font-bold leading-snug">UMKM Saya</p>
                         <p className="text-[11px] text-slate-500 group-hover:text-emerald-700">
-                          Katalog produk warga & binaan
+                          Kelola produk & status verifikasi
                         </p>
                       </div>
                       <span className="text-xs text-slate-400 group-hover:text-[#064E3B] group-hover:translate-x-0.5 transition-all">
                         →
                       </span>
-                    </button>
+                    </Link>
 
                     {/* SHORTCUT PANEL (JIKA ADMIN / KADES) */}
                     {user.role === "admin" && (
                       <a
                         href="/admin"
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="w-full flex items-center gap-3 p-2.5 rounded-2xl hover:bg-purple-50 text-purple-900 transition-all group text-left"
+                        className="w-full flex items-center gap-3 p-2.5 rounded-2xl hover:bg-emerald-50 text-emerald-900 transition-all group text-left"
                       >
-                        <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center shrink-0 group-hover:bg-purple-800 group-hover:text-white transition-colors">
+                        <div className="w-9 h-9 rounded-xl bg-teal-100 text-[#064E3B] flex items-center justify-center shrink-0 group-hover:bg-[#064E3B] group-hover:text-white transition-colors">
                           <LayoutDashboard className="w-4 h-4" />
                         </div>
                         <div className="flex-1">
                           <p className="text-xs font-bold leading-snug">Dashboard Admin</p>
-                          <p className="text-[11px] text-purple-600">Kelola web, surat & data</p>
+                          <p className="text-[11px] text-emerald-600">Kelola web, surat & data</p>
                         </div>
                       </a>
                     )}
@@ -547,16 +535,6 @@ export default function Navbar() {
       {/* DRAWER MENU MOBILE */}
       {isMobileMenuOpen && (
         <div className="lg:hidden mt-3 max-h-[80vh] overflow-y-auto rounded-3xl border border-emerald-800/50 bg-[#06261D] p-5 shadow-2xl text-white flex flex-col gap-3 animate-in fade-in slide-in-from-top-3">
-          <div className="pb-1">
-            <a
-              href="/"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center justify-center gap-2.5 w-full py-3 px-4 rounded-2xl bg-white/10 text-white border border-white/20 text-xs font-black uppercase tracking-wider transition-all duration-300 hover:bg-[#C5D82F] hover:text-[#06261D]"
-            >
-              <Home className="w-4 h-4" />
-              <span>Kembali ke Beranda</span>
-            </a>
-          </div>
 
           <div className="space-y-1">
             {navItems.map((item) => {
@@ -639,21 +617,21 @@ export default function Navbar() {
                     <FileText className="w-3.5 h-3.5 text-[#C5D82F]" />
                     <span>Laporan</span>
                   </Link>
-                  <button
-                    type="button"
-                    onClick={() => handleNavigateAnchor("#umkm")}
+                  <Link
+                    href="/umkm-saya"
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all text-center cursor-pointer"
                   >
                     <Store className="w-3.5 h-3.5 text-[#C5D82F]" />
-                    <span>UMKM</span>
-                  </button>
+                    <span>UMKM Saya</span>
+                  </Link>
                 </div>
 
                 {user.role === "admin" && (
                   <a
                     href="/admin"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-purple-900/60 border border-purple-500/40 text-purple-200 text-xs font-bold"
+                    className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-200 text-xs font-bold"
                   >
                     <LayoutDashboard className="w-3.5 h-3.5" />
                     <span>Dashboard Admin</span>

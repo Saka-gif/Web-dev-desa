@@ -55,6 +55,25 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const userId = (formData.get("userId") as string) || (formData.get("user_id") as string) || "user-hadi";
+    const userName = (formData.get("userName") as string) || (formData.get("user_name") as string) || "Hadi Purnomo";
+    const userNik = (formData.get("userNik") as string) || (formData.get("user_nik") as string) || "3515112001000001";
+    const userEmail = (formData.get("userEmail") as string) || (formData.get("user_email") as string) || "hadi@sawotratap.com";
+    const untukSiapa = (formData.get("untukSiapa") as string) || "sendiri";
+
+    // Embed metadata identitas akun pengirim ke berkas_urls agar tersimpan permanen di DB
+    const berkasPayload = [
+      {
+        __meta: true,
+        user_id: userId,
+        user_name: userName,
+        user_nik: userNik,
+        user_email: userEmail,
+        untuk_siapa: untukSiapa,
+      },
+      ...uploadedFiles,
+    ];
+
     // Record payload
     const record = {
       id: ticketId,
@@ -65,13 +84,13 @@ export async function POST(req: NextRequest) {
       telepon_pemohon: teleponPemohon,
       rw_pemohon: rwPemohon,
       keperluan: keperluan || "-",
-      berkas_urls: uploadedFiles,
+      berkas_urls: berkasPayload,
       status: "Antrean Verifikasi",
       step: 1,
       status_label: "Sedang Dalam Antrean Verifikasi",
       status_color: "bg-amber-100 text-amber-800 border-amber-300",
       estimasi_selesai: "1 x 24 Jam Kerja",
-      catatan: "Berkas permohonan telah diterima sistem dan menunggu verifikasi petugas pelayanan Balai Desa.",
+      catatan: `Berkas permohonan atas nama ${namaPemohon} (${untukSiapa === "keluarga" ? "Anggota Keluarga" : "Diri Sendiri"}) telah diterima sistem dan menunggu verifikasi petugas pelayanan Balai Desa.`,
     };
 
     // Save to Supabase

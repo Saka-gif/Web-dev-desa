@@ -1,0 +1,264 @@
+[
+  {
+    "id": "ADU-2026-8684",
+    "user_id": "user-hadi",
+    "user_name": "Hadi Purnomo",
+    "user_nik": "3515112001000001",
+    "user_email": "hadi@sawotratap.com",
+    "kategori": "Drainase & Saluran Mampet",
+    "lokasi": "Jl. Belibis RT 03 / RW 03",
+    "nama_pelapor": "Warga Sawotratap (Anonim)",
+    "nik_pelapor": "3515112001000001",
+    "kontak_pelapor": "-",
+    "rw": "RW 03",
+    "isi_aduan": "Uji coba saluran mampet anonim dengan akun pengirim",
+    "foto_urls": [
+      {
+        "__meta": true,
+        "user_id": "user-hadi",
+        "user_name": "Hadi Purnomo",
+        "user_nik": "3515112001000001",
+        "user_email": "hadi@sawotratap.com"
+      },
+      {
+        "name": "foto_kerusakan_lapangan.jpg",
+        "url": "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=800",
+        "size": 150000,
+        "type": "image/jpeg"
+      }
+    ],
+    "status": "menunggu_verifikasi_admin",
+    "status_label": "Laporan Baru (Menunggu Verifikasi Admin)",
+    "status_color": "bg-amber-100 text-amber-900 border-amber-300",
+    "step": 1,
+    "catatan_admin": "Laporan baru masuk melalui portal warga. Menunggu verifikasi petugas Seksi Trantib & Pembangunan.",
+    "catatan_kades": "",
+    "vendor_nama": "",
+    "vendor_kontak": "",
+    "estimasi_biaya": "",
+    "catatan_selesai": "",
+    "foto_selesai": "",
+    "created_at": "2026-10-30T19:52:14.748Z",
+    "updated_at": "2026-10-30T19:52:14.748Z",
+    "riwayat": [
+      {
+        "tanggal": "31/10/2026, 02:52 WIB",
+        "aktor": "Warga (Warga Sawotratap (Anonim))",
+        "keterangan": "Laporan kerusakan dibuat dan masuk ke antrean verifikasi Admin Desa."
+      }
+    ]
+  },
+  {
+    "id": "ADU-2026-1049",
+    "user_id": "user-hadi",
+    "user_name": "Hadi Purnomo",
+    "user_nik": "3515112001000001",
+    "kategori": "Infrastruktur Jalan Berlubang",
+    "lokasi": "Jl. Merpati RT 02 / RW 03 (Dekat Gapura Masuk)",
+    "nama_pelapor": "Hadi Purnomo",
+    "nik_pelapor": "3515112001000001",
+    "kontak_pelapor": "081234567893",
+    "rw": "RW 03",
+    "isi_aduan": "Aspal jalan berlubang cukup dalam sekitar diameter 60cm, membahayakan pengendara motor terutama saat malam hari dan tergenang hujan.",
+    "foto_urls": [
+      {
+        "name": "foto_lubang_jalan_merpati.jpg",
+        "url": "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&q=80&w=800",
+        "size": 182400,
+        "type": "image/jpeg"
+      }
+    ],
+    "status": "menunggu_verifikasi_admin",
+    "status_label": "Laporan Baru (Menunggu Verifikasi Admin)",
+    "status_color": "bg-amber-100 text-amber-900 border-amber-300",
+    "step": 1,
+    "catatan_admin": "",
+    "catatan_kades": "",
+    "vendor_nama": "",
+    "vendor_kontak": "",
+    "estimasi_biaya": "",
+    "catatan_selesai": "",
+    "foto_selesai": "",
+    "created_at": "2026-10-30T09:30:00.000Z",
+    "updated_at": "2026-10-30T13:23:21.372Z",
+    "riwayat": [
+      {
+        "tanggal": "30/10/2026, 20:23 WIB",
+        "aktor": "Admin Desa",
+        "keterangan": "Laporan diteruskan ke Kepala Desa. Catatan: Laporan kerusakan Infrastruktur Jalan Berlubang di Jl. Merpati RT 02 / RW 03 (Dekat Gapura Masuk) telah diverifikasi lapangan dan direkomendasikan untuk persetujuan perbaikan."
+      },
+      {
+        "tanggal": "2026-10-30 09:30 WIB",
+        "aktor": "Warga (Hadi Purnomo)",
+        "keterangan": "Laporan kerusakan dibuat melalui portal layanan mandiri desa."
+      }
+    ]
+  },
+  {
+    "id": "ADU-2026-1035",
+    "kategori": "Drainase & Saluran Mampet",
+    "lokasi": "Saluran Induk Gang Melati RT 04 / RW 02",
+    "nama_pelapor": "Siti Aminah",
+    "nik_pelapor": "3515114508950001",
+    "kontak_pelapor": "081298765432",
+    "rw": "RW 02",
+    "isi_aduan": "Gorong-gorong tersumbat endapan lumpur dan sampah pasca hujan deras, air meluap ke badan jalan paving pemukiman warga.",
+    "foto_urls": [
+      {
+        "name": "drainase_mampet_rw02.jpg",
+        "url": "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=800",
+        "size": 245000,
+        "type": "image/jpeg"
+      }
+    ],
+    "status": "sedang_perbaikan",
+    "status_label": "Sedang Dalam Pengerjaan Vendor",
+    "status_color": "bg-blue-100 text-blue-900 border-blue-300",
+    "step": 4,
+    "catatan_admin": "Proses",
+    "catatan_kades": "Disetujui Kepala Desa. Silakan Admin Desa segera menugaskan vendor perbaikan fisik sarpras di lapangan.",
+    "vendor_nama": "CV Bina Karya Sidoarjo",
+    "vendor_kontak": "081234567890",
+    "estimasi_biaya": "Rp 2.500.000",
+    "catatan_selesai": "",
+    "foto_selesai": "",
+    "created_at": "2026-10-29T14:15:00.000Z",
+    "updated_at": "2026-10-30T13:30:57.357Z",
+    "riwayat": [
+      {
+        "tanggal": "30/10/2026, 20:30 WIB",
+        "aktor": "Admin Desa",
+        "keterangan": "Vendor perbaikan 'CV Bina Karya Sidoarjo' resmi ditugaskan. Pengerjaan fisik lapangan dimulai."
+      },
+      {
+        "tanggal": "30/10/2026, 20:30 WIB",
+        "aktor": "Kepala Desa Sawotratap",
+        "keterangan": "Kepala Desa memberikan ACC persetujuan perbaikan. Arahan: Disetujui Kepala Desa. Silakan Admin Desa segera menugaskan vendor perbaikan fisik sarpras di lapangan."
+      },
+      {
+        "tanggal": "2026-10-29 14:15 WIB",
+        "aktor": "Warga (Siti Aminah)",
+        "keterangan": "Laporan pengaduan saluran drainase mampet terkirim."
+      },
+      {
+        "tanggal": "2026-10-30 08:00 WIB",
+        "aktor": "Admin Desa",
+        "keterangan": "Berkas diverifikasi dan diteruskan ke Kepala Desa untuk arahan pengadaan alat normalisasi."
+      }
+    ]
+  },
+  {
+    "id": "ADU-2026-1018",
+    "kategori": "Lampu PJU Padam",
+    "lokasi": "Depan Pos Kamling RT 01 / RW 05",
+    "nama_pelapor": "Pak Suwandi",
+    "nik_pelapor": "3515081204780002",
+    "kontak_pelapor": "081234567802",
+    "rw": "RW 05",
+    "isi_aduan": "Lampu penerangan jalan umum mati total sejak 4 hari lalu, kawasan rawan gelap dan tikungan sempit.",
+    "foto_urls": [
+      {
+        "name": "pju_padam.jpg",
+        "url": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&q=80&w=800",
+        "size": 134000,
+        "type": "image/jpeg"
+      }
+    ],
+    "status": "sedang_perbaikan",
+    "status_label": "Sedang Dalam Pengerjaan Vendor",
+    "status_color": "bg-blue-100 text-blue-900 border-blue-300",
+    "step": 4,
+    "catatan_admin": "Telah di-ACC Kepala Desa. Ditugaskan ke tim teknisi listrik mitra desa untuk penggantian kap LED 50W dan kabel konektor.",
+    "catatan_kades": "Disetujui. Gunakan pos pemeliharaan sarana prasarana RT/RW.",
+    "vendor_nama": "CV Delta Elektrik Sidoarjo",
+    "vendor_kontak": "081398761234 (Pak Bambang)",
+    "estimasi_biaya": "Rp 750.000",
+    "catatan_selesai": "",
+    "foto_selesai": "",
+    "created_at": "2026-10-28T10:00:00.000Z",
+    "updated_at": "2026-10-29T16:20:00.000Z",
+    "riwayat": [
+      {
+        "tanggal": "2026-10-28 10:00 WIB",
+        "aktor": "Warga (Pak Suwandi)",
+        "keterangan": "Laporan PJU padam terkirim."
+      },
+      {
+        "tanggal": "2026-10-28 13:00 WIB",
+        "aktor": "Admin Desa",
+        "keterangan": "Diteruskan ke Kepala Desa."
+      },
+      {
+        "tanggal": "2026-10-29 09:30 WIB",
+        "aktor": "Kepala Desa",
+        "keterangan": "ACC disetujui untuk perbaikan."
+      },
+      {
+        "tanggal": "2026-10-29 16:20 WIB",
+        "aktor": "Admin Desa",
+        "keterangan": "Vendor CV Delta Elektrik ditugaskan dan mulai perbaikan instalasi lampu."
+      }
+    ]
+  },
+  {
+    "id": "ADU-2026-1002",
+    "user_id": "user-hadi",
+    "user_name": "Hadi Purnomo",
+    "user_nik": "3515112001000001",
+    "kategori": "Infrastruktur Jalan Berlubang",
+    "lokasi": "Jl. Sawotratap Krajan No. 12 (RW 01)",
+    "nama_pelapor": "Hadi Purnomo",
+    "nik_pelapor": "3515112001000001",
+    "kontak_pelapor": "081234567893",
+    "rw": "RW 01",
+    "isi_aduan": "Paving ambles di tikungan menuju balai desa, sering membuat ban sepeda dan motor terselip.",
+    "foto_urls": [
+      {
+        "name": "paving_ambles.jpg",
+        "url": "https://images.unsplash.com/photo-1541888946425-d0fbb18f15f7?auto=format&fit=crop&q=80&w=800",
+        "size": 198000,
+        "type": "image/jpeg"
+      }
+    ],
+    "status": "selesai",
+    "status_label": "Perbaikan Selesai & Tuntas",
+    "status_color": "bg-emerald-100 text-emerald-900 border-emerald-300",
+    "step": 5,
+    "catatan_admin": "Perbaikan tuntas dikerjakan oleh tim tukang paving desa.",
+    "catatan_kades": "Selesai ditinjau.",
+    "vendor_nama": "Kelompok Kerja Masyarakat RW 01 (Bpk. Mulyono)",
+    "vendor_kontak": "081233445566",
+    "estimasi_biaya": "Rp 1.200.000",
+    "catatan_selesai": "Paving lama telah dibongkar, dipadatkan kembali dengan sirtu tebal, dan dipasang paving K-300 baru seluas 12m2. Kondisi jalan telah rata sempurna.",
+    "foto_selesai": "https://images.unsplash.com/photo-1584463699039-445657849419?auto=format&fit=crop&q=80&w=800",
+    "created_at": "2026-10-25T08:00:00.000Z",
+    "updated_at": "2026-10-27T17:00:00.000Z",
+    "riwayat": [
+      {
+        "tanggal": "2026-10-25 08:00 WIB",
+        "aktor": "Warga (Hadi Purnomo)",
+        "keterangan": "Laporan paving ambles masuk."
+      },
+      {
+        "tanggal": "2026-10-25 11:00 WIB",
+        "aktor": "Admin Desa",
+        "keterangan": "Diteruskan ke Kepala Desa."
+      },
+      {
+        "tanggal": "2026-10-26 09:00 WIB",
+        "aktor": "Kepala Desa",
+        "keterangan": "Disetujui untuk perbaikan swakelola."
+      },
+      {
+        "tanggal": "2026-10-26 14:00 WIB",
+        "aktor": "Admin Desa",
+        "keterangan": "Pengerjaan pavingisasi dimulai oleh tim Pokmas Bpk. Mulyono."
+      },
+      {
+        "tanggal": "2026-10-27 17:00 WIB",
+        "aktor": "Admin Desa",
+        "keterangan": "Pengerjaan selesai 100%. Paving telah rata dan bisa dilalui warga."
+      }
+    ]
+  }
+]

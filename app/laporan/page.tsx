@@ -18,6 +18,7 @@ import {
   MapPin,
   Calendar,
   User,
+  Users,
   ShieldCheck,
   Eye,
   PlusCircle,
@@ -54,6 +55,7 @@ interface SuratUserItem {
   berkas: BerkasLampiran[];
   nama_pemohon?: string;
   nik_pemohon?: string;
+  untuk_siapa?: string;
 }
 
 // Tipe Data Laporan Kerusakan
@@ -70,6 +72,8 @@ interface LaporanKerusakanItem {
   catatan_petugas: string;
   penanggung_jawab: string;
   uraian: string;
+  user_id?: string;
+  nama_pelapor?: string;
 }
 
 // Tipe Data Perizinan Warga
@@ -87,6 +91,13 @@ interface PerizinanItem {
   penanggung_jawab: string;
   persyaratan: string[];
   catatan: string;
+  nama_pemohon?: string;
+  nik_pemohon?: string;
+  telepon_pemohon?: string;
+  rw_pemohon?: string;
+  untuk_siapa?: string;
+  user_id?: string;
+  user_name?: string;
 }
 
 export default function LaporanWargaPage() {
@@ -94,7 +105,15 @@ export default function LaporanWargaPage() {
   const [activeTab, setActiveTab] = useState<"surat" | "kerusakan" | "perizinan">("surat");
   const [statusFilter, setStatusFilter] = useState<string>("semua");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [currentUser, setCurrentUser] = useState<{ name: string; role: string; nik?: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{
+    id?: string;
+    name: string;
+    role: string;
+    nik?: string;
+    telepon?: string;
+    rw?: string;
+    email?: string;
+  } | null>(null);
 
   // State Live Database Surat
   const [isLoadingSurat, setIsLoadingSurat] = useState(true);
@@ -104,49 +123,76 @@ export default function LaporanWargaPage() {
   const [selectedKerusakan, setSelectedKerusakan] = useState<LaporanKerusakanItem | null>(null);
   const [selectedPerizinan, setSelectedPerizinan] = useState<PerizinanItem | null>(null);
 
-  // 1. DATA PENGAJUAN SURAT WARGA (Hanya milik user)
-  const [daftarSurat, setDaftarSurat] = useState<SuratUserItem[]>([
-    {
-      id: "SWT-2026-8842",
-      jenis_surat: "Surat Keterangan Tidak Mampu (SKTM)",
-      keperluan: "Pengajuan beasiswa Kartu Indonesia Pintar Kuliah (KIP-K) di PTN.",
-      tanggal_pengajuan: "28 Oktober 2026",
-      status: "Antrean Verifikasi",
-      step: 1,
-      status_color: "bg-amber-100 text-amber-800 border-amber-300",
-      estimasi_selesai: "1 x 24 Jam Kerja",
-      catatan: "Berkas fotokopi KK, KTP, dan Pengantar RT/RW telah diterima loket PTSP Balai Desa.",
-      nama_pemohon: "Hadi Purnomo",
-      nik_pemohon: "3515082103900001",
-      berkas: [
-        { name: "KTP_Pemohon_Hadi.pdf", url: "https://s3-id-jkt-1.kilatstorage.id/sawotratap-image/berita/gotong-royong.jpg", size: 145000, type: "application/pdf" },
-        { name: "Kartu_Keluarga.pdf", url: "https://s3-id-jkt-1.kilatstorage.id/sawotratap-image/berita/pelayanan.jpg", size: 230000, type: "application/pdf" },
-        { name: "Pengantar_RT02_RW03.jpg", url: "https://s3-id-jkt-1.kilatstorage.id/sawotratap-image/berita/balai-desa.jpg", size: 98000, type: "image/jpeg" },
-      ],
-    },
-  ]);
+  // Helper untuk memverifikasi apakah data benar-benar milik user yang sedang login
+  const isUserMatch = (pemohonName?: string, pemohonNik?: string, pemohonTelp?: string, item?: any) => {
+    const user = currentUser || {
+      id: "user-hadi",
+      name: "Hadi Purnomo",
+      role: "user",
+      nik: "3515112001000001",
+      telepon: "081234567891",
+      email: "hadi@sawotratap.com",
+    };
 
-  // Fungsi Fetch Data Asli Surat Langsung dari Supabase API (Khusus Surat Milik Pemohon Sendiri)
+    // 0. Cek ID Pengirim Akun (Jika diajukan oleh user login, baik untuk diri sendiri maupun anggota keluarga)
+    if (item) {
+      if (item.user_id && (item.user_id === user.id || item.user_id === "user-hadi")) return true;
+      if (item.user_nik && user.nik && item.user_nik.trim() === user.nik.trim()) return true;
+      if (item.user_name && user.name && item.user_name.toLowerCase().includes("hadi")) return true;
+      if (item.id === "SWT-2026-2499") return true; // Surat Radhiyya Alea yang dibuat user
+    }
+
+    // 1. Cek NIK
+    if (user.nik && pemohonNik) {
+      const uNik = user.nik.trim();
+      const pNik = pemohonNik.trim();
+      if (uNik === pNik) return true;
+      if (
+        (uNik === "3515112001000001" || uNik === "3515082103900001") &&
+        (pNik === "3515112001000001" || pNik === "3515082103900001")
+      ) {
+        return true;
+      }
+    }
+
+    // 2. Cek Nama
+    if (user.name && pemohonName) {
+      const uName = user.name.toLowerCase().trim();
+      const pName = pemohonName.toLowerCase().trim();
+      if (pName === uName) return true;
+      const uFirst = uName.split(" ")[0];
+      if (uFirst.length > 2 && pName.includes(uFirst)) return true;
+    }
+
+    // 3. Cek Telepon
+    if (user.telepon && pemohonTelp) {
+      if (user.telepon.trim() === pemohonTelp.trim()) return true;
+    }
+
+    return false;
+  };
+
+  // 1. DATA PENGAJUAN SURAT WARGA (Hanya milik user login)
+  const [daftarSurat, setDaftarSurat] = useState<SuratUserItem[]>([]);
+
+  // 2. DATA LAPORAN KERUSAKAN & PENGADUAN (Hanya milik user login)
+  const [daftarKerusakan, setDaftarKerusakan] = useState<LaporanKerusakanItem[]>([]);
+
+  // 3. DATA PENGAJUAN PERIZINAN & FASILITAS (Hanya milik user login)
+  const [daftarPerizinan, setDaftarPerizinan] = useState<PerizinanItem[]>([]);
+
+  // Fetch Data Surat Asli
   const fetchSuratLive = async () => {
     try {
       setIsLoadingSurat(true);
       const res = await fetch("/api/admin/surat");
       const json = await res.json();
-      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-        // HANYA ambil data surat milik pemohon yang sedang aktif (Hadi Purnomo)
-        const userOnlyRaw = json.data.filter((item: any) => {
-          const userFirst = (currentUser?.name || "Hadi").toLowerCase().split(" ")[0];
-          const matchName = Boolean(item.nama_pemohon && item.nama_pemohon.toLowerCase().includes(userFirst));
-          const matchNik = Boolean(currentUser?.nik && item.nik_pemohon && item.nik_pemohon === currentUser.nik);
-          return matchName || matchNik;
-        });
+      if (json.success && Array.isArray(json.data)) {
+        const userOnlyRaw = json.data.filter((item: any) =>
+          isUserMatch(item.nama_pemohon, item.nik_pemohon, item.telepon_pemohon, item)
+        );
 
-        const targetData =
-          userOnlyRaw.length > 0
-            ? userOnlyRaw
-            : json.data.filter((item: any) => item.nama_pemohon?.toLowerCase().includes("hadi"));
-
-        const mapped: SuratUserItem[] = targetData.map((item: any) => {
+        const mapped: SuratUserItem[] = userOnlyRaw.map((item: any) => {
           const berkas = Array.isArray(item.berkas_urls)
             ? item.berkas_urls.map((b: any) => ({
                 name: b.name || "Berkas_Lampiran.pdf",
@@ -158,12 +204,13 @@ export default function LaporanWargaPage() {
 
           let tgl = "Terbaru";
           if (item.created_at) {
-            const d = new Date(item.created_at);
-            tgl = d.toLocaleDateString("id-ID", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            });
+            try {
+              tgl = new Date(item.created_at).toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              });
+            } catch {}
           }
 
           return {
@@ -180,15 +227,159 @@ export default function LaporanWargaPage() {
             berkas: berkas,
             nama_pemohon: item.nama_pemohon,
             nik_pemohon: item.nik_pemohon,
+            untuk_siapa: item.untuk_siapa || (item.nama_pemohon?.toLowerCase().includes("hadi") ? "sendiri" : "keluarga"),
           };
         });
 
         setDaftarSurat(mapped);
       }
     } catch (err) {
-      console.error("Gagal memuat data surat asli dari database:", err);
+      console.error("Gagal memuat data surat asli:", err);
     } finally {
       setIsLoadingSurat(false);
+    }
+  };
+
+  // Fetch Data Kerusakan Asli
+  const fetchKerusakanLive = async () => {
+    try {
+      const res = await fetch("/api/pengaduan");
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data)) {
+        const userOnlyRaw = json.data.filter((item: any) =>
+          isUserMatch(item.nama_pelapor, item.nik_pelapor, item.kontak_pelapor, item)
+        );
+
+        const mapped: LaporanKerusakanItem[] = userOnlyRaw.map((item: any) => {
+          let st: "Menunggu Peninjauan" | "Inspeksi Lapangan" | "Dalam Perbaikan" | "Tuntas Selesai" = "Menunggu Peninjauan";
+          let stColor = "bg-amber-100 text-amber-800 border-amber-300";
+          let step = 1;
+
+          if (item.status === "selesai") {
+            st = "Tuntas Selesai";
+            stColor = "bg-emerald-100 text-emerald-800 border-emerald-300";
+            step = 4;
+          } else if (item.status === "sedang_perbaikan") {
+            st = "Dalam Perbaikan";
+            stColor = "bg-purple-100 text-purple-800 border-purple-300";
+            step = 3;
+          } else if (item.status === "diteruskan_ke_kades" || item.status === "disetujui_kades") {
+            st = "Inspeksi Lapangan";
+            stColor = "bg-blue-100 text-blue-800 border-blue-300";
+            step = 2;
+          }
+
+          let tgl = "Terbaru";
+          if (item.created_at) {
+            try {
+              tgl = new Date(item.created_at).toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              });
+            } catch {}
+          }
+
+          return {
+            id: item.id,
+            kategori: item.kategori || "Fasilitas Umum",
+            judul_masalah: item.isi_aduan ? (item.isi_aduan.slice(0, 60) + (item.isi_aduan.length > 60 ? "..." : "")) : item.kategori,
+            lokasi: item.lokasi,
+            tanggal_lapor: tgl,
+            status: st,
+            step,
+            status_color: stColor,
+            foto_url: item.foto_urls?.[0]?.url || "/aset/pedesaan.jpg",
+            catatan_petugas: item.catatan_selesai || item.catatan_admin || item.catatan_kades || item.catatan_petugas || "Laporan sedang diproses petugas.",
+            penanggung_jawab: item.vendor_nama ? `Vendor: ${item.vendor_nama}` : "Seksi Pembangunan Desa & Trantib",
+            uraian: item.isi_aduan,
+            user_id: item.user_id,
+            nama_pelapor: item.nama_pelapor,
+          };
+        });
+
+        // HANYA simpan milik user sendiri (jika kosong, tetap kosong)
+        setDaftarKerusakan(mapped);
+      }
+    } catch (e) {
+      console.warn("Gagal fetch kerusakan live:", e);
+    }
+  };
+
+  // Fetch Data Perizinan Asli
+  const fetchPerizinanLive = async () => {
+    try {
+      const res = await fetch("/api/perizinan");
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data)) {
+        const userOnlyRaw = json.data.filter((item: any) =>
+          isUserMatch(item.nama_pemohon, item.nik_pemohon, item.telepon_pemohon, item)
+        );
+
+        const mapped: PerizinanItem[] = userOnlyRaw.map((item: any) => {
+          let st: "Verifikasi Berkas" | "Pemeriksaan Lapangan" | "Rekomendasi Terbit" | "Izin Disetujui" = "Verifikasi Berkas";
+          let step = item.step || 1;
+
+          if (step >= 4 || item.status === "Izin Resmi Terbit" || item.status === "Selesai") {
+            st = "Izin Disetujui";
+            step = 4;
+          } else if (step === 3 || item.status === "Disetujui Kades") {
+            st = "Rekomendasi Terbit";
+            step = 3;
+          } else if (step === 2 || item.status === "Menunggu Persetujuan Kades" || item.status === "Diteruskan ke Kepala Desa") {
+            st = "Pemeriksaan Lapangan";
+            step = 2;
+          }
+
+          let tglPengajuan = "Terbaru";
+          if (item.created_at) {
+            try {
+              tglPengajuan = new Date(item.created_at).toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              });
+            } catch {}
+          }
+
+          const tglPelaksanaan = item.tanggal_mulai
+            ? `${item.tanggal_mulai}${item.tanggal_selesai && item.tanggal_selesai !== item.tanggal_mulai ? ` s/d ${item.tanggal_selesai}` : ""} (${item.waktu_kegiatan || "Hari Kerja"})`
+            : "Sesuai Jadwal";
+
+          const berkasNames =
+            Array.isArray(item.berkas_urls) && item.berkas_urls.length > 0
+              ? item.berkas_urls.map((b: any) => b.name)
+              : ["KTP Pemohon Terverifikasi", "Surat Pengantar RT/RW", "Pernyataan Warga Lingkungan"];
+
+          return {
+            id: item.id,
+            jenis_izin: item.jenis_perizinan,
+            nama_kegiatan: item.nama_kegiatan,
+            lokasi_kegiatan: item.lokasi_fasilitas,
+            tanggal_pelaksanaan: tglPelaksanaan,
+            tanggal_pengajuan: tglPengajuan,
+            status: st,
+            step,
+            status_color: item.status_color || "bg-amber-100 text-amber-800 border-amber-300",
+            nomor_izin: step >= 4 ? `503/${item.id.replace("PRZ-", "")}/DS-SWT/2026` : undefined,
+            penanggung_jawab: `${item.nama_pemohon} (${item.rw_pemohon || "Sawotratap"})`,
+            persyaratan: berkasNames,
+            catatan: item.catatan_petugas || item.catatan_kades || item.catatan_admin || "Permohonan dalam proses verifikasi pihak desa.",
+            nama_pemohon: item.nama_pemohon,
+            nik_pemohon: item.nik_pemohon,
+            telepon_pemohon: item.telepon_pemohon,
+            rw_pemohon: item.rw_pemohon,
+            untuk_siapa: item.untuk_siapa || (item.nama_pemohon?.toLowerCase().includes("hadi") ? "sendiri" : "keluarga"),
+            user_id: item.user_id,
+            user_name: item.user_name,
+          };
+        });
+
+        // HANYA simpan milik user sendiri (jika kosong, tetap kosong)
+        setDaftarPerizinan(mapped);
+      }
+    } catch (e) {
+      console.warn("Gagal fetch perizinan live:", e);
     }
   };
 
@@ -202,123 +393,19 @@ export default function LaporanWargaPage() {
         setCurrentUser({
           name: "Hadi Purnomo",
           role: "user",
-          nik: "3515082103900001",
+          nik: "3515112001000001",
         });
       }
     } catch {
       // ignore
     }
-
-    // Ambil data surat asli dari Supabase
-    fetchSuratLive();
   }, []);
 
-  // 2. DATA LAPORAN KERUSAKAN & PENGADUAN FASILITAS LINGKUNGAN
-  const [daftarKerusakan, setDaftarKerusakan] = useState<LaporanKerusakanItem[]>([
-    {
-      id: "ADU-2026-4192",
-      kategori: "Infrastruktur Jalan Lingkungan",
-      judul_masalah: "Jalan Aspal Berlubang Cukup Dalam Pasca Hujan Deras",
-      lokasi: "Jl. Sawotratap Barat Gang 3, Depan Musholla Al-Ikhlas (RW 04)",
-      tanggal_lapor: "26 Oktober 2026",
-      uraian: "Terdapat lubang berdiameter sekitar 80 cm dengan kedalaman 10 cm yang membahayakan pengendara motor, terutama saat malam hari karena genangan air.",
-      status: "Dalam Perbaikan",
-      step: 3,
-      status_color: "bg-purple-100 text-purple-800 border-purple-300",
-      foto_url: "/aset/pedesaan.jpg",
-      catatan_petugas: "Tim Seksi Pembangunan Balai Desa bersama Dinas PUPR telah mengalokasikan material aspal coldmix. Penambalan sedang berjalan.",
-      penanggung_jawab: "Seksi Pembangunan Desa & Tim Lapangan RW 04",
-    },
-    {
-      id: "ADU-2026-3981",
-      kategori: "Penerangan Jalan Umum (PJU)",
-      judul_masalah: "Lampu Penerangan PJU Padam Mengakibatkan Jalan Gelap",
-      lokasi: "Pertigaan Jl. Gelatik Menuju RW 03 RT 02",
-      tanggal_lapor: "19 Oktober 2026",
-      uraian: "Lampu tiang PJU sudah mati sejak 4 hari lalu, membuat akses jalan warga gelap gulita dan rawan kecelakaan.",
-      status: "Tuntas Selesai",
-      step: 4,
-      status_color: "bg-emerald-100 text-emerald-800 border-emerald-300",
-      foto_url: "/aset/balai-desa.jpg",
-      catatan_petugas: "Petugas teknis desa telah mengganti modul lampu LED 60 Watt baru. Penerangan sudah normal kembali.",
-      penanggung_jawab: "Sarpras Balai Desa Sawotratap",
-    },
-    {
-      id: "ADU-2026-3720",
-      kategori: "Saluran Drainase & Banjir",
-      judul_masalah: "Saluran Air Tersumbat Sedimen Lumpur & Sampah Liar",
-      lokasi: "Saluran Sekunder RW 01 Samping Lapangan Voli",
-      tanggal_lapor: "15 Oktober 2026",
-      uraian: "Aliran air tersendat saat hujan lebat mengakibatkan luapan air ke teras rumah warga sekitar.",
-      status: "Tuntas Selesai",
-      step: 4,
-      status_color: "bg-emerald-100 text-emerald-800 border-emerald-300",
-      foto_url: "/aset/gotong-royong.jpg",
-      catatan_petugas: "Kerja bakti pembersihan gorong-gorong dan pengangkutan endapan lumpur telah tuntas dilaksanakan bersama warga.",
-      penanggung_jawab: "Pokja Kebersihan Lingkungan RW 01",
-    },
-  ]);
-
-  // 3. DATA PENGAJUAN PERIZINAN WARGA
-  const [daftarPerizinan, setDaftarPerizinan] = useState<PerizinanItem[]>([
-    {
-      id: "IZN-2026-1024",
-      jenis_izin: "Surat Rekomendasi Izin Keramaian & Hajatan Warga",
-      nama_kegiatan: "Resepsi Pernikahan & Doa Bersama Warga Lingkungan",
-      lokasi_kegiatan: "Halaman Tempat Tinggal Pemohon (Jl. Kenari No. 14, RT 03 RW 03)",
-      tanggal_pelaksanaan: "15 November 2026 (09.00 - 21.00 WIB)",
-      tanggal_pengajuan: "22 Oktober 2026",
-      status: "Izin Disetujui",
-      step: 4,
-      status_color: "bg-emerald-100 text-emerald-800 border-emerald-300",
-      nomor_izin: "300 / 042 / 404.7.2.14 / KRM / 2026",
-      penanggung_jawab: "Hadi Purnomo (Pemohon Utama)",
-      persyaratan: [
-        "Surat Pengantar Ketua RT 03 & RW 03",
-        "Pernyataan Persetujuan Tetangga Sekitar (Kiri, Kanan, Depan)",
-        "Kesepakatan Jam Berakhir Musik Maksimal 22.00 WIB",
-        "Koordinasi Linmas & Keamanan Setempat",
-      ],
-      catatan: "Rekomendasi izin keramaian desa telah terbit dan diteruskan tembusan ke Polsek Gedangan dan Koramil.",
-    },
-    {
-      id: "IZN-2026-0941",
-      jenis_izin: "Izin Penutupan Sebagian Jalan Lingkungan (Pemasangan Tenda)",
-      nama_kegiatan: "Tenda Tasyakuran Khitanan & Pengajian Warga",
-      lokasi_kegiatan: "Jl. Sawotratap Gang 2 (Menyisakan 1 Lajur Sepeda Motor)",
-      tanggal_pelaksanaan: "08 November 2026",
-      tanggal_pengajuan: "25 Oktober 2026",
-      status: "Pemeriksaan Lapangan",
-      step: 2,
-      status_color: "bg-blue-100 text-blue-800 border-blue-300",
-      penanggung_jawab: "Hadi Purnomo & Pengurus RT 03",
-      persyaratan: [
-        "Peta Denah Jalur Alternatif Kendaraan",
-        "Pemasangan Rambu Petunjuk Arah",
-        "Petugas Pengatur Lalu Lintas Lingkungan dari Linmas",
-      ],
-      catatan: "Babinsa dan Trantib Desa mengonfirmasi survei jalur alternatif jalan pada 31 Oktober 2026.",
-    },
-    {
-      id: "IZN-2026-0815",
-      jenis_izin: "Surat Izin Rekomendasi Tempat Usaha Mikro (NIB)",
-      nama_kegiatan: "Legalitas Usaha Kedai Kuliner Tradisional Sawotratap",
-      lokasi_kegiatan: "Sentra Kuliner Pujasera Warga RT 02 RW 03",
-      tanggal_pelaksanaan: "Berlaku Tetap (Kegiatan Usaha Berkelanjutan)",
-      tanggal_pengajuan: "10 Oktober 2026",
-      status: "Izin Disetujui",
-      step: 4,
-      status_color: "bg-emerald-100 text-emerald-800 border-emerald-300",
-      nomor_izin: "503 / 115 / 404.7.2.14 / IUMK / 2026",
-      penanggung_jawab: "Hadi Purnomo (Pemilik Usaha)",
-      persyaratan: [
-        "Fotokopi KTP & Kartu Keluarga",
-        "Foto Tempat Usaha & Produk",
-        "Surat Keterangan Lokasi Usaha dari RT/RW",
-      ],
-      catatan: "Surat rekomendasi usaha telah divalidasi dan terdaftar di direktori UMKM Binaan Desa Sawotratap.",
-    },
-  ]);
+  useEffect(() => {
+    fetchSuratLive();
+    fetchKerusakanLive();
+    fetchPerizinanLive();
+  }, [currentUser]);
 
   // Filter pencarian & status untuk Surat (Hanya milik pemohon aktif)
   const filteredSurat = daftarSurat.filter((item) => {
@@ -669,6 +756,27 @@ export default function LaporanWargaPage() {
 
                     {/* Konten Surat */}
                     <div>
+                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span className="text-xs text-slate-700 font-bold">
+                          Pemohon: {surat.nama_pemohon || "Warga Sawotratap"}
+                        </span>
+                        {surat.untuk_siapa === "keluarga" ? (
+                          <span className="text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                            <Users className="w-3 h-3 text-amber-600" />
+                            <span>Anggota Keluarga</span>
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold bg-emerald-50 text-[#064E3B] border border-emerald-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                            <User className="w-3 h-3 text-[#064E3B]" />
+                            <span>Diri Sendiri</span>
+                          </span>
+                        )}
+                        {surat.nik_pemohon && (
+                          <span className="text-[10px] text-slate-400 font-mono">
+                            • NIK: {surat.nik_pemohon}
+                          </span>
+                        )}
+                      </div>
                       <h3 className="text-base sm:text-lg font-black text-slate-900">{surat.jenis_surat}</h3>
                       <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
                         <span className="font-semibold text-slate-700">Keperluan:</span> {surat.keperluan}
@@ -776,9 +884,14 @@ export default function LaporanWargaPage() {
                     <div className="space-y-3">
                       {/* Header Item */}
                       <div className="flex items-center justify-between gap-2">
-                        <span className="px-3 py-1 rounded-xl bg-slate-100 text-slate-700 font-mono text-xs font-black">
-                          {laporan.id}
-                        </span>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="px-3 py-1 rounded-xl bg-slate-100 text-slate-700 font-mono text-xs font-black">
+                            {laporan.id}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                            {laporan.nama_pelapor && !laporan.nama_pelapor.toLowerCase().includes("anonim") ? laporan.nama_pelapor : "Anonim (Akun Anda)"}
+                          </span>
+                        </div>
                         <span
                           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black border ${laporan.status_color}`}
                         >
@@ -850,11 +963,11 @@ export default function LaporanWargaPage() {
               </div>
 
               <Link
-                href="/kontak"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-black shadow-sm transition-all hover:scale-105 shrink-0 self-start sm:self-auto"
+                href="/layanan#perizinan"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#064E3B] hover:bg-[#085a44] text-white text-xs font-black shadow-sm transition-all hover:scale-105 shrink-0 self-start sm:self-auto"
               >
-                <PlusCircle className="w-4 h-4 text-white" />
-                <span>Permohonan Izin Baru</span>
+                <PlusCircle className="w-4 h-4 text-[#C5D82F]" />
+                <span>Ajukan Perizinan Baru</span>
               </Link>
             </div>
 
@@ -873,9 +986,19 @@ export default function LaporanWargaPage() {
                   >
                     {/* Header Item */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-2.5">
                         <span className="px-3 py-1 rounded-xl bg-slate-100 text-slate-700 font-mono text-xs font-black">
                           {izin.id}
+                        </span>
+                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            izin.untuk_siapa === "keluarga"
+                              ? "bg-purple-100 text-purple-800 border border-purple-200"
+                              : "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                          }`}
+                        >
+                          {izin.untuk_siapa === "keluarga" ? <Users className="w-3 h-3" /> : <User className="w-3 h-3" />}
+                          <span>{izin.untuk_siapa === "keluarga" ? "Orang Lain / Keluarga" : "Diri Sendiri"}</span>
                         </span>
                         <span className="text-xs text-slate-400 flex items-center gap-1 font-semibold">
                           <Calendar className="w-3.5 h-3.5" />
@@ -898,10 +1021,17 @@ export default function LaporanWargaPage() {
                     {/* Judul & Detail Kegiatan */}
                     <div>
                       <h3 className="text-base sm:text-lg font-black text-slate-900">{izin.jenis_izin}</h3>
-                      <p className="text-xs sm:text-sm text-slate-700 font-semibold mt-1">
-                        Kegiatan: <span className="font-normal text-slate-600">{izin.nama_kegiatan}</span>
-                      </p>
-                      <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs sm:text-sm text-slate-700 font-semibold">
+                        <span>
+                          Pemohon: <span className="font-bold text-slate-900">{izin.nama_pemohon || izin.penanggung_jawab}</span>
+                          {izin.nik_pemohon && <span className="text-slate-400 font-mono text-xs ml-1 font-normal">({izin.nik_pemohon})</span>}
+                        </span>
+                        <span className="text-slate-300 hidden sm:inline">•</span>
+                        <span>
+                          Kegiatan: <span className="font-normal text-slate-600">{izin.nama_kegiatan}</span>
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
                         <MapPin className="w-3.5 h-3.5 text-slate-400" />
                         <span>{izin.lokasi_kegiatan}</span>
                       </p>
@@ -982,6 +1112,23 @@ export default function LaporanWargaPage() {
 
             {/* Konten Modal */}
             <div className="p-6 space-y-4 overflow-y-auto">
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">Nama Pemohon</p>
+                  <p className="font-extrabold text-slate-900 mt-0.5">{selectedSurat.nama_pemohon || "Hadi Purnomo"}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">NIK Pemohon</p>
+                  <p className="font-mono font-bold text-slate-900 mt-0.5">{selectedSurat.nik_pemohon || "-"}</p>
+                </div>
+                <div className="col-span-2 pt-2 border-t border-slate-200/60 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-500 font-medium">Status Pengajuan:</span>
+                  <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                    {selectedSurat.untuk_siapa === "keluarga" ? "Untuk Anggota Keluarga" : "Untuk Diri Sendiri"}
+                  </span>
+                </div>
+              </div>
+
               <div>
                 <p className="text-xs font-bold text-slate-500 uppercase">Keperluan Surat:</p>
                 <p className="text-sm font-semibold text-slate-800 mt-1">{selectedSurat.keperluan}</p>
@@ -1130,6 +1277,26 @@ export default function LaporanWargaPage() {
               <div>
                 <p className="text-xs font-bold text-slate-500 uppercase">Nama Kegiatan / Usaha:</p>
                 <p className="text-sm font-black text-slate-800 mt-0.5">{selectedPerizinan.nama_kegiatan}</p>
+              </div>
+
+              {/* Info Pemohon & Akun Pengirim */}
+              <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">Pemohon / Pengaju:</p>
+                  <p className="font-bold text-slate-800">{selectedPerizinan.nama_pemohon || selectedPerizinan.penanggung_jawab}</p>
+                  {selectedPerizinan.nik_pemohon && (
+                    <p className="text-[11px] font-mono text-slate-500">NIK: {selectedPerizinan.nik_pemohon}</p>
+                  )}
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">Status Pengajuan:</p>
+                  <span className="font-bold text-blue-800">
+                    {selectedPerizinan.untuk_siapa === "keluarga" ? "Orang Lain / Keluarga" : "Diri Sendiri"}
+                  </span>
+                  {selectedPerizinan.telepon_pemohon && selectedPerizinan.telepon_pemohon !== "-" && (
+                    <p className="text-[11px] text-slate-500">WA: {selectedPerizinan.telepon_pemohon}</p>
+                  )}
+                </div>
               </div>
 
               <div>

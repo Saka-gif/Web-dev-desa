@@ -27,22 +27,7 @@ export default function Footer() {
   };
 
   return (
-    <footer id="kontak" className="relative z-10 bg-gradient-to-b from-[#064E3B] via-[#093529] to-[#0B1320] text-white pt-20 pb-12 px-6 sm:px-10 lg:px-16 border-t border-emerald-800/60 overflow-hidden font-sans">
-      
-      {/* SUBTLE BOTANICAL & TOPOGRAPHIC BACKGROUND PATTERN */}
-      <div className="pointer-events-none absolute -right-16 -top-16 w-96 h-96 opacity-[0.04] -z-0">
-        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="w-full h-full text-emerald-200" fill="currentColor">
-          <path d="M44.7,-64.4C58.1,-55.8,69.2,-43.3,75.1,-28.6C81,-13.9,81.6,3,76.5,18.1C71.3,33.2,60.4,46.5,47.2,56.8C34,67.1,18.5,74.4,2.3,71.2C-13.9,68.1,-30.9,54.4,-44.6,41.9C-58.4,29.4,-68.9,18,-72.5,3.7C-76.1,-10.7,-72.8,-27.9,-63.3,-41.4C-53.7,-54.9,-37.9,-64.7,-22.4,-70.7C-6.9,-76.8,8.3,-79,24,-76.1C39.7,-73.2,41.4,-67.2,44.7,-64.4Z" transform="translate(100 100)" />
-        </svg>
-      </div>
-
-      <div className="pointer-events-none absolute -left-20 bottom-10 w-80 h-80 opacity-[0.03] -z-0">
-        <svg viewBox="0 0 100 100" className="w-full h-full" fill="none" stroke="#C5D82F" strokeWidth="0.8">
-          <circle cx="50" cy="50" r="45" />
-          <circle cx="50" cy="50" r="30" />
-          <circle cx="50" cy="50" r="15" />
-        </svg>
-      </div>
+    <footer id="kontak" className="relative z-10 bg-[#06261D] text-white pt-20 pb-12 px-6 sm:px-10 lg:px-16 border-t border-emerald-900/60 font-sans">
 
       <div className="mx-auto max-w-7xl relative z-10">
         

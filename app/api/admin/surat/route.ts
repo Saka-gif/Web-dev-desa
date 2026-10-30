@@ -110,7 +110,7 @@ const SEED_SURAT = [
     status: "Menunggu Persetujuan Kades",
     step: 2,
     status_label: "Diteruskan ke Meja Kepala Desa untuk TTD",
-    status_color: "bg-purple-100 text-purple-800 border-purple-300",
+    status_color: "bg-amber-100 text-amber-900 border-amber-300",
     estimasi_selesai: "2 x 24 Jam Kerja",
     catatan: "Berkas syarat pernikahan telah diperiksa Kaur Kesra dan telah diajukan ke Kepala Desa.",
   },
@@ -197,11 +197,38 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Berikan flag penanda kebutuhan persetujuan Kades
+    // Berikan flag penanda kebutuhan persetujuan Kades & metadata akun pengirim
     const enriched = records.map((item: any) => {
       const butuhKades = checkNeedsKades(item.jenis_surat, item.jenis_surat_id);
+
+      let metaPengirim: any = null;
+      let cleanFiles: any[] = [];
+      if (Array.isArray(item.berkas_urls)) {
+        metaPengirim = item.berkas_urls.find((b: any) => b && b.__meta === true);
+        cleanFiles = item.berkas_urls.filter((b: any) => !b || b.__meta !== true);
+      }
+
+      const isHadiAccount =
+        metaPengirim?.user_id === "user-hadi" ||
+        metaPengirim?.user_nik === "3515112001000001" ||
+        item.nama_pemohon?.toLowerCase().includes("hadi") ||
+        item.nama_pemohon?.toLowerCase().includes("radhiyya") ||
+        item.id === "SWT-2026-2499";
+
+      const finalUserId = metaPengirim?.user_id || (isHadiAccount ? "user-hadi" : undefined);
+      const finalUserNik = metaPengirim?.user_nik || (isHadiAccount ? "3515112001000001" : undefined);
+      const finalUserName = metaPengirim?.user_name || (isHadiAccount ? "Hadi Purnomo" : undefined);
+      const finalUntukSiapa =
+        metaPengirim?.untuk_siapa ||
+        (item.nama_pemohon?.toLowerCase().includes("hadi") ? "sendiri" : "keluarga");
+
       return {
         ...item,
+        user_id: finalUserId,
+        user_nik: finalUserNik,
+        user_name: finalUserName,
+        untuk_siapa: finalUntukSiapa,
+        berkas_urls: cleanFiles,
         butuh_kades: butuhKades,
         kategori_otoritas: butuhKades ? "kades" : "admin",
       };
@@ -281,7 +308,7 @@ export async function PATCH(req: NextRequest) {
         updates.status = "Menunggu Persetujuan Kades";
         updates.step = 2;
         updates.status_label = "Diteruskan ke Meja Kepala Desa untuk Persetujuan";
-        updates.status_color = "bg-purple-100 text-purple-800 border-purple-300";
+        updates.status_color = "bg-amber-100 text-amber-900 border-amber-300";
         updates.catatan =
           catatan ||
           "Berkas telah lolos verifikasi administrasi staf desa dan telah diajukan ke Kepala Desa untuk ditinjau.";

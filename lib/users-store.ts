@@ -13,6 +13,7 @@ export interface StoredUser {
   telepon?: string;
   rw?: string;
   alamat?: string;
+  is_active?: boolean;
   created_at?: string;
 }
 
@@ -99,23 +100,85 @@ function saveStoredUsersList(list: StoredUser[]) {
   }
 }
 
+export function getAllMemoryUsers(): StoredUser[] {
+  const fileUsers = getStoredUsersList();
+  
+  // Ambil user default yang belum ada di file (berdasarkan ID atau email)
+  const merged: StoredUser[] = [...fileUsers];
+  
+  for (const def of DEFAULT_USERS) {
+    const exists = merged.some(
+      (u) => u.id === def.id || u.email.toLowerCase() === def.email.toLowerCase()
+    );
+    if (!exists) {
+      merged.unshift({
+        ...def,
+        is_active: true,
+        created_at: "2026-01-01T00:00:00.000Z",
+      });
+    }
+  }
+
+  return merged;
+}
+
+export function updateMemoryUser(id: string, updates: Partial<StoredUser>): StoredUser | null {
+  const list = getAllMemoryUsers();
+  const idx = list.findIndex((u) => u.id === id);
+  if (idx === -1) return null;
+
+  const existing = list[idx];
+  const updatedUser: StoredUser = {
+    ...existing,
+    ...updates,
+    id: existing.id, // ID tidak boleh berubah
+  };
+
+  if (updates.password && updates.password.trim() !== "") {
+    updatedUser.password = updates.password;
+    updatedUser.passwords = Array.from(new Set([updates.password, ...(existing.passwords || [])]));
+  }
+
+  list[idx] = updatedUser;
+  saveStoredUsersList(list);
+  return updatedUser;
+}
+
+export function deleteMemoryUser(id: string): boolean {
+  let list = getAllMemoryUsers();
+  const initialLength = list.length;
+  list = list.filter((u) => u.id !== id);
+  if (list.length !== initialLength) {
+    saveStoredUsersList(list);
+    return true;
+  }
+  return false;
+}
+
 export function addMemoryUser(user: StoredUser) {
-  const list = getStoredUsersList();
+  const list = getAllMemoryUsers();
   const existingIdx = list.findIndex(
-    (u) => u.email.toLowerCase() === user.email.toLowerCase() || (u.nik && u.nik === user.nik)
+    (u) => u.id === user.id || u.email.toLowerCase() === user.email.toLowerCase() || (u.nik && user.nik && u.nik === user.nik)
   );
   if (existingIdx >= 0) {
-    list[existingIdx] = user;
+    list[existingIdx] = {
+      ...list[existingIdx],
+      ...user,
+      id: list[existingIdx].id || user.id,
+    };
   } else {
-    list.push(user);
+    list.unshift({
+      ...user,
+      is_active: user.is_active !== undefined ? user.is_active : true,
+      created_at: user.created_at || new Date().toISOString(),
+    });
   }
   saveStoredUsersList(list);
 }
 
 export function findMemoryUser(identifier: string, pass: string): StoredUser | null {
   const cleanId = identifier.trim().toLowerCase();
-  const memoryList = getStoredUsersList();
-  const allUsers = [...memoryList, ...DEFAULT_USERS];
+  const allUsers = getAllMemoryUsers();
 
   return (
     allUsers.find((u) => {
@@ -134,16 +197,25 @@ export function findMemoryUser(identifier: string, pass: string): StoredUser | n
   );
 }
 
-export function isIdentifierTaken(email: string, nik: string): { taken: boolean; reason?: string } {
+export function isIdentifierTaken(
+  email: string,
+  nik: string,
+  excludeId?: string
+): { taken: boolean; reason?: string } {
   const cleanEmail = email.trim().toLowerCase();
-  const memoryList = getStoredUsersList();
-  const allUsers = [...memoryList, ...DEFAULT_USERS];
+  const allUsers = getAllMemoryUsers();
 
-  const foundEmail = allUsers.find((u) => u.email.toLowerCase() === cleanEmail);
+  const foundEmail = allUsers.find(
+    (u) => u.email.toLowerCase() === cleanEmail && (!excludeId || u.id !== excludeId)
+  );
   if (foundEmail) return { taken: true, reason: "email" };
 
-  const foundNik = allUsers.find((u) => u.nik && u.nik === nik);
-  if (foundNik) return { taken: true, reason: "nik" };
+  if (nik) {
+    const foundNik = allUsers.find(
+      (u) => u.nik && u.nik === nik && (!excludeId || u.id !== excludeId)
+    );
+    if (foundNik) return { taken: true, reason: "nik" };
+  }
 
   return { taken: false };
 }

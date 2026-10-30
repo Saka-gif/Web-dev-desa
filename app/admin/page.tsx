@@ -39,10 +39,10 @@ import {
   Home,
   Check,
   AlertTriangle,
-  MapPin,
   Phone,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import AdminSidebar from "@/app/components/admin-sidebar";
 
 export default function AdminDashboardPage() {
   const [activeMenu, setActiveMenu] = useState("overview");
@@ -164,8 +164,39 @@ export default function AdminDashboardPage() {
     return matchRw && matchSearch;
   });
 
+  // Sinkronisasi data live surat dari API backend
+  const fetchDashboardData = async () => {
+    try {
+      const res = await fetch("/api/admin/surat");
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+        setDaftarSurat(
+          json.data.map((item: any) => ({
+            id: item.id,
+            nama: item.nama_pemohon,
+            nik: item.nik_pemohon,
+            rw: item.rw_pemohon,
+            jenisSurat: item.jenis_surat,
+            tanggal: item.created_at ? new Date(item.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "Hari ini",
+            status: item.status,
+            statusColor: item.status_color || "bg-amber-100 text-amber-800 border-amber-300",
+            keperluan: item.keperluan,
+          }))
+        );
+      }
+    } catch (e) {
+      console.error("Gagal load surat di dashboard:", e);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
   const handleRefresh = () => {
     setIsRefreshing(true);
+    fetchDashboardData();
+    window.dispatchEvent(new Event("admin-data-updated"));
     setTimeout(() => {
       setIsRefreshing(false);
     }, 600);
@@ -173,6 +204,7 @@ export default function AdminDashboardPage() {
 
   const handleAccUmkm = (id: string, nama: string) => {
     setUmkmMenunggu((prev) => prev.filter((u) => u.id !== id));
+    window.dispatchEvent(new Event("admin-data-updated"));
     alert(`Usaha "${nama}" berhasil diverifikasi! Sekarang telah aktif dan tampil di etalase web desa.`);
   };
 
@@ -188,6 +220,7 @@ export default function AdminDashboardPage() {
           : s
       )
     );
+    window.dispatchEvent(new Event("admin-data-updated"));
     alert(`Surat dengan nomor resi ${id} berhasil diverifikasi dan status diubah menjadi "Siap Diambil".`);
   };
 
@@ -207,224 +240,13 @@ export default function AdminDashboardPage() {
     <div className="min-h-screen bg-[#F4F5F7] text-[#111827] flex font-sans antialiased">
       
       {/* ========================================================================= */}
-      {/* 1. SIDEBAR KIRI (PERSIS SEPERTI SCREENSHOT OBSCURA) */}
+      {/* 1. SIDEBAR PATOKAN RESMI ADMIN DESA (AUTO-SYNC REALTIME BADGES) */}
       {/* ========================================================================= */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-[#E3E8E2] flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <div className="flex flex-col h-full justify-between">
-          
-          {/* HEADER LOGO & BRAND */}
-          <div>
-            <div className="h-16 px-6 flex items-center justify-between border-b border-[#F0F2F0]">
-              <div className="flex items-center gap-3">
-                <img
-                  src="/Logo/IMG_1650.GIF"
-                  alt="Logo Desa Sawotratap"
-                  className="w-8 h-8 object-contain drop-shadow-xs"
-                />
-                <div>
-                  <h1 className="text-sm font-black tracking-tight text-[#064E3B] leading-none">
-                    SID Sawotratap
-                  </h1>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    Panel Tata Kelola
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setIsSidebarOpen(false)}
-                className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* NAVIGASI MENU (SESUAI FITUR WEBSITE KITA) */}
-            <div className="p-4 space-y-6 overflow-y-auto max-h-[calc(100vh-140px)]">
-              
-              {/* GROUP 1: UTAMA */}
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3">
-                  Menu Utama
-                </span>
-
-                <button
-                  onClick={() => setActiveMenu("overview")}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    activeMenu === "overview"
-                      ? "bg-[#064E3B] text-white shadow-xs font-black"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <LayoutDashboard className="w-4 h-4" />
-                    <span>Dashboard Utama</span>
-                  </div>
-                </button>
-
-                <a
-                  href="/admin/surat"
-                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-4 h-4 text-emerald-800" />
-                    <span>Verifikasi Surat</span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800">
-                    {daftarSurat.filter((s) => s.status === "Antrean Verifikasi").length}
-                  </span>
-                </a>
-
-                <button
-                  onClick={() => setActiveMenu("aduan")}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    activeMenu === "aduan"
-                      ? "bg-[#064E3B] text-white shadow-xs font-black"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <MessageSquareQuote className="w-4 h-4" />
-                    <span>Aduan Warga</span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800">
-                    2
-                  </span>
-                </button>
-
-                <button
-                  onClick={() => setActiveMenu("umkm")}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    activeMenu === "umkm"
-                      ? "bg-[#064E3B] text-white shadow-xs font-black"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Store className="w-4 h-4" />
-                    <span>Direktori UMKM</span>
-                  </div>
-                  {umkmMenunggu.length > 0 && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-[#06261D]">
-                      {umkmMenunggu.length} Verif
-                    </span>
-                  )}
-                </button>
-
-                <button
-                  onClick={() => setActiveMenu("apbd")}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    activeMenu === "apbd"
-                      ? "bg-[#064E3B] text-white shadow-xs font-black"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Coins className="w-4 h-4" />
-                    <span>Transparansi APBD</span>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => setActiveMenu("berita")}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    activeMenu === "berita"
-                      ? "bg-[#064E3B] text-white shadow-xs font-black"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Newspaper className="w-4 h-4" />
-                    <span>Warta & Informasi</span>
-                  </div>
-                </button>
-              </div>
-
-              {/* GROUP 2: MANAJEMEN & TOOLS */}
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3">
-                  Kelola Data
-                </span>
-
-                <button
-                  onClick={() => setActiveMenu("penduduk")}
-                  className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <Users className="w-4 h-4" />
-                    <span>Data Kependudukan</span>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => setActiveMenu("arsip")}
-                  className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <FolderArchive className="w-4 h-4" />
-                    <span>Arsip Berkas Digital</span>
-                  </div>
-                </button>
-              </div>
-
-              {/* GROUP 3: TAUTAN WEBSITE PUBLIK */}
-              <div className="space-y-1 pt-2 border-t border-[#F0F2F0]">
-                <a
-                  href="/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 transition-all"
-                >
-                  <div className="flex items-center gap-2">
-                    <Home className="w-4 h-4" />
-                    <span>Buka Web Publik</span>
-                  </div>
-                  <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
-                </a>
-              </div>
-
-            </div>
-          </div>
-
-          {/* USER PROFILE CARD DI BAWAH SIDEBAR */}
-          <div className="p-3 border-t border-[#F0F2F0] bg-[#FAF9F5]">
-            <div className="flex items-center justify-between p-2 rounded-2xl bg-white border border-[#E3E8E2] shadow-2xs">
-              <div className="flex items-center gap-2.5">
-                <img
-                  src="/Logo/IMG_1650.GIF"
-                  alt="Admin"
-                  className="w-9 h-9 rounded-xl object-contain bg-emerald-50 p-1 border border-emerald-200"
-                />
-                <div className="overflow-hidden">
-                  <p className="text-xs font-black text-slate-900 truncate">Admin Desa</p>
-                  <p className="text-[10px] text-slate-400 truncate">admin@sawotratap.com</p>
-                </div>
-              </div>
-
-              <a
-                href="/login"
-                title="Keluar / Logout"
-                className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-              </a>
-            </div>
-          </div>
-
-        </div>
-      </aside>
-
-      {/* OVERLAY UNTUK MOBILE SIDEBAR */}
-      {isSidebarOpen && (
-        <div
-          onClick={() => setIsSidebarOpen(false)}
-          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-xs lg:hidden"
-        />
-      )}
+      <AdminSidebar
+        activeItem="overview"
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
 
       {/* ========================================================================= */}
       {/* 2. AREA KONTEN UTAMA DASHBOARD */}

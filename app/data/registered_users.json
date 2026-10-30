@@ -1,5 +1,60 @@
 [
   {
+    "id": "usr-warga-1",
+    "name": "Hadi Purnomo (Warga Sawotratap)",
+    "email": "user@sawotratap.com",
+    "nik": "3515112001000001",
+    "password": "user123",
+    "passwords": [
+      "user123",
+      "password123",
+      "password"
+    ],
+    "role": "user",
+    "avatar": "/Logo/IMG_1650.GIF",
+    "telepon": "081234567893",
+    "rw": "RW 03",
+    "alamat": "Jl. Merpati No. 04 RT 02 / RW 03, Sawotratap",
+    "is_active": true,
+    "created_at": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "usr-kades-1",
+    "name": "Kepala Desa Sawotratap",
+    "email": "kades@sawotratap.desa.id",
+    "nik": "3515110101750001",
+    "password": "password",
+    "passwords": [
+      "password",
+      "kades123"
+    ],
+    "role": "kades",
+    "avatar": "/aset/kades.jpg",
+    "telepon": "081234567892",
+    "rw": "RW 01",
+    "alamat": "Rumah Dinas Kepala Desa, Sawotratap Krajan RW 01",
+    "is_active": true,
+    "created_at": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "usr-admin-1",
+    "name": "Admin Desa Sawotratap",
+    "email": "admin@sawotratap.com",
+    "nik": "3515111101900001",
+    "password": "admin123",
+    "passwords": [
+      "admin123",
+      "password"
+    ],
+    "role": "admin",
+    "avatar": "/Logo/IMG_1650.GIF",
+    "telepon": "081234567891",
+    "rw": "RW 01",
+    "alamat": "Kantor Balai Desa Sawotratap, Gedangan, Sidoarjo",
+    "is_active": true,
+    "created_at": "2026-01-01T00:00:00.000Z"
+  },
+  {
     "id": "usr-warga-288168-2990",
     "name": "Siti Aminah",
     "email": "siti.aminah@sawotratap.com",

@@ -746,3 +746,110 @@ CREATE POLICY "Allow public all users" ON public.users
 
 -- Aktifkan Realtime
 ALTER PUBLICATION supabase_realtime ADD TABLE public.users;
+
+-- ==============================================================================
+-- 10. TABEL PENGADUAN & LAPORAN KERUSAKAN WARGA (5-STEP WORKFLOW)
+-- ==============================================================================
+-- Alur Status Terpadu:
+-- 1. 'menunggu_verifikasi_admin': Laporan baru masuk dari warga, perlu verifikasi Admin.
+-- 2. 'diteruskan_ke_kades': Admin meneruskan ke meja Kepala Desa untuk dipantau & ACC.
+-- 3. 'disetujui_kades': Kepala Desa memberikan ACC, laporan kembali ke Admin untuk mencari vendor.
+-- 4. 'sedang_perbaikan': Admin menetapkan vendor & pengerjaan fisik lapangan dimulai.
+-- 5. 'selesai': Perbaikan tuntas 100% dan terverifikasi oleh Admin Desa.
+-- 6. 'ditolak': Laporan fiktif / di luar kewenangan pemeliharaan desa.
+
+CREATE TABLE IF NOT EXISTS public.pengaduan_warga (
+  id TEXT PRIMARY KEY,
+  kategori TEXT NOT NULL,
+  lokasi TEXT NOT NULL,
+  nama_pelapor TEXT NOT NULL DEFAULT 'Warga Sawotratap (Anonim)',
+  nik_pelapor VARCHAR(16) DEFAULT '',
+  kontak_pelapor TEXT DEFAULT '-',
+  rw TEXT DEFAULT 'RW 01',
+  isi_aduan TEXT NOT NULL,
+  foto_urls JSONB DEFAULT '[]'::jsonb,
+  status TEXT NOT NULL DEFAULT 'menunggu_verifikasi_admin',
+  status_label TEXT NOT NULL DEFAULT 'Laporan Baru (Menunggu Verifikasi Admin)',
+  status_color TEXT DEFAULT 'bg-amber-100 text-amber-900 border-amber-300',
+  step INT DEFAULT 1,
+  catatan_admin TEXT DEFAULT '',
+  catatan_kades TEXT DEFAULT '',
+  vendor_nama TEXT DEFAULT '',
+  vendor_kontak TEXT DEFAULT '',
+  estimasi_biaya TEXT DEFAULT '',
+  catatan_selesai TEXT DEFAULT '',
+  foto_selesai TEXT DEFAULT '',
+  riwayat JSONB DEFAULT '[]'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Hak Akses (RLS) Pengaduan
+ALTER TABLE public.pengaduan_warga ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public read pengaduan_warga" ON public.pengaduan_warga;
+CREATE POLICY "Allow public read pengaduan_warga" ON public.pengaduan_warga
+  FOR SELECT TO anon, authenticated
+  USING (true);
+
+DROP POLICY IF EXISTS "Allow public insert pengaduan_warga" ON public.pengaduan_warga;
+CREATE POLICY "Allow public insert pengaduan_warga" ON public.pengaduan_warga
+  FOR INSERT TO anon, authenticated
+  WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public all pengaduan_warga" ON public.pengaduan_warga;
+CREATE POLICY "Allow public all pengaduan_warga" ON public.pengaduan_warga
+  FOR ALL TO anon, authenticated
+  USING (true);
+
+-- Aktifkan Realtime Pengaduan
+ALTER PUBLICATION supabase_realtime ADD TABLE public.pengaduan_warga;
+
+-- ==============================================================
+-- 8. TABEL PERIZINAN & PEMINJAMAN FASILITAS DESA
+-- ==============================================================
+CREATE TABLE IF NOT EXISTS public.perizinan_fasilitas (
+  id TEXT PRIMARY KEY,
+  jenis_perizinan TEXT NOT NULL,
+  kategori TEXT NOT NULL DEFAULT 'Fasilitas Desa',
+  nama_pemohon TEXT NOT NULL,
+  nik_pemohon VARCHAR(16) DEFAULT '',
+  telepon_pemohon TEXT DEFAULT '-',
+  rw_pemohon TEXT DEFAULT 'RW 01',
+  nama_kegiatan TEXT NOT NULL,
+  tanggal_mulai DATE NOT NULL,
+  tanggal_selesai DATE NOT NULL,
+  waktu_kegiatan TEXT DEFAULT '08.00 - 16.00 WIB',
+  lokasi_fasilitas TEXT NOT NULL,
+  jumlah_peserta TEXT DEFAULT '-',
+  keterangan TEXT DEFAULT '',
+  berkas_urls JSONB DEFAULT '[]'::jsonb,
+  status TEXT NOT NULL DEFAULT 'Menunggu Verifikasi',
+  status_label TEXT NOT NULL DEFAULT 'Menunggu Verifikasi Seksi Pemerintahan',
+  status_color TEXT DEFAULT 'bg-amber-100 text-amber-900 border-amber-300',
+  catatan_petugas TEXT DEFAULT '',
+  estimasi_selesai TEXT DEFAULT '2 - 3 Hari Kerja',
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Hak Akses (RLS) Perizinan & Fasilitas
+ALTER TABLE public.perizinan_fasilitas ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public read perizinan_fasilitas" ON public.perizinan_fasilitas;
+CREATE POLICY "Allow public read perizinan_fasilitas" ON public.perizinan_fasilitas
+  FOR SELECT TO anon, authenticated
+  USING (true);
+
+DROP POLICY IF EXISTS "Allow public insert perizinan_fasilitas" ON public.perizinan_fasilitas;
+CREATE POLICY "Allow public insert perizinan_fasilitas" ON public.perizinan_fasilitas
+  FOR INSERT TO anon, authenticated
+  WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public all perizinan_fasilitas" ON public.perizinan_fasilitas;
+CREATE POLICY "Allow public all perizinan_fasilitas" ON public.perizinan_fasilitas
+  FOR ALL TO anon, authenticated
+  USING (true);
+
+-- Aktifkan Realtime Perizinan
+ALTER PUBLICATION supabase_realtime ADD TABLE public.perizinan_fasilitas;

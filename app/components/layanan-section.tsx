@@ -11,6 +11,7 @@ interface LayananItem {
   estimasi: string;
   syarat: string[];
   foto: string;
+  href: string;
 }
 
 const DAFTAR_LAYANAN: LayananItem[] = [
@@ -22,6 +23,7 @@ const DAFTAR_LAYANAN: LayananItem[] = [
     estimasi: "1x24 Jam",
     syarat: ["Fotokopi KTP/KK", "Surat Pengantar RT/RW", "Pas Foto 3x4"],
     foto: "/aset/pedesaan.jpg",
+    href: "/layanan#surat",
   },
   {
     id: "pengaduan",
@@ -30,7 +32,8 @@ const DAFTAR_LAYANAN: LayananItem[] = [
     kategori: "Aspirasi",
     estimasi: "Max 2x24 Jam",
     syarat: ["Foto Bukti Kejadian", "Uraian Singkat Masalah"],
-    foto: "https://images.unsplash.com/photo-1541888946425-d0fbb186a5b7?auto=format&fit=crop&q=80&w=800",
+    foto: "/aset/aspirasi.jpg",
+    href: "/layanan#pengaduan",
   },
   {
     id: "perizinan",
@@ -40,6 +43,7 @@ const DAFTAR_LAYANAN: LayananItem[] = [
     estimasi: "2-3 Hari Kerja",
     syarat: ["KTP Penanggung Jawab", "Detail Rencana Kegiatan"],
     foto: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800",
+    href: "/layanan#perizinan",
   },
 ];
 
@@ -127,15 +131,15 @@ export default function LayananSection() {
                 </div>
               </div>
 
-              {/* TOMBOL AKSI DI BAWAH (PERSIS SEPERTI TOMBOL RESERVE) */}
+              {/* TOMBOL AKSI DI BAWAH (MENGARAHKAN LANGSUNG KE HALAMAN LAYANAN SPESIFIK) */}
               <div className="relative z-10 p-6 pt-0">
-                <button
-                  onClick={() => setSelectedLayanan(item)}
-                  className="w-full py-4 rounded-2xl bg-white hover:bg-[#C5D82F] text-[#111827] text-xs font-black uppercase tracking-wider transition-all duration-300 shadow-md flex items-center justify-center gap-2 group-hover:scale-[1.02]"
+                <a
+                  href={item.href}
+                  className="w-full py-4 rounded-2xl bg-white hover:bg-[#C5D82F] text-[#111827] text-xs font-black uppercase tracking-wider transition-all duration-300 shadow-md flex items-center justify-center gap-2 group-hover:scale-[1.02] cursor-pointer"
                 >
                   <span>Ajukan Layanan</span>
                   <ArrowRight className="w-4 h-4" />
-                </button>
+                </a>
               </div>
 
             </div>
