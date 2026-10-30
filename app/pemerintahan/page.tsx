@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import BaganHierarkiSection from "../components/bagan-hierarki";
 import {
   Building2,
   ShieldCheck,
@@ -404,33 +405,8 @@ export default function PemerintahanPage() {
             </div>
           </div>
 
-          {/* BAGAN VISUAL STRUKTUR */}
-          <div className="rounded-3xl border border-[#E3E8E2] bg-white p-6 sm:p-8 shadow-xs space-y-6 text-center">
-            <h3 className="text-lg font-black text-[#111827]">Bagan Alur Hierarki Pemerintahan Desa</h3>
-            <p className="text-xs text-slate-500 max-w-xl mx-auto">
-              Struktur organisasi dipimpin oleh Kepala Desa yang membawahi Sekretariat Desa serta unsur pelaksana teknis (Kaur & Kasi).
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-              <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-2">
-                <span className="text-[10px] font-black uppercase text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full">Level 1</span>
-                <div className="font-black text-sm text-[#064E3B]">Kepala Desa</div>
-                <div className="text-xs text-slate-600">H. Bambang Sutrisno, S.T.</div>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-blue-50 border border-blue-200 text-center space-y-2">
-                <span className="text-[10px] font-black uppercase text-blue-800 bg-blue-100 px-2.5 py-0.5 rounded-full">Level 2</span>
-                <div className="font-black text-sm text-blue-900">Sekretaris Desa</div>
-                <div className="text-xs text-slate-600">Dra. Siti Rahmawati</div>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 text-center space-y-2">
-                <span className="text-[10px] font-black uppercase text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full">Level 3</span>
-                <div className="font-black text-sm text-amber-950">Kaur & Kasi Desa</div>
-                <div className="text-xs text-slate-600">Pelaksana Urusan & Seksi</div>
-              </div>
-            </div>
-          </div>
+          {/* BAGAN VISUAL STRUKTUR HIERARKI (DIAGRAM DI KIRI, PENJELASAN DI KANAN) */}
+          <BaganHierarkiSection />
 
         </div>
 

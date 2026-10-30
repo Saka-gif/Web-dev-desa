@@ -100,7 +100,7 @@ export async function GET(req: NextRequest) {
           u.nama.toLowerCase().includes(search) ||
           u.pemilik.toLowerCase().includes(search) ||
           u.lokasi.toLowerCase().includes(search) ||
-          u.deskripsi_singkat.toLowerCase().includes(search)
+          (u.deskripsi_singkat?.toLowerCase().includes(search) ?? false)
       );
     }
     if (limit) {
