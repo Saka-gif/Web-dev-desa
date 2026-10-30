@@ -198,10 +198,10 @@ export async function GET(req: NextRequest) {
     if (search) {
       publicProducts = publicProducts.filter(
         (u) =>
-          u.nama?.toLowerCase().includes(search) ||
-          u.pemilik?.toLowerCase().includes(search) ||
-          u.lokasi?.toLowerCase().includes(search) ||
-          u.deskripsi_singkat?.toLowerCase().includes(search)
+          (u.nama?.toLowerCase().includes(search) ?? false) ||
+          (u.pemilik?.toLowerCase().includes(search) ?? false) ||
+          (u.lokasi?.toLowerCase().includes(search) ?? false) ||
+          (u.deskripsi_singkat?.toLowerCase().includes(search) ?? false)
       );
     }
 
