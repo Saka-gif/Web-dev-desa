@@ -15,6 +15,7 @@ import {
   ChevronRight,
   PhoneCall,
   FileText,
+  Home,
 } from "lucide-react";
 
 interface PerangkatItem {
@@ -198,115 +199,133 @@ export default function PemerintahanPage() {
   return (
     <div className="min-h-screen bg-[#FAF9F4] text-[#111827] font-sans">
       
-      {/* 1. HERO HEADER PEMERINTAHAN */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#06261D] via-[#083327] to-[#06261D] text-white pt-36 sm:pt-44 pb-14 sm:pb-20 px-6 sm:px-10 lg:px-16 border-b border-emerald-900/60">
+      {/* 1. HERO HEADER PEMERINTAHAN (Background 1 Warna Hijau Gelap Solid, Tanpa Glow/Shadow) */}
+      <section className="relative overflow-hidden bg-[#06261D] text-white pt-36 sm:pt-44 pb-14 sm:pb-20 px-6 sm:px-10 lg:px-16 border-b border-emerald-900/60">
         
-        <div className="pointer-events-none absolute -top-24 right-1/4 w-96 h-96 rounded-full bg-[#C5D82F]/10 blur-3xl" />
-
-        <div className="relative z-10 max-w-7xl mx-auto space-y-4">
+        <div className="relative z-10 max-w-7xl mx-auto space-y-6">
+          
+          {/* Breadcrumb Clean Style (Tanpa Box) */}
           <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-300/80">
             <a href="/" className="hover:text-[#C5D82F] transition-colors">Beranda</a>
             <span>/</span>
             <span className="text-white font-bold">Pemerintahan Desa</span>
           </div>
 
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-[#064E3B]/80 px-4 py-1 text-xs font-bold text-emerald-200 backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-[#C5D82F] animate-ping" />
-            <span>Pemerintah Desa Sawotratap • Transparan, Akuntabel & Melayani</span>
+          {/* JUDUL UTAMA */}
+          <div className="space-y-4">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1]">
+              Struktur Organisasi & <br />
+              <span className="text-[#C5D82F] drop-shadow-[0_4px_24px_rgba(197,216,47,0.3)]">
+                Aparatur Pemdes Sawotratap
+              </span>
+            </h1>
+
+            <p className="max-w-2xl text-xs sm:text-sm text-slate-200/90 leading-relaxed font-normal">
+              Informasi lengkap mengenai bagan struktur kepengurusan desa, profil perangkat desa aktif, serta mitra pengawasan Badan Permusyawaratan Desa (BPD).
+            </p>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1]">
-            Struktur Organisasi & <br />
-            <span className="text-[#C5D82F] drop-shadow-[0_4px_24px_rgba(197,216,47,0.3)]">
-              Aparatur Pemdes Sawotratap
-            </span>
-          </h1>
+          {/* KAPSUL STATUS (1 Warna Menyatu dengan Background) */}
+          <div className="pt-2">
+            <div className="inline-flex items-center gap-3.5 px-5 py-3 rounded-2xl bg-[#06261D] border border-[#C5D82F]/30 shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-[#083327] border border-[#C5D82F]/40 flex items-center justify-center shrink-0 text-[#C5D82F]">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#C5D82F] shrink-0" />
+                  <span className="text-xs font-black tracking-wider text-[#C5D82F] uppercase">
+                    Pemerintah Desa Sawotratap
+                  </span>
+                </div>
+                <p className="text-[11px] font-medium text-emerald-100/80">
+                  Transparan, Akuntabel & Komitmen Melayani Warga Sepenuh Hati.
+                </p>
+              </div>
+            </div>
+          </div>
 
-          <p className="max-w-2xl text-xs sm:text-sm text-slate-200/90 leading-relaxed font-normal">
-            Informasi lengkap mengenai bagan struktur kepengurusan desa, profil perangkat desa aktif, serta mitra pengawasan Badan Permusyawaratan Desa (BPD).
-          </p>
-
-          <div className="pt-3 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-4xl">
+          <div className="pt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-4xl">
             <div className="p-3.5 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#C5D82F]/20 text-[#C5D82F] flex items-center justify-center shrink-0">
-                <Building2 className="w-5 h-5" />
+              <div className="w-9 h-9 rounded-xl bg-[#C5D82F]/20 text-[#C5D82F] flex items-center justify-center shrink-0">
+                <Building2 className="w-4 h-4" />
               </div>
               <div>
                 <div className="text-[10px] uppercase font-bold text-slate-300">Pusat Layanan</div>
-                <div className="text-sm sm:text-base font-black text-white">1 Balai PTSP</div>
+                <div className="text-sm font-black text-white">1 Balai PTSP</div>
               </div>
             </div>
 
             <div className="p-3.5 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-400/20 text-emerald-300 flex items-center justify-center shrink-0">
-                <Users className="w-5 h-5" />
+              <div className="w-9 h-9 rounded-xl bg-emerald-400/20 text-emerald-300 flex items-center justify-center shrink-0">
+                <Users className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-[10px] uppercase font-bold text-slate-300">Aparatur Pamong</div>
-                <div className="text-sm sm:text-base font-black text-white">8 Pejabat Aktif</div>
+                <div className="text-[10px] uppercase font-bold text-slate-300 uppercase">Aparatur Pamong</div>
+                <div className="text-sm font-black text-white">8 Pejabat Aktif</div>
               </div>
             </div>
 
             <div className="p-3.5 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-400/20 text-blue-300 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-5 h-5" />
+              <div className="w-9 h-9 rounded-xl bg-blue-400/20 text-blue-300 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-4 h-4" />
               </div>
               <div>
                 <div className="text-[10px] uppercase font-bold text-slate-300">Mitra Pengawasan</div>
-                <div className="text-sm sm:text-base font-black text-white">6 Pimpinan BPD</div>
+                <div className="text-sm font-black text-white">6 Pimpinan BPD</div>
               </div>
             </div>
 
             <div className="p-3.5 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center shrink-0">
-                <TrendingUp className="w-5 h-5" />
+              <div className="w-9 h-9 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center shrink-0">
+                <TrendingUp className="w-4 h-4" />
               </div>
               <div>
                 <div className="text-[10px] uppercase font-bold text-slate-300">Status Desa</div>
-                <div className="text-sm sm:text-base font-black text-[#C5D82F]">Desa Mandiri</div>
+                <div className="text-sm font-black text-[#C5D82F]">Desa Mandiri</div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. STICKY JUMP-TO NAVIGATION BAR */}
-      <div className="sticky top-20 z-30 bg-white/95 backdrop-blur-md border-b border-[#E3E8E2] px-6 sm:px-10 lg:px-16 shadow-xs">
-        <div className="max-w-7xl mx-auto flex items-center gap-2 sm:gap-4 overflow-x-auto py-3 no-scrollbar">
+      {/* 2. STICKY JUMP-TO NAVIGATION BAR (Disamakan seperti Profil: Kapsul di Tengah, Tanpa Kotak Luar) */}
+      <div className="sticky top-20 z-30 py-3 px-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar">
           
           <button
             onClick={() => scrollToSection("struktur")}
-            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 ${
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 shadow-sm ${
               activeSection === "struktur"
-                ? "bg-[#064E3B] text-white shadow-sm ring-2 ring-[#C5D82F]/40"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                ? "bg-white text-[#064E3B] shadow-md ring-2 ring-[#064E3B]/20"
+                : "bg-white/80 backdrop-blur-md text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-200/60"
             }`}
           >
-            <Building2 className="w-3.5 h-3.5 text-[#C5D82F]" />
+            <Building2 className="w-3.5 h-3.5 text-[#064E3B]" />
             <span>Struktur Organisasi</span>
           </button>
 
           <button
             onClick={() => scrollToSection("perangkat")}
-            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 ${
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 shadow-sm ${
               activeSection === "perangkat"
-                ? "bg-[#064E3B] text-white shadow-sm ring-2 ring-[#C5D82F]/40"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                ? "bg-white text-[#064E3B] shadow-md ring-2 ring-[#064E3B]/20"
+                : "bg-white/80 backdrop-blur-md text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-200/60"
             }`}
           >
-            <Users className="w-3.5 h-3.5" />
+            <Users className="w-3.5 h-3.5 text-[#064E3B]" />
             <span>Perangkat Desa</span>
           </button>
 
           <button
             onClick={() => scrollToSection("bpd")}
-            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 ${
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 shadow-sm ${
               activeSection === "bpd"
-                ? "bg-[#064E3B] text-white shadow-sm ring-2 ring-[#C5D82F]/40"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                ? "bg-white text-[#064E3B] shadow-md ring-2 ring-[#064E3B]/20"
+                : "bg-white/80 backdrop-blur-md text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-200/60"
             }`}
           >
-            <ShieldCheck className="w-3.5 h-3.5 text-[#C5D82F]" />
+            <ShieldCheck className="w-3.5 h-3.5 text-[#064E3B]" />
             <span>BPD (Badan Permusyawaratan Desa)</span>
           </button>
 
@@ -314,7 +333,7 @@ export default function PemerintahanPage() {
       </div>
 
       {/* 3. KONTEN LONG-SCROLL KE BAWAH */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-16 space-y-28 pb-24">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-12 space-y-28 pb-24">
         
         {/* ========================================================= */}
         {/* SECTION 1: STRUKTUR ORGANISASI (#struktur) */}
@@ -331,14 +350,13 @@ export default function PemerintahanPage() {
             </div>
           </div>
 
-          {/* SAMBUTAN KEPALA DESA */}
-          <div className="rounded-3xl border-2 border-emerald-600/40 bg-gradient-to-br from-[#06261D] via-[#093527] to-[#0A1B14] text-white p-6 sm:p-10 lg:p-12 shadow-2xl relative overflow-hidden">
+          {/* SAMBUTAN KEPALA DESA (Banner disamakan 1 warna solid hijau gelap) */}
+          <div className="rounded-3xl bg-[#06261D] text-white p-6 sm:p-10 lg:p-12 shadow-lg border border-emerald-900/40 relative overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
               
               <div className="lg:col-span-4 flex flex-col items-center text-center">
                 <div className="relative group">
-                  <div className="absolute -inset-2.5 rounded-[2.5rem] bg-gradient-to-r from-[#C5D82F] to-emerald-400 opacity-40 blur-xl" />
-                  <div className="relative w-60 sm:h-80 rounded-3xl overflow-hidden border-2 border-[#C5D82F] shadow-2xl bg-black/60">
+                  <div className="relative w-60 h-72 sm:h-80 rounded-3xl overflow-hidden border-2 border-[#C5D82F] shadow-2xl bg-black/60">
                     <img
                       src="/aset/kades.jpg"
                       alt="H. Bambang Sutrisno, S.T."
@@ -357,8 +375,8 @@ export default function PemerintahanPage() {
               </div>
 
               <div className="lg:col-span-8 space-y-4">
-                <div className="inline-flex items-center gap-2 rounded-full bg-[#C5D82F]/15 border border-[#C5D82F]/40 px-3.5 py-1 text-xs font-black text-[#C5D82F]">
-                  <Sparkles className="w-3.5 h-3.5" />
+                <div className="inline-flex items-center gap-2 rounded-full bg-[#083327] border border-[#C5D82F]/30 px-3.5 py-1 text-xs font-black text-[#C5D82F]">
+                  <Sparkles className="w-3.5 h-3.5 text-[#C5D82F]" />
                   <span>Sambutan Kepala Desa Sawotratap</span>
                 </div>
 
@@ -378,7 +396,7 @@ export default function PemerintahanPage() {
                     className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-black shadow-md transition-all"
                   >
                     <PhoneCall className="w-3.5 h-3.5" />
-                    <span>WhatsApp Pak Kades</span>
+                    <span>WhatsApp</span>
                   </a>
                 </div>
               </div>
