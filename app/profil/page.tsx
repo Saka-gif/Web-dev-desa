@@ -11,16 +11,15 @@ import {
   Building,
   Target,
   Clock,
-  Sparkles,
   TreePine,
   Navigation,
   ArrowUpRight,
+  ShieldCheck,
 } from "lucide-react";
 
 export default function ProfilPage() {
   const [activeSection, setActiveSection] = useState("sejarah");
 
-  // Deteksi section yang sedang aktif saat discroll ke bawah
   useEffect(() => {
     const handleScroll = () => {
       const sections = ["sejarah", "visi-misi", "geografis", "demografi"];
@@ -43,7 +42,6 @@ export default function ProfilPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Fungsi untuk scroll mulus saat menu diklik
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
@@ -54,37 +52,59 @@ export default function ProfilPage() {
   return (
     <div className="min-h-screen bg-[#FAF9F4] text-[#111827] font-sans">
       
-      {/* 1. HERO HEADER PROFIL DESA (DISAMAKAN DENGAN PEMERINTAHAN: PT-36 / PT-44) */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#06261D] via-[#083327] to-[#0A1F17] text-white pt-36 sm:pt-44 pb-14 sm:pb-20 px-6 sm:px-10 lg:px-16 border-b border-emerald-900/60">
+      {/* 1. HERO HEADER PROFIL DESA (Background Solid Hijau Gelap) */}
+      <section className="relative overflow-hidden bg-[#06261D] text-white pt-36 sm:pt-44 pb-14 sm:pb-20 px-6 sm:px-10 lg:px-16 border-b border-emerald-900/60">
         
-        <div className="pointer-events-none absolute -top-24 right-1/4 w-96 h-96 rounded-full bg-[#C5D82F]/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 left-1/4 w-96 h-96 rounded-full bg-emerald-500/10 blur-3xl" />
-
-        <div className="relative z-10 max-w-7xl mx-auto space-y-4">
+        <div className="relative z-10 max-w-7xl mx-auto space-y-6">
+          
+          {/* Breadcrumb Clean Style (Tanpa Box) */}
           <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-300/80">
             <a href="/" className="hover:text-[#C5D82F] transition-colors">Beranda</a>
             <span>/</span>
             <span className="text-white font-bold">Profil Desa</span>
           </div>
 
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-[#064E3B]/80 px-4 py-1 text-xs font-bold text-emerald-200 backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-[#C5D82F] animate-ping" />
-            <span>Desa Mandiri Berkembang • IDM Tertinggi Kemendesa PDTT</span>
+          {/* JUDUL UTAMA */}
+          <div className="space-y-4">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1]">
+              Profil Visual <br />
+              <span className="text-[#C5D82F] drop-shadow-[0_4px_24px_rgba(197,216,47,0.3)]">
+                Desa Sawotratap
+              </span>
+            </h1>
+
+            <p className="max-w-2xl text-xs sm:text-sm text-slate-200/90 leading-relaxed font-normal">
+              Potret komprehensif sejarah peradaban, arah pembangunan visi misi, peta segitiga emas Aloha-Juanda, dan statistik warga secara visual.
+            </p>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1]">
-            Profil Visual <br />
-            <span className="text-[#C5D82F] drop-shadow-[0_4px_24px_rgba(197,216,47,0.3)]">
-              Desa Sawotratap
-            </span>
-          </h1>
+          {/* KAPSUL DESA MANDIRI BERKEMBANG (1 Warna Menyatu dengan Background) */}
+          <div className="pt-2">
+            <div className="inline-flex items-center gap-3.5 px-5 py-3 rounded-2xl bg-[#06261D] border border-[#C5D82F]/30 shadow-sm">
+              
+              {/* Box Ikon Hijau Gelap dengan Border Lime */}
+              <div className="w-10 h-10 rounded-xl bg-[#083327] border border-[#C5D82F]/40 flex items-center justify-center shrink-0 text-[#C5D82F]">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
 
-          <p className="max-w-2xl text-xs sm:text-sm text-slate-200/90 leading-relaxed font-normal">
-            Potret komprehensif sejarah peradaban, arah pembangunan visi misi, peta segitiga emas Aloha-Juanda, dan statistik warga secara visual.
-          </p>
+              {/* Teks Keterangan */}
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#C5D82F] shrink-0" />
+                  <span className="text-xs font-black tracking-wider text-[#C5D82F] uppercase">
+                    Desa Mandiri Berkembang
+                  </span>
+                </div>
+                <p className="text-[11px] font-medium text-emerald-100/80">
+                  Resmi menyandang status IDM Tertinggi dari Kemendesa PDTT Republik Indonesia.
+                </p>
+              </div>
+
+            </div>
+          </div>
 
           {/* 4 Quick Stat Badges */}
-          <div className="pt-2 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl">
+          <div className="pt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl">
             <div className="p-3.5 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-[#C5D82F]/20 text-[#C5D82F] flex items-center justify-center shrink-0">
                 <Award className="w-4 h-4" />
@@ -125,70 +145,69 @@ export default function ProfilPage() {
               </div>
             </div>
           </div>
+
         </div>
       </section>
 
       {/* 2. STICKY JUMP-TO NAVIGATION BAR */}
-      <div className="sticky top-20 z-30 bg-white/95 backdrop-blur-md border-b border-[#E3E8E2] px-6 sm:px-10 lg:px-16 shadow-xs">
-        <div className="max-w-7xl mx-auto flex items-center gap-2 sm:gap-4 overflow-x-auto py-3 no-scrollbar">
+      <div className="sticky top-20 z-30 py-3 px-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar">
           
           <button
             onClick={() => scrollToSection("sejarah")}
-            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 ${
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 shadow-sm ${
               activeSection === "sejarah"
-                ? "bg-[#064E3B] text-white shadow-sm ring-2 ring-[#C5D82F]/40"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                ? "bg-white text-[#064E3B] shadow-md ring-2 ring-[#064E3B]/20"
+                : "bg-white/80 backdrop-blur-md text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-200/60"
             }`}
           >
-            <Landmark className="w-3.5 h-3.5 text-[#C5D82F]" />
+            <Landmark className="w-3.5 h-3.5 text-[#064E3B]" />
             <span>Infografis Sejarah</span>
           </button>
 
           <button
             onClick={() => scrollToSection("visi-misi")}
-            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 ${
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 shadow-sm ${
               activeSection === "visi-misi"
-                ? "bg-[#064E3B] text-white shadow-sm ring-2 ring-[#C5D82F]/40"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                ? "bg-white text-[#064E3B] shadow-md ring-2 ring-[#064E3B]/20"
+                : "bg-white/80 backdrop-blur-md text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-200/60"
             }`}
           >
-            <Compass className="w-3.5 h-3.5" />
+            <Compass className="w-3.5 h-3.5 text-[#064E3B]" />
             <span>Visi & 5 Misi Pokok</span>
           </button>
 
           <button
             onClick={() => scrollToSection("geografis")}
-            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 ${
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 shadow-sm ${
               activeSection === "geografis"
-                ? "bg-[#064E3B] text-white shadow-sm ring-2 ring-[#C5D82F]/40"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                ? "bg-white text-[#064E3B] shadow-md ring-2 ring-[#064E3B]/20"
+                : "bg-white/80 backdrop-blur-md text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-200/60"
             }`}
           >
-            <MapPin className="w-3.5 h-3.5" />
+            <MapPin className="w-3.5 h-3.5 text-[#064E3B]" />
             <span>Peta Batas & Spasial</span>
           </button>
 
           <button
             onClick={() => scrollToSection("demografi")}
-            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 ${
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all shrink-0 shadow-sm ${
               activeSection === "demografi"
-                ? "bg-[#064E3B] text-white shadow-sm ring-2 ring-[#C5D82F]/40"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                ? "bg-white text-[#064E3B] shadow-md ring-2 ring-[#064E3B]/20"
+                : "bg-white/80 backdrop-blur-md text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-200/60"
             }`}
           >
-            <Users className="w-3.5 h-3.5" />
+            <Users className="w-3.5 h-3.5 text-[#064E3B]" />
             <span>Statistik Populasi</span>
           </button>
 
         </div>
       </div>
 
-      {/* 3. KONTEN BERDERET KE BAWAH (LONG SCROLL SATU HALAMAN) */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-16 space-y-28 pb-24">
+      {/* 3. KONTEN BERDERET KE BAWAH */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-12 space-y-28 pb-24">
         
-        {/* ========================================================= */}
-        {/* SEJARAH & ASAL-USUL (#sejarah) */}
-        {/* ========================================================= */}
+        {/* SEJARAH */}
         <div id="sejarah" className="scroll-mt-36 space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E3E8E2]">
             <div className="flex items-center gap-3">
@@ -291,9 +310,7 @@ export default function ProfilPage() {
           </div>
         </div>
 
-        {/* ========================================================= */}
-        {/* VISI & 5 MISI POKOK (#visi-misi) */}
-        {/* ========================================================= */}
+        {/* VISI MISI */}
         <div id="visi-misi" className="scroll-mt-36 space-y-8">
           <div className="flex items-center gap-3 pb-3 border-b border-[#E3E8E2]">
             <div className="w-10 h-10 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
@@ -377,9 +394,7 @@ export default function ProfilPage() {
           </div>
         </div>
 
-        {/* ========================================================= */}
-        {/* PETA BATAS & GEOGRAFIS (#geografis) - TANPA GAMBAR */}
-        {/* ========================================================= */}
+        {/* GEOGRAFIS */}
         <div id="geografis" className="scroll-mt-36 space-y-8">
           <div className="flex items-center gap-3 pb-3 border-b border-[#E3E8E2]">
             <div className="w-10 h-10 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
@@ -402,7 +417,7 @@ export default function ProfilPage() {
             <div className="p-5 rounded-3xl border border-slate-200 bg-white shadow-xs">
               <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-sm mb-2">S</div>
               <div className="text-[10px] font-bold uppercase text-slate-500">Sebelah Selatan</div>
-              <div className="text-base font-black text-[#111827] mt-0.5">Desa Keboansikep</div>
+              <div className="text-base font-black text-[#111827] mt-0.5">Keboansikep</div>
               <div className="text-xs text-slate-500 mt-1">Berbatasan Gedangan pusat. Menuju Alun-alun Sidoarjo.</div>
             </div>
 
@@ -422,9 +437,7 @@ export default function ProfilPage() {
           </div>
         </div>
 
-        {/* ========================================================= */}
-        {/* DEMOGRAFI & POPULASI (#demografi) */}
-        {/* ========================================================= */}
+        {/* DEMOGRAFI */}
         <div id="demografi" className="scroll-mt-36 space-y-8">
           <div className="flex items-center gap-3 pb-3 border-b border-[#E3E8E2]">
             <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
