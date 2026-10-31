@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "./components/navbar";
 import Footer from "./components/footer";
+import FloatingChatbot from "./components/floating-chatbot";
 
 export const metadata: Metadata = {
   title: "Pemerintah Desa Sawotratap – Portal Resmi & Layanan Digital",
@@ -31,6 +32,9 @@ export default function RootLayout({
         <div className="flex-grow">
           {children}
         </div>
+
+        {/* Widget Chatbot Interaktif Lottie Hijau (Muncul di semua halaman publik) */}
+        <FloatingChatbot />
 
         {/* Global Footer Resmi Desa */}
         <Footer />
