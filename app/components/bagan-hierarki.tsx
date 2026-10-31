@@ -1,21 +1,5 @@
-"use client";
-
-import React, { useState } from "react";
-import {
-  Building2,
-  ShieldCheck,
-  Users,
-  FileText,
-  CheckCircle2,
-  Sparkles,
-  MapPin,
-  HeartHandshake,
-  Layers,
-  ChevronRight,
-  Info,
-  Award,
-  BookOpen,
-} from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Layers, X, CheckCircle2, BookOpen } from "lucide-react";
 
 export interface HierarkiNode {
   id: string;
@@ -384,33 +368,34 @@ export const HIERARKI_DATA: Record<string, HierarkiNode> = {
 
 export default function BaganHierarkiSection() {
   const [selectedId, setSelectedId] = useState<string>("kades");
-  const [filterKat, setFilterKat] = useState<string>("Semua");
+  const [modalNode, setModalNode] = useState<HierarkiNode | null>(null);
+  const [scale, setScale] = useState(1);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const activeNode = HIERARKI_DATA[selectedId] || HIERARKI_DATA["kades"];
+  useEffect(() => {
+    const updateScale = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.clientWidth;
+        if (containerWidth > 0 && containerWidth < 840) {
+          setScale(containerWidth / 840);
+        } else {
+          setScale(1);
+        }
+      }
+    };
+
+    updateScale();
+    window.addEventListener("resize", updateScale);
+    return () => window.removeEventListener("resize", updateScale);
+  }, []);
 
   const handleSelect = (id: string) => {
     setSelectedId(id);
+    setModalNode(HIERARKI_DATA[id] || null);
   };
 
-  const categories = [
-    { key: "Semua", label: "Semua" },
-    { key: "Pimpinan", label: "Pimpinan & Pengawasan" },
-    { key: "Sekretariat", label: "Sekretariat & Keuangan" },
-    { key: "Teknis", label: "Pelaksana Teknis (Kasi/Kaur)" },
-    { key: "Kewilayahan", label: "Kewilayahan & Linmas" },
-  ];
-
-  const filteredNodeList = Object.values(HIERARKI_DATA).filter((node) => {
-    if (filterKat === "Semua") return true;
-    if (filterKat === "Pimpinan") return node.category === "pimpinan" || node.category === "mitra";
-    if (filterKat === "Sekretariat") return node.category === "sekretariat" || node.category === "kaur-sekretariat";
-    if (filterKat === "Teknis") return node.category === "kasi" || node.category === "kaur-teknis";
-    if (filterKat === "Kewilayahan") return node.category === "kadus" || node.category === "kaur-wilayah" || node.category === "lkd";
-    return true;
-  });
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* HEADER SECTION BAGAN */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-[#E3E8E2]">
         <div>
@@ -422,7 +407,7 @@ export default function BaganHierarkiSection() {
             Bagan Struktur Hierarki & Alur Koordinasi Pemdes
           </h3>
           <p className="text-xs text-slate-500 mt-1 max-w-2xl">
-            Struktur resmi tata kelola Pemerintah Desa Sawotratap. Klik pada kotak bagan di sebelah kiri untuk melihat uraian tugas pokok, dasar hukum, dan wewenang di sebelah kanan.
+            Struktur resmi tata kelola Pemerintah Desa Sawotratap sesuai Permendagri No. 84 Tahun 2015.
           </p>
         </div>
 
@@ -448,36 +433,30 @@ export default function BaganHierarkiSection() {
         </div>
       </div>
 
-      {/* GRID UTAMA: KIRI = DIAGRAM, KANAN = PENJELASAN */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-        
-        {/* ========================================================= */}
-        {/* KOLOM KIRI: DIAGRAM STRUKTUR SESUAI GAMBAR */}
-        {/* ========================================================= */}
-        <div className="xl:col-span-7 bg-white rounded-3xl border border-[#E3E8E2] p-4 sm:p-6 shadow-sm overflow-hidden flex flex-col">
-          
-          <div className="flex items-center justify-between pb-3 mb-2 border-b border-slate-100 text-xs">
-            <span className="font-extrabold text-[#064E3B] flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-[#C5D82F]" />
-              Diagram Bagan Hierarki Resmi
-            </span>
-            <span className="text-[11px] text-slate-400 hidden sm:inline">
-              Geser horizontal bila tampilan terpotong
-            </span>
-          </div>
-
-          {/* KANVAS DIAGRAM SCROLLABLE */}
-          <div className="overflow-x-auto pb-6 pt-2 -mx-2 px-2 scrollbar-thin scrollbar-thumb-slate-300">
-            <div className="relative min-w-[840px] h-[720px] mx-auto select-none">
-              
-              {/* ===================================================== */}
-              {/* LAYER SVG KONEKTOR / GARIS ALUR HIERARKI */}
-              {/* ===================================================== */}
-              <svg
-                className="absolute inset-0 w-full h-full pointer-events-none z-0"
-                viewBox="0 0 840 720"
-                fill="none"
-              >
+      {/* DIAGRAM BAGAN HIERARKI RESMI (TANPA CARD & SCALED RESPONSIVE) */}
+      <div ref={containerRef} className="w-full flex justify-center overflow-hidden py-2">
+        <div
+          style={{
+            width: 840 * scale,
+            height: 650 * scale,
+          }}
+          className="relative shrink-0"
+        >
+          <div
+            style={{
+              transform: `scale(${scale})`,
+              transformOrigin: "top left",
+            }}
+            className="absolute top-0 left-0 w-[840px] h-[650px] select-none"
+          >
+            {/* ===================================================== */}
+            {/* LAYER SVG KONEKTOR / GARIS ALUR HIERARKI */}
+            {/* ===================================================== */}
+            <svg
+              className="absolute inset-0 w-full h-full pointer-events-none z-0"
+              viewBox="0 0 840 650"
+              fill="none"
+            >
                 {/* 1. Garis Koordinasi Kepala Desa ke BPD (Dashed) */}
                 {/* Dari sisi kiri Kades (340, 50) -> belok kiri ke X=130 -> turun ke BPD top (130, 95) */}
                 <path
@@ -570,26 +549,7 @@ export default function BaganHierarkiSection() {
                 {/* 9. Garis Vertikal Dalam Kolom 2 (Kasi Kesejahteraan) */}
                 <line x1="320" y1="400" x2="320" y2="420" stroke="#124B28" strokeWidth="2.5" />
                 <line x1="320" y1="475" x2="320" y2="495" stroke="#124B28" strokeWidth="2.5" />
-
-                {/* 10. Garis Koordinasi RT/RW/Karang Taruna/PKK (Dashed seperti foto) */}
-                {/* Garis bracket putus-putus di sebelah kiri Kasi Kesra */}
-                <path
-                  d="M 245 375 L 230 375 L 230 595 L 245 595"
-                  stroke="#124B28"
-                  strokeWidth="2.5"
-                  strokeDasharray="6,4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                {/* Garis putus-putus dari bawah RT/RW menyambung ke jalur pembinaan */}
-                <path
-                  d="M 230 635 L 230 670 L 440 670 L 440 320"
-                  stroke="#124B28"
-                  strokeWidth="2.5"
-                  strokeDasharray="6,4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
+                <line x1="320" y1="550" x2="320" y2="570" stroke="#124B28" strokeWidth="2.5" />
 
                 {/* 11. Garis Vertikal Dalam Kolom 3 (Kasi Pelayanan) */}
                 <line x1="520" y1="400" x2="520" y2="420" stroke="#124B28" strokeWidth="2.5" />
@@ -769,186 +729,95 @@ export default function BaganHierarkiSection() {
                 />
               </div>
 
-            </div>
           </div>
-
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-            <span className="flex items-center gap-1 font-medium">
-              <Info className="w-3.5 h-3.5 text-emerald-700" />
-              Tip: Sentuh atau klik kotak pada diagram untuk berpindah sorotan
-            </span>
-            <span className="font-bold text-[#064E3B]">
-              Total 18 Jabatan & Elemen Hierarki
-            </span>
-          </div>
-
         </div>
+      </div>
 
-        {/* ========================================================= */}
-        {/* KOLOM KANAN: PENJELASAN TUGAS & WEWENANG LENGKAP */}
-        {/* ========================================================= */}
-        <div className="xl:col-span-5 space-y-5 xl:sticky xl:top-24">
-          
-          {/* KARTU SOROTAN JABATAN AKTIF (SPOTLIGHT CARD) */}
-          <div className="rounded-3xl border-2 border-emerald-800/30 bg-gradient-to-br from-[#06261D] to-[#0A3D2E] text-white p-6 shadow-xl relative overflow-hidden">
-            <div className="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-[#C5D82F]/10 blur-2xl pointer-events-none" />
-
-            <div className="space-y-4 relative z-10">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C5D82F]/20 text-[#C5D82F] text-[10px] font-black uppercase tracking-wider border border-[#C5D82F]/30 mb-2">
-                    <Sparkles className="w-3 h-3" />
-                    <span>{activeNode.level}</span>
-                  </div>
-                  <h4 className="text-xl sm:text-2xl font-black text-white leading-tight">
-                    {activeNode.label}
-                  </h4>
-                  {activeNode.subLabel && (
-                    <p className="text-xs text-emerald-200/90 font-medium mt-0.5">
-                      {activeNode.subLabel}
-                    </p>
-                  )}
-                </div>
-
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-inner ${
-                  activeNode.type === "dark"
-                    ? "bg-[#124B28] border border-[#C5D82F]/40 text-[#C5D82F]"
-                    : "bg-[#62A654] border border-white/30 text-white"
-                }`}>
-                  {activeNode.category === "pimpinan" && <Award className="w-6 h-6" />}
-                  {activeNode.category === "mitra" && <ShieldCheck className="w-6 h-6" />}
-                  {activeNode.category === "sekretariat" && <Building2 className="w-6 h-6" />}
-                  {activeNode.category === "kasi" && <FileText className="w-6 h-6" />}
-                  {activeNode.category === "kadus" && <MapPin className="w-6 h-6" />}
-                  {(activeNode.category.startsWith("kaur") || activeNode.category === "lkd") && <Users className="w-6 h-6" />}
-                </div>
+      {/* POPUP PENJELASAN SINGKAT JABATAN */}
+      {modalNode && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150"
+          onClick={() => setModalNode(null)}
+        >
+          <div
+            className="relative w-full max-w-md rounded-3xl bg-white shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-150 p-6 sm:p-7 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header Modal */}
+            <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3">
+              <div className="space-y-1">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  {modalNode.level}
+                </span>
+                <h4 className="text-lg sm:text-xl font-black text-[#111827] leading-snug">
+                  {modalNode.label}
+                </h4>
+                {modalNode.pejabat && (
+                  <p className="text-xs font-bold text-emerald-700 flex items-center gap-1.5 pt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                    <span>Pejabat: {modalNode.pejabat}</span>
+                  </p>
+                )}
               </div>
 
-              {/* PEJABAT AKTIF */}
-              {activeNode.pejabat && (
-                <div className="p-3 rounded-xl bg-white/10 border border-white/15 backdrop-blur-md flex items-center justify-between">
-                  <span className="text-[11px] text-slate-300 font-medium">Pejabat / Penanggung Jawab:</span>
-                  <span className="text-xs font-black text-[#C5D82F]">{activeNode.pejabat}</span>
-                </div>
-              )}
+              <button
+                onClick={() => setModalNode(null)}
+                className="p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer shrink-0"
+                aria-label="Tutup"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
-              {/* URAIAN TUPOKSI */}
-              <div className="space-y-1.5 pt-1">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-300/80">
-                  Tugas Pokok & Fungsi (Tupoksi)
-                </div>
-                <p className="text-xs leading-relaxed text-slate-200">
-                  {activeNode.tupoksi}
+            {/* Isi Ringkas Tupoksi */}
+            <div className="space-y-3 text-xs leading-relaxed">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                  Uraian Tugas Pokok & Fungsi
+                </span>
+                <p className="text-slate-700 font-medium">
+                  {modalNode.tupoksi}
                 </p>
               </div>
 
-              {/* RINCIAN WEWENANG / TANGGUNG JAWAB */}
-              <div className="space-y-2 pt-2 border-t border-emerald-800/60">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-300/80">
-                  Rincian Wewenang Operasional:
+              {/* Rincian Singkat (Maksimal 3 poin) */}
+              {modalNode.rincianTugas && modalNode.rincianTugas.length > 0 && (
+                <div className="pt-2 border-t border-slate-100">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1.5">
+                    Fokus Wewenang:
+                  </span>
+                  <ul className="space-y-1.5">
+                    {modalNode.rincianTugas.slice(0, 3).map((tugas, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-slate-600">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                        <span>{tugas}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <ul className="space-y-2">
-                  {activeNode.rincianTugas.map((tugas, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-xs text-slate-200/90 leading-relaxed">
-                      <CheckCircle2 className="w-4 h-4 text-[#C5D82F] shrink-0 mt-0.5" />
-                      <span>{tugas}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              )}
 
-              {/* DASAR HUKUM */}
-              {activeNode.dasarHukum && (
-                <div className="pt-2 border-t border-emerald-800/60 flex items-center gap-2 text-[10px] text-emerald-300/80 font-mono">
-                  <BookOpen className="w-3.5 h-3.5 text-[#C5D82F] shrink-0" />
-                  <span>Landasan: {activeNode.dasarHukum}</span>
+              {/* Dasar Hukum */}
+              {modalNode.dasarHukum && (
+                <div className="pt-2 text-[10px] font-mono text-slate-400 border-t border-slate-100 flex items-center gap-1.5">
+                  <BookOpen className="w-3 h-3 text-emerald-700 shrink-0" />
+                  <span>Landasan: {modalNode.dasarHukum}</span>
                 </div>
               )}
             </div>
+
+            {/* Footer Tutup */}
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={() => setModalNode(null)}
+                className="w-full sm:w-auto px-5 py-2 rounded-xl bg-[#064E3B] hover:bg-[#047857] text-white text-xs font-black transition-all cursor-pointer shadow-xs"
+              >
+                Tutup
+              </button>
+            </div>
           </div>
-
-          {/* DAFTAR PENJELASAN SELURUH ELEMEN STRUKTUR (BERDASARKAN FILTER) */}
-          <div className="rounded-3xl border border-[#E3E8E2] bg-white p-5 shadow-xs space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <span className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                <FileText className="w-4 h-4 text-emerald-700" />
-                Daftar Penjelasan Jabatan
-              </span>
-              <span className="text-[10px] text-slate-400 font-bold">
-                {filteredNodeList.length} Jabatan
-              </span>
-            </div>
-
-            {/* FILTER KATEGORI TABS */}
-            <div className="flex flex-wrap gap-1.5">
-              {categories.map((cat) => (
-                <button
-                  key={cat.key}
-                  onClick={() => setFilterKat(cat.key)}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
-                    filterKat === cat.key
-                      ? "bg-[#064E3B] text-white shadow-xs"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
-                  }`}
-                >
-                  {cat.label}
-                </button>
-              ))}
-            </div>
-
-            {/* LIST KARTU MINI SCROLLABLE */}
-            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200">
-              {filteredNodeList.map((item) => {
-                const isCurrent = item.id === selectedId;
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => handleSelect(item.id)}
-                    className={`p-3 rounded-2xl border text-left cursor-pointer transition-all flex items-center justify-between gap-3 group ${
-                      isCurrent
-                        ? "bg-emerald-50/80 border-[#064E3B] ring-1 ring-[#064E3B]"
-                        : "bg-white border-slate-200/70 hover:border-emerald-300 hover:bg-slate-50"
-                    }`}
-                  >
-                    <div className="space-y-0.5">
-                      <div className="flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full shrink-0 ${
-                          item.type === "dark" ? "bg-[#124B28]" : "bg-[#62A654]"
-                        }`} />
-                        <span className="text-xs font-black text-slate-900 group-hover:text-[#064E3B] transition-colors">
-                          {item.label.replace("\n", " & ")}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 line-clamp-1 pl-4">
-                        {item.tupoksi}
-                      </p>
-                    </div>
-
-                    <ChevronRight className={`w-4 h-4 shrink-0 transition-transform ${
-                      isCurrent ? "text-[#064E3B] translate-x-1" : "text-slate-400 group-hover:text-slate-600"
-                    }`} />
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* RINGKASAN TATA KELOLA TIGA PILAR */}
-            <div className="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2 text-[10px]">
-              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/60">
-                <span className="font-black text-[#064E3B] block">Garis Komando Vertikal</span>
-                <span className="text-slate-500 mt-0.5 block">Kepala Desa membawahi Sekdes, Kasi, dan Kepala Dusun.</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/60">
-                <span className="font-black text-emerald-800 block">Kemitraan Sejajar</span>
-                <span className="text-slate-500 mt-0.5 block">BPD & LPM berfungsi sebagai mitra pengawas & aspirasi.</span>
-              </div>
-            </div>
-
-          </div>
-
         </div>
-
-      </div>
+      )}
     </div>
   );
 }

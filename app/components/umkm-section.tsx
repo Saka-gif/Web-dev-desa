@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { DAFTAR_PRODUK_UMKM, UmkmItem } from "@/app/data/umkm";
 import { supabase } from "@/lib/supabase";
 import {
@@ -8,7 +9,6 @@ import {
   Megaphone,
   ShieldCheck,
   FileText,
-  ExternalLink,
   ArrowRight,
   Search,
   MapPin,
@@ -16,9 +16,6 @@ import {
   Star,
   PlusCircle,
   X,
-  Upload,
-  CheckCircle2,
-  AlertCircle,
   MessageCircle,
   Info,
 } from "lucide-react";
@@ -28,27 +25,6 @@ export default function UmkmSection() {
   const [kategoriAktif, setKategoriAktif] = useState("Semua");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUmkm, setSelectedUmkm] = useState<UmkmItem | null>(null);
-
-  // Modal Pendaftaran UMKM Warga
-  const [isDaftarOpen, setIsDaftarOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState("");
-
-  const [formDaftar, setFormDaftar] = useState({
-    nama: "",
-    kategori: "Kuliner",
-    pemilik: "",
-    nikPemilik: "",
-    kontakWa: "",
-    harga: "",
-    lokasi: "",
-    rw: "RW 01",
-    deskripsiSingkat: "",
-    deskripsiLengkap: "",
-    jamOperasional: "08.00 - 20.00 WIB",
-  });
-  const [fileFoto, setFileFoto] = useState<File | null>(null);
 
   // Ambil data live dari database (Hanya yang status = 'disetujui')
   const loadLiveUmkm = async () => {
@@ -144,73 +120,6 @@ export default function UmkmSection() {
     return `https://wa.me/${cleanWa}?text=${encodeURIComponent(pesan)}`;
   };
 
-  // Submit Pendaftaran UMKM Baru
-  const handleDaftarSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitMessage("");
-
-    try {
-      const fd = new FormData();
-      fd.append("nama", formDaftar.nama);
-      fd.append("kategori", formDaftar.kategori);
-      fd.append("pemilik", formDaftar.pemilik);
-      fd.append("nikPemilik", formDaftar.nikPemilik);
-      fd.append("kontakWa", formDaftar.kontakWa);
-      fd.append("harga", formDaftar.harga);
-      fd.append("lokasi", formDaftar.lokasi);
-      fd.append("rw", formDaftar.rw);
-      fd.append("deskripsiSingkat", formDaftar.deskripsiSingkat);
-      fd.append("deskripsiLengkap", formDaftar.deskripsiLengkap);
-      fd.append("jamOperasional", formDaftar.jamOperasional);
-
-      if (fileFoto) {
-        fd.append("foto", fileFoto);
-      }
-
-      const res = await fetch("/api/umkm", {
-        method: "POST",
-        body: fd,
-      });
-
-      const json = await res.json();
-      if (json.success) {
-        setSubmitSuccess(true);
-        setSubmitMessage(
-          json.message ||
-            "Pendaftaran UMKM Anda telah berhasil dikirim! Menunggu verifikasi admin sebelum tampil di website."
-        );
-      } else {
-        alert(json.message || "Gagal mengirim pendaftaran UMKM. Silakan periksa formulir.");
-      }
-    } catch (err) {
-      console.error("Error submitting UMKM registration:", err);
-      alert("Terjadi gangguan koneksi saat mengirim pendaftaran.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const closeDaftarModal = () => {
-    setIsDaftarOpen(false);
-    setSubmitSuccess(false);
-    setSubmitMessage("");
-    setFileFoto(null);
-    setFormDaftar({
-      nama: "",
-      kategori: "Kuliner",
-      pemilik: "",
-      nikPemilik: "",
-      kontakWa: "",
-      harga: "",
-      lokasi: "",
-      rw: "RW 01",
-      deskripsiSingkat: "",
-      deskripsiLengkap: "",
-      jamOperasional: "08.00 - 20.00 WIB",
-    });
-  };
-
   return (
     <section id="umkm" className="py-24 bg-[#FAF9F4] text-[#111827] border-t border-[#E3E8E2]">
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 space-y-10">
@@ -231,14 +140,14 @@ export default function UmkmSection() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            {/* TOMBOL DAFTAR UMKM WARGA */}
-            <button
-              onClick={() => setIsDaftarOpen(true)}
+            {/* TOMBOL DAFTAR UMKM WARGA -> NAVIGASI KE HALAMAN LAYANAN UMKM */}
+            <Link
+              href="/layanan#daftar-umkm"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white hover:bg-emerald-50 text-[#064E3B] border border-emerald-600 text-xs font-black transition-all shadow-xs hover:scale-105 cursor-pointer"
             >
               <PlusCircle className="w-4 h-4 text-[#064E3B]" />
               <span>Daftarkan Usaha Anda</span>
-            </button>
+            </Link>
 
             <a
               href="/layanan#umkm"
@@ -412,13 +321,13 @@ export default function UmkmSection() {
             </p>
           </div>
 
-          <button
-            onClick={() => setIsDaftarOpen(true)}
-            className="inline-flex items-center gap-2 rounded-2xl bg-[#C5D82F] hover:bg-[#b8cb26] text-[#06261D] px-6 py-3.5 text-xs font-black shadow-md transition-colors shrink-0 cursor-pointer"
+          <Link
+            href="/layanan#daftar-umkm"
+            className="inline-flex items-center gap-2 rounded-2xl bg-[#C5D82F] hover:bg-[#b8cb26] text-[#06261D] px-6 py-3.5 text-xs font-black shadow-md transition-colors shrink-0 hover:scale-105"
           >
             <PlusCircle className="w-4 h-4 text-[#06261D]" />
             <span>Formulir Pendaftaran UMKM</span>
-          </button>
+          </Link>
         </div>
 
       </div>
@@ -526,216 +435,6 @@ export default function UmkmSection() {
                 </a>
               </div>
             </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* MODAL 2: FORMULIR PENDAFTARAN UMKM WARGA (Status Default: Menunggu ACC) */}
-      {/* ========================================================================= */}
-      {isDaftarOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="relative w-full max-w-xl rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-200 my-8">
-            
-            {/* Header Modal */}
-            <div className="p-6 sm:p-7 border-b border-slate-100 flex items-center justify-between bg-emerald-50/50">
-              <div className="space-y-1">
-                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-100/70 px-2.5 py-0.5 rounded-md">
-                  Pendaftaran Terbuka
-                </span>
-                <h3 className="text-lg sm:text-xl font-black text-[#111827]">
-                  Daftarkan UMKM Sawotratap
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Setelah didaftarkan, admin Balai Desa akan memverifikasi sebelum ditampilkan di website.
-                </p>
-              </div>
-
-              <button
-                onClick={closeDaftarModal}
-                className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Isi Formulir / Notifikasi Sukses */}
-            {submitSuccess ? (
-              <div className="p-8 text-center space-y-4">
-                <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
-                  <CheckCircle2 className="w-8 h-8" />
-                </div>
-                <h4 className="text-lg font-black text-[#111827]">Pendaftaran Berhasil Dikirim!</h4>
-                <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-                  {submitMessage}
-                </p>
-                <div className="pt-4">
-                  <button
-                    onClick={closeDaftarModal}
-                    className="px-6 py-2.5 rounded-full bg-[#064E3B] text-white text-xs font-black hover:bg-[#047857] transition-all cursor-pointer"
-                  >
-                    Selesai & Tutup
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleDaftarSubmit} className="p-6 sm:p-7 space-y-4 max-h-[70vh] overflow-y-auto">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Nama Usaha / Produk *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formDaftar.nama}
-                    onChange={(e) => setFormDaftar({ ...formDaftar, nama: e.target.value })}
-                    placeholder="Contoh: Dapur Sambal Bandeng Bu Siti"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-emerald-600"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700">Kategori Usaha *</label>
-                    <select
-                      value={formDaftar.kategori}
-                      onChange={(e) => setFormDaftar({ ...formDaftar, kategori: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-emerald-600 bg-white"
-                    >
-                      <option value="Kuliner">Kuliner & Jajanan</option>
-                      <option value="Kerajinan">Kerajinan Tangan</option>
-                      <option value="Fashion">Batik & Fashion</option>
-                      <option value="Pertanian">Pertanian & Tanaman</option>
-                      <option value="Jasa">Jasa & Lainnya</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700">Wilayah RW *</label>
-                    <select
-                      value={formDaftar.rw}
-                      onChange={(e) => setFormDaftar({ ...formDaftar, rw: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-emerald-600 bg-white"
-                    >
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) => {
-                        const rwStr = `RW ${n < 10 ? "0" + n : n}`;
-                        return (
-                          <option key={rwStr} value={rwStr}>
-                            {rwStr}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700">Nama Pemilik Usaha *</label>
-                    <input
-                      type="text"
-                      required
-                      value={formDaftar.pemilik}
-                      onChange={(e) => setFormDaftar({ ...formDaftar, pemilik: e.target.value })}
-                      placeholder="Contoh: Ibu Siti Rahayu"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-emerald-600"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700">No. WhatsApp Aktif *</label>
-                    <input
-                      type="text"
-                      required
-                      value={formDaftar.kontakWa}
-                      onChange={(e) => setFormDaftar({ ...formDaftar, kontakWa: e.target.value })}
-                      placeholder="081234567890"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-emerald-600"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700">Perkiraan Harga</label>
-                    <input
-                      type="text"
-                      value={formDaftar.harga}
-                      onChange={(e) => setFormDaftar({ ...formDaftar, harga: e.target.value })}
-                      placeholder="Mulai Rp 15.000"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-emerald-600"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700">Jam Operasional Usaha</label>
-                    <input
-                      type="text"
-                      value={formDaftar.jamOperasional}
-                      onChange={(e) => setFormDaftar({ ...formDaftar, jamOperasional: e.target.value })}
-                      placeholder="08.00 - 20.00 WIB"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-emerald-600"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Alamat Lengkap / Patokan *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formDaftar.lokasi}
-                    onChange={(e) => setFormDaftar({ ...formDaftar, lokasi: e.target.value })}
-                    placeholder="Jl. Merpati No. 12, RT 02 / RW 01 Sawotratap"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-emerald-600"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Deskripsi Singkat Produk *</label>
-                  <textarea
-                    required
-                    rows={2}
-                    value={formDaftar.deskripsiSingkat}
-                    onChange={(e) => setFormDaftar({ ...formDaftar, deskripsiSingkat: e.target.value })}
-                    placeholder="Ringkasan 1-2 kalimat tentang produk yang dijual..."
-                    className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-emerald-600"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">
-                    Foto Produk / Tempat Usaha (Opsional)
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        setFileFoto(e.target.files[0]);
-                      }
-                    }}
-                    className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-800 hover:file:bg-emerald-100"
-                  />
-                </div>
-
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={closeDaftarModal}
-                    className="px-5 py-2.5 rounded-full border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors"
-                  >
-                    Batal
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="px-6 py-2.5 rounded-full bg-[#064E3B] hover:bg-[#047857] text-white text-xs font-black transition-all shadow-sm disabled:opacity-50 cursor-pointer"
-                  >
-                    {isSubmitting ? "Mengirim..." : "Kirim Pendaftaran"}
-                  </button>
-                </div>
-              </form>
-            )}
 
           </div>
         </div>
