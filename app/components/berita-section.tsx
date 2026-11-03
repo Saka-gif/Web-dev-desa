@@ -76,7 +76,7 @@ export default function BeritaSection() {
                 index === 1 ? "ring-2 ring-[#064E3B]/20" : ""
               }`}
             >
-              <div>
+              <a href={`/informasi?berita=${item.id}#berita`} className="block">
                 {/* FOTO BERITA & BADGE */}
                 <div className="relative h-52 w-full overflow-hidden bg-slate-100">
                   <img
@@ -110,12 +110,12 @@ export default function BeritaSection() {
                     {item.ringkasan}
                   </p>
                 </div>
-              </div>
+              </a>
 
               {/* FOOTER TOMBOL BACA */}
               <div className="px-6 pb-6 pt-2 flex items-center justify-between text-xs">
                 <a
-                  href="/informasi#berita"
+                  href={`/informasi?berita=${item.id}#berita`}
                   className="inline-flex items-center gap-1 text-xs font-black text-[#064E3B] group-hover:text-emerald-700 transition-colors"
                 >
                   <span>Baca Selengkapnya</span>
@@ -123,7 +123,7 @@ export default function BeritaSection() {
                 </a>
 
                 <a
-                  href="/informasi#berita"
+                  href={`/informasi?berita=${item.id}#berita`}
                   className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center group-hover:bg-[#064E3B] group-hover:text-white transition-all shadow-xs"
                 >
                   <ArrowUpRight className="w-4 h-4" />

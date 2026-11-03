@@ -27,6 +27,9 @@ import {
   Home,
   ChevronRight,
   Trash2,
+  Lock,
+  LogIn,
+  Loader2,
 } from "lucide-react";
 import ConfirmDeleteModal from "@/app/components/confirm-delete-modal";
 import { UmkmItem } from "@/app/data/umkm";
@@ -40,6 +43,7 @@ export default function UmkmSayaPage() {
     rw?: string;
     telepon?: string;
   } | null>(null);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
 
   // 2. Data State
   const [products, setProducts] = useState<UmkmItem[]>([]);
@@ -118,23 +122,14 @@ export default function UmkmSayaPage() {
 
   // Helper untuk memverifikasi apakah item benar-benar milik user yang login
   const isUserMatch = (item: UmkmItem) => {
-    const user = currentUser || {
-      name: "Hadi Purnomo",
-      role: "user",
-      nik: "3515112001000001",
-    };
+    if (!currentUser) return false;
+    const user = currentUser;
 
     // 1. Cek NIK
     if (user.nik && item.nik_pemilik) {
       const uNik = user.nik.trim();
       const pNik = item.nik_pemilik.trim();
       if (uNik === pNik) return true;
-      if (
-        (uNik === "3515112001000001" || uNik === "3515082103900001") &&
-        (pNik === "3515112001000001" || pNik === "3515082103900001")
-      ) {
-        return true;
-      }
     }
 
     // 2. Cek Nama Pemilik
@@ -149,46 +144,85 @@ export default function UmkmSayaPage() {
     return false;
   };
 
-  // Baca User Session
+  // Baca User Session secara aman (localStorage + cookie api)
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("sawotratap_user");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setCurrentUser(parsed);
-      } else {
-        const defaultUser = {
-          name: "Hadi Purnomo",
-          role: "user",
-          nik: "3515112001000001",
-          rw: "RW 03",
-          telepon: "081234567893",
-        };
-        setCurrentUser(defaultUser);
+    let isMounted = true;
+
+    const verifyAuth = async () => {
+      try {
+        // 1. Cek localStorage
+        const saved = localStorage.getItem("sawotratap_user");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && (parsed.name || parsed.nik || parsed.email)) {
+            if (isMounted) {
+              setCurrentUser(parsed);
+              setIsAuthChecking(false);
+            }
+            return;
+          }
+        }
+
+        // 2. Fallback cek session cookie via /api/auth/me
+        try {
+          const res = await fetch("/api/auth/me");
+          const data = await res.json();
+          if (data.authenticated && data.user) {
+            if (isMounted) {
+              setCurrentUser(data.user);
+              try {
+                localStorage.setItem("sawotratap_user", JSON.stringify(data.user));
+              } catch {}
+              setIsAuthChecking(false);
+            }
+            return;
+          }
+        } catch {
+          // ignore API error
+        }
+      } catch {
+        // ignore parse error
       }
-    } catch {
-      setCurrentUser({
-        name: "Hadi Purnomo",
-        role: "user",
-        nik: "3515112001000001",
-        rw: "RW 03",
-        telepon: "081234567893",
-      });
-    }
+
+      // Jika tidak ada user yang sedang login
+      if (isMounted) {
+        setCurrentUser(null);
+        setIsAuthChecking(false);
+      }
+    };
+
+    verifyAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
+  // Otomatis arahkan ke halaman login jika terbukti belum login
+  useEffect(() => {
+    if (!isAuthChecking && !currentUser) {
+      const timer = setTimeout(() => {
+        window.location.href = "/login";
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthChecking, currentUser]);
 
   // Fetch Produk Milik User dari API
   const fetchMyProducts = async () => {
+    if (!currentUser) {
+      setProducts([]);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
-      const user = currentUser || {
-        name: "Hadi Purnomo",
-        nik: "3515112001000001",
-      };
+      const user = currentUser;
 
       const params = new URLSearchParams({
-        nik: user.nik || "3515112001000001",
-        pemilik: user.name || "Hadi Purnomo",
+        nik: user.nik || "",
+        pemilik: user.name || "",
         status: "all",
       });
 
@@ -305,12 +339,13 @@ export default function UmkmSayaPage() {
   // Handle Submit Produk Baru
   const handleCreateNew = async (e: React.FormEvent) => {
     e.preventDefault();
-    const user = currentUser || {
-      name: "Hadi Purnomo",
-      nik: "3515112001000001",
-      rw: "RW 03",
-      telepon: "081234567893",
-    };
+    if (!currentUser) {
+      alert("Sesi login Anda berakhir. Silakan login terlebih dahulu.");
+      window.location.href = "/login";
+      return;
+    }
+
+    const user = currentUser;
 
     if (!createForm.nama.trim() || !createForm.deskripsi_singkat.trim()) {
       alert("Harap isi Nama Produk dan Deskripsi Singkat.");
@@ -325,9 +360,9 @@ export default function UmkmSayaPage() {
         body: JSON.stringify({
           ...createForm,
           pemilik: user.name,
-          nik_pemilik: user.nik,
+          nik_pemilik: user.nik || "",
           rw: createForm.rw || user.rw || "RW 03",
-          kontak_wa: createForm.kontak_wa || user.telepon || "6281234567893",
+          kontak_wa: createForm.kontak_wa || user.telepon || "",
         }),
       });
 
@@ -358,6 +393,63 @@ export default function UmkmSayaPage() {
       setIsSubmittingNew(false);
     }
   };
+
+  // State 1: Memeriksa Sesi
+  if (isAuthChecking) {
+    return (
+      <div className="min-h-screen bg-[#06261D] text-white flex flex-col items-center justify-center p-6 selection:bg-[#C5D82F]/30">
+        <div className="w-12 h-12 rounded-full border-4 border-[#C5D82F] border-t-transparent animate-spin mb-4" />
+        <p className="text-sm font-bold text-slate-200">Memeriksa status login...</p>
+      </div>
+    );
+  }
+
+  // State 2: Belum Login -> Akses Ditolak & Tampilkan Tombol Login
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-[#FAF9F4] text-slate-900 flex items-center justify-center p-6 font-sans">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-xl text-center space-y-6 animate-in fade-in zoom-in-95 duration-200">
+          <div className="w-20 h-20 rounded-3xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto shadow-inner">
+            <Lock className="w-10 h-10" />
+          </div>
+
+          <div className="space-y-2">
+            <span className="inline-block text-[11px] font-black uppercase tracking-wider text-amber-800 bg-amber-100/80 px-3 py-1 rounded-full">
+              Akses Khusus Warga & Pelaku Usaha
+            </span>
+            <h2 className="text-2xl font-black text-[#111827]">
+              Akses Masuk Diperlukan
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Halaman <strong>Katalog & Kelola UMKM Saya</strong> hanya dapat dibuka setelah Anda masuk (login) ke sistem resmi desa.
+            </p>
+          </div>
+
+          <div className="pt-2 space-y-3">
+            <Link
+              href="/login"
+              className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-[#064E3B] hover:bg-[#047857] text-white font-black text-xs shadow-md transition-all cursor-pointer hover:scale-102"
+            >
+              <LogIn className="w-4 h-4 text-[#C5D82F]" />
+              <span>Masuk ke Akun Sekarang</span>
+            </Link>
+
+            <Link
+              href="/"
+              className="w-full inline-flex items-center justify-center gap-2 py-3 px-6 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+            >
+              <Home className="w-3.5 h-3.5" />
+              <span>Kembali ke Beranda</span>
+            </Link>
+          </div>
+
+          <p className="text-[11px] text-slate-400">
+            Mengarahkan otomatis ke halaman login dalam beberapa detik...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FAF9F4] text-slate-900 pb-24 font-sans selection:bg-[#C5D82F]/30 selection:text-[#064E3B]">

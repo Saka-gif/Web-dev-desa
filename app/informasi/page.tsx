@@ -14,6 +14,11 @@ import {
   Download,
   MapPin,
   ShieldCheck,
+  X,
+  Share2,
+  Check,
+  User,
+  BookOpen,
 } from "lucide-react";
 
 interface PengumumanItem {
@@ -103,6 +108,10 @@ export default function InformasiPage() {
   const [daftarPengumuman, setDaftarPengumuman] = useState<PengumumanItem[]>(DAFTAR_PENGUMUMAN_FALLBACK);
   const [daftarAgenda, setDaftarAgenda] = useState<AgendaItem[]>(DAFTAR_AGENDA_FALLBACK);
 
+  // State Modal Detail Berita Lengkap
+  const [selectedBerita, setSelectedBerita] = useState<BeritaItem | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+
   const loadDataFromSupabase = async () => {
     try {
       const [resBerita, resPengumuman, resAgenda] = await Promise.all([
@@ -112,7 +121,14 @@ export default function InformasiPage() {
       ]);
 
       if (!resBerita.error && resBerita.data && resBerita.data.length > 0) {
-        setDaftarBerita(resBerita.data);
+        const enriched = resBerita.data.map((item: BeritaItem) => {
+          const fallback = DAFTAR_BERITA.find((b) => b.id === item.id);
+          return {
+            ...item,
+            konten: item.konten || fallback?.konten || item.ringkasan,
+          };
+        });
+        setDaftarBerita(enriched);
       }
       if (!resPengumuman.error && resPengumuman.data && resPengumuman.data.length > 0) {
         setDaftarPengumuman(
@@ -127,6 +143,49 @@ export default function InformasiPage() {
       }
     } catch (err) {
       console.warn("Gagal memuat data dari Supabase, menggunakan data lokal:", err);
+    }
+  };
+
+  // Cek parameter ?berita=id di URL agar berita langsung terbuka
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const beritaId = urlParams.get("berita");
+      if (beritaId) {
+        const found = daftarBerita.find((b) => b.id === beritaId);
+        if (found) {
+          setSelectedBerita(found);
+        }
+      }
+    }
+  }, [daftarBerita]);
+
+  const handleOpenBerita = (item: BeritaItem) => {
+    setSelectedBerita(item);
+    setCopiedLink(false);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("berita", item.id);
+      window.history.pushState({}, "", url.toString());
+    }
+  };
+
+  const handleCloseBerita = () => {
+    setSelectedBerita(null);
+    setCopiedLink(false);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("berita");
+      window.history.pushState({}, "", url.toString());
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (typeof window !== "undefined" && selectedBerita) {
+      const shareUrl = `${window.location.origin}/informasi?berita=${selectedBerita.id}#berita`;
+      navigator.clipboard.writeText(shareUrl);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2500);
     }
   };
 
@@ -325,7 +384,8 @@ export default function InformasiPage() {
             {filteredBerita.map((item) => (
               <article
                 key={item.id}
-                className="rounded-3xl border border-[#E3E8E2] bg-white overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+                onClick={() => handleOpenBerita(item)}
+                className="rounded-3xl border border-[#E3E8E2] bg-white overflow-hidden shadow-xs hover:shadow-xl hover:border-emerald-400 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
               >
                 <div>
                   <div className="relative h-60 w-full overflow-hidden bg-slate-100">
@@ -360,7 +420,14 @@ export default function InformasiPage() {
 
                 <div className="px-6 pb-6 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
                   <span className="text-emerald-700 font-bold">Rilis Resmi Desa</span>
-                  <button className="inline-flex items-center gap-1 font-black text-[#064E3B] group-hover:text-emerald-700">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenBerita(item);
+                    }}
+                    className="inline-flex items-center gap-1 font-black text-[#064E3B] group-hover:text-emerald-700 cursor-pointer"
+                  >
                     <span>Baca Selengkapnya</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </button>
@@ -519,6 +586,114 @@ export default function InformasiPage() {
         </div>
 
       </div>
+
+      {/* POPUP MODAL BACA BERITA LENGKAP */}
+      {selectedBerita && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div
+            className="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200 relative overflow-hidden"
+            role="dialog"
+            aria-modal="true"
+          >
+            {/* Header Sticky / Tombol Tutup */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white/95 backdrop-blur-xs z-10 shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  {selectedBerita.badge}
+                </span>
+                <span className="text-xs text-slate-400 font-medium hidden sm:inline">•</span>
+                <span className="text-xs text-slate-500 font-semibold hidden sm:inline">Warta Resmi Desa Sawotratap</span>
+              </div>
+              <button
+                type="button"
+                onClick={handleCloseBerita}
+                className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                aria-label="Tutup berita"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Scrollable Content */}
+            <div className="overflow-y-auto p-6 sm:p-8 space-y-6">
+              {/* Foto Cover Berita */}
+              <div className="relative rounded-2xl overflow-hidden aspect-video w-full bg-slate-100 shadow-md">
+                <img
+                  src={selectedBerita.foto}
+                  alt={selectedBerita.judul}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute bottom-3 right-3 rounded-full bg-black/70 backdrop-blur-md px-3 py-1 text-xs font-bold text-white flex items-center gap-1.5 shadow-sm">
+                  <Clock className="w-3.5 h-3.5 text-[#C5D82F]" />
+                  <span>{selectedBerita.tanggal}</span>
+                </div>
+              </div>
+
+              {/* Meta Penulis & Tanggal */}
+              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-1.5 font-bold text-slate-700">
+                  <User className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>{selectedBerita.penulis}</span>
+                </div>
+                <span>•</span>
+                <span>Dipublikasikan {selectedBerita.tanggal}</span>
+                <span>•</span>
+                <span className="text-emerald-700 font-medium">Kategori: {selectedBerita.badge}</span>
+              </div>
+
+              {/* Judul Berita Utama */}
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 leading-snug tracking-tight">
+                {selectedBerita.judul}
+              </h1>
+
+              {/* Lead Paragraph / Ringkasan Highlight */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-emerald-50/80 border-l-4 border-emerald-700 text-slate-800 text-sm sm:text-base font-semibold leading-relaxed">
+                "{selectedBerita.ringkasan}"
+              </div>
+
+              {/* Isi Teks Berita Lengkap */}
+              <div className="prose prose-slate max-w-none text-sm sm:text-base text-slate-700 leading-relaxed space-y-4">
+                {(selectedBerita.konten || selectedBerita.ringkasan)
+                  .split("\n\n")
+                  .map((paragraf, pIdx) => (
+                    <p key={pIdx} className="text-justify font-normal leading-relaxed">
+                      {paragraf}
+                    </p>
+                  ))}
+              </div>
+
+              {/* Footer Modal: Tombol Aksi */}
+              <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold inline-flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
+                >
+                  {copiedLink ? (
+                    <>
+                      <Check className="w-4 h-4 text-emerald-600" />
+                      <span className="text-emerald-700">Tautan Berhasil Disalin!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Share2 className="w-4 h-4 text-slate-500" />
+                      <span>Bagikan / Salin Tautan</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCloseBerita}
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#064E3B] hover:bg-[#047857] text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+                >
+                  Tutup Berita
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

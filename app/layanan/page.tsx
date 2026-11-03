@@ -29,6 +29,11 @@ import {
   Store,
   User,
   Users,
+  Lock,
+  LogIn,
+  AlertTriangle,
+  AlertCircle,
+  X,
 } from "lucide-react";
 import ConfirmDeleteModal from "@/app/components/confirm-delete-modal";
 
@@ -375,11 +380,20 @@ export default function LayananPage() {
     onConfirm: () => {},
   });
 
+  // State Modal Peringatan Login Diperlukan
+  const [loginRequiredModal, setLoginRequiredModal] = useState<{
+    isOpen: boolean;
+    serviceTitle: string;
+  }>({
+    isOpen: false,
+    serviceTitle: "",
+  });
+
   const handlePilihTarget = (target: "sendiri" | "keluarga") => {
     setTargetPemohon(target);
     if (target === "sendiri") {
-      setNamaPemohon(currentUser?.name || "Hadi Purnomo");
-      setNikPemohon(currentUser?.nik || "3515112001000001");
+      setNamaPemohon(currentUser?.name || "");
+      setNikPemohon(currentUser?.nik || "");
       if (currentUser?.telepon) setTeleponPemohon(currentUser.telepon);
       if (currentUser?.rw) setRwPemohon(currentUser.rw);
     } else {
@@ -425,8 +439,8 @@ export default function LayananPage() {
   const handlePilihTargetPerizinan = (target: "sendiri" | "keluarga") => {
     setTargetPemohonPerizinan(target);
     if (target === "sendiri") {
-      setNamaPemohonPerizinan(currentUser?.name || "Hadi Purnomo");
-      setNikPemohonPerizinan(currentUser?.nik || "3515112001000001");
+      setNamaPemohonPerizinan(currentUser?.name || "");
+      setNikPemohonPerizinan(currentUser?.nik || "");
       if (currentUser?.telepon) setTeleponPemohonPerizinan(currentUser.telepon);
       if (currentUser?.rw) setRwPemohonPerizinan(currentUser.rw);
     } else {
@@ -455,6 +469,14 @@ export default function LayananPage() {
 
   const handleSubmitPerizinan = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!currentUser) {
+      setLoginRequiredModal({
+        isOpen: true,
+        serviceTitle: "Permohonan Izin Kegiatan & Peminjaman Fasilitas Desa",
+      });
+      return;
+    }
+
     if (!namaPemohonPerizinan || !nikPemohonPerizinan || !namaKegiatanPerizinan || !tanggalMulaiPerizinan) {
       alert("Harap lengkapi nama pemohon, NIK, nama kegiatan, dan tanggal mulai.");
       return;
@@ -478,10 +500,10 @@ export default function LayananPage() {
       formData.append("keterangan", keteranganPerizinan || "-");
 
       // Metadata Akun Pengirim Perizinan
-      const accId = currentUser?.id || "user-hadi";
-      const accName = currentUser?.name || "Hadi Purnomo";
-      const accNik = currentUser?.nik || "3515112001000001";
-      const accEmail = currentUser?.email || "hadi@sawotratap.com";
+      const accId = currentUser?.id || "user-warga";
+      const accName = currentUser?.name || namaPemohonPerizinan;
+      const accNik = currentUser?.nik || nikPemohonPerizinan;
+      const accEmail = currentUser?.email || "";
 
       formData.append("userId", accId);
       formData.append("user_id", accId);
@@ -569,6 +591,14 @@ export default function LayananPage() {
 
   const handleSubmitUmkm = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!currentUser) {
+      setLoginRequiredModal({
+        isOpen: true,
+        serviceTitle: "Pendaftaran UMKM Baru Warga Desa",
+      });
+      return;
+    }
+
     if (!namaUsahaUmkm.trim() || !namaPemilikUmkm.trim() || !kontakWaUmkm.trim() || !deskripsiSingkatUmkm.trim()) {
       alert("Harap lengkapi formulir wajib: Nama Usaha, Pemilik, No WhatsApp, dan Deskripsi Produk.");
       return;
@@ -588,6 +618,9 @@ export default function LayananPage() {
       formData.append("jamOperasional", jamOperasionalUmkm || "08.00 - 20.00 WIB");
       formData.append("deskripsiSingkat", deskripsiSingkatUmkm);
       formData.append("deskripsiLengkap", deskripsiLengkapUmkm || deskripsiSingkatUmkm);
+      formData.append("userId", currentUser?.id || "user-warga");
+      formData.append("userEmail", currentUser?.email || "");
+      formData.append("userName", currentUser?.name || namaPemilikUmkm);
 
       if (fotoUmkmFile) {
         formData.append("foto", fotoUmkmFile);
@@ -637,42 +670,32 @@ export default function LayananPage() {
         }
       }
 
-      // Default profil aktif warga Sawotratap jika belum login
-      if (!activeUser) {
-        activeUser = {
-          id: "user-hadi",
-          name: "Hadi Purnomo",
-          role: "user",
-          nik: "3515112001000001",
-          telepon: "081234567891",
-          rw: "RW 03",
-          email: "hadi@sawotratap.com",
-        };
-      }
-
+      // Jangan pasang user default Hadi Purnomo jika belum login
       setCurrentUser(activeUser);
 
-      // 1. Auto-fill Surat
-      setNamaPemohon(activeUser.name || "");
-      setNikPemohon(activeUser.nik || "");
-      setTeleponPemohon(activeUser.telepon || "");
-      if (activeUser.rw) setRwPemohon(activeUser.rw);
+      if (activeUser) {
+        // 1. Auto-fill Surat
+        setNamaPemohon(activeUser.name || "");
+        setNikPemohon(activeUser.nik || "");
+        setTeleponPemohon(activeUser.telepon || "");
+        if (activeUser.rw) setRwPemohon(activeUser.rw);
 
-      // 2. Pengaduan: Biarkan nama pelapor kosong secara default (opsional/anonim)
-      setNamaPelapor("");
-      setKontakPelapor(activeUser.telepon || "");
+        // 2. Pengaduan
+        setNamaPelapor(activeUser.name || "");
+        setKontakPelapor(activeUser.telepon || "");
 
-      // 3. Auto-fill Perizinan & Fasilitas Desa
-      setNamaPemohonPerizinan(activeUser.name || "");
-      setNikPemohonPerizinan(activeUser.nik || "");
-      setTeleponPemohonPerizinan(activeUser.telepon || "");
-      if (activeUser.rw) setRwPemohonPerizinan(activeUser.rw);
+        // 3. Auto-fill Perizinan & Fasilitas Desa
+        setNamaPemohonPerizinan(activeUser.name || "");
+        setNikPemohonPerizinan(activeUser.nik || "");
+        setTeleponPemohonPerizinan(activeUser.telepon || "");
+        if (activeUser.rw) setRwPemohonPerizinan(activeUser.rw);
 
-      // 4. Auto-fill UMKM
-      setNamaPemilikUmkm(activeUser.name || "");
-      setNikPemilikUmkm(activeUser.nik || "");
-      setKontakWaUmkm(activeUser.telepon || "");
-      if (activeUser.rw) setRwUmkm(activeUser.rw);
+        // 4. Auto-fill UMKM
+        setNamaPemilikUmkm(activeUser.name || "");
+        setNikPemilikUmkm(activeUser.nik || "");
+        setKontakWaUmkm(activeUser.telepon || "");
+        if (activeUser.rw) setRwUmkm(activeUser.rw);
+      }
     };
     fetchUser();
 
@@ -731,6 +754,13 @@ export default function LayananPage() {
 
   const handleSubmitSurat = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!currentUser) {
+      setLoginRequiredModal({
+        isOpen: true,
+        serviceTitle: "Pengajuan Surat Keterangan / Administrasi Desa",
+      });
+      return;
+    }
     if (!namaPemohon || !nikPemohon || !teleponPemohon) {
       alert("Harap lengkapi Nama, NIK, dan Nomor Telepon.");
       return;
@@ -750,10 +780,10 @@ export default function LayananPage() {
       formData.append("keperluan", keperluan || "-");
       formData.append("jenisSuratId", currentSuratObj.id);
       formData.append("jenisSuratNama", currentSuratObj.nama);
-      formData.append("userId", currentUser?.id || "user-hadi");
-      formData.append("userName", currentUser?.name || "Hadi Purnomo");
-      formData.append("userNik", currentUser?.nik || "3515112001000001");
-      formData.append("userEmail", currentUser?.email || "hadi@sawotratap.com");
+      formData.append("userId", currentUser.id || "user-warga");
+      formData.append("userName", currentUser.name || namaPemohon);
+      formData.append("userNik", currentUser.nik || nikPemohon);
+      formData.append("userEmail", currentUser.email || "");
       formData.append("untukSiapa", targetPemohon);
 
       uploadedFiles.forEach((file) => {
@@ -785,6 +815,13 @@ export default function LayananPage() {
 
   const handleSubmitAduan = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!currentUser) {
+      setLoginRequiredModal({
+        isOpen: true,
+        serviceTitle: "Laporan Pengaduan & Kerusakan Lingkungan",
+      });
+      return;
+    }
     if (!lokasiAduan || !isiAduan) {
       alert("Harap isi lokasi kejadian dan uraian deskripsi aduan.");
       return;
@@ -795,17 +832,17 @@ export default function LayananPage() {
       const formData = new FormData();
       formData.append("kategori", kategoriAduan);
       formData.append("lokasi", lokasiAduan);
-      formData.append("namaPelapor", namaPelapor.trim() ? namaPelapor : "Warga Sawotratap (Anonim)");
-      formData.append("nikPelapor", currentUser?.nik || "3515112001000001");
-      formData.append("kontakPelapor", kontakPelapor.trim() ? kontakPelapor : (currentUser?.telepon || "-"));
-      formData.append("rw", currentUser?.rw || "RW 01");
+      formData.append("namaPelapor", namaPelapor.trim() ? namaPelapor : (currentUser.name || "Warga Sawotratap"));
+      formData.append("nikPelapor", currentUser.nik || "3515112001000001");
+      formData.append("kontakPelapor", kontakPelapor.trim() ? kontakPelapor : (currentUser.telepon || "-"));
+      formData.append("rw", currentUser.rw || "RW 01");
       formData.append("isiAduan", isiAduan);
 
       // Metadata Akun Pengirim Pengaduan / Aspirasi
-      const accId = currentUser?.id || "user-hadi";
-      const accName = currentUser?.name || "Hadi Purnomo";
-      const accNik = currentUser?.nik || "3515112001000001";
-      const accEmail = currentUser?.email || "hadi@sawotratap.com";
+      const accId = currentUser.id || "user-warga";
+      const accName = currentUser.name || (namaPelapor.trim() || "Warga Sawotratap");
+      const accNik = currentUser.nik || "3515112001000001";
+      const accEmail = currentUser.email || "";
 
       formData.append("userId", accId);
       formData.append("user_id", accId);
@@ -1412,15 +1449,38 @@ export default function LayananPage() {
                   )}
                 </div>
 
+                {!currentUser && (
+                  <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <Lock className="w-4 h-4 text-amber-600 shrink-0" />
+                      <div className="text-xs">
+                        <span className="font-bold">Login Diperlukan:</span> Anda harus masuk ke akun warga terlebih dahulu untuk mengajukan surat mandiri.
+                      </div>
+                    </div>
+                    <Link
+                      href="/login"
+                      className="shrink-0 px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5"
+                    >
+                      <LogIn className="w-3.5 h-3.5" />
+                      <span>Masuk Akun</span>
+                    </Link>
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3.5 rounded-2xl bg-[#064E3B] hover:bg-[#047857] disabled:bg-slate-400 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3.5 rounded-2xl bg-[#064E3B] hover:bg-[#047857] disabled:bg-slate-400 text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin text-[#C5D82F]" />
                       <span>Mengunggah Berkas ke S3 & Memproses Resi...</span>
+                    </>
+                  ) : !currentUser ? (
+                    <>
+                      <Lock className="w-4 h-4 text-[#C5D82F]" />
+                      <span>Masuk Akun untuk Mengajukan Surat</span>
                     </>
                   ) : (
                     <>
@@ -1764,6 +1824,24 @@ export default function LayananPage() {
                   )}
                 </div>
 
+                {!currentUser && (
+                  <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <Lock className="w-4 h-4 text-amber-600 shrink-0" />
+                      <div className="text-xs">
+                        <span className="font-bold">Login Diperlukan:</span> Anda harus masuk ke akun warga terlebih dahulu untuk mengirimkan pengaduan.
+                      </div>
+                    </div>
+                    <Link
+                      href="/login"
+                      className="shrink-0 px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5"
+                    >
+                      <LogIn className="w-3.5 h-3.5" />
+                      <span>Masuk Akun</span>
+                    </Link>
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   disabled={isSubmittingAduan}
@@ -1773,6 +1851,11 @@ export default function LayananPage() {
                     <>
                       <Loader2 className="w-4 h-4 animate-spin text-rose-200" />
                       <span>Mengirimkan Laporan & Mengunggah Foto ke S3...</span>
+                    </>
+                  ) : !currentUser ? (
+                    <>
+                      <Lock className="w-4 h-4 text-rose-200" />
+                      <span>Masuk Akun untuk Kirim Pengaduan</span>
                     </>
                   ) : (
                     <>
@@ -2388,6 +2471,24 @@ export default function LayananPage() {
                     )}
                   </div>
 
+                  {!currentUser && (
+                    <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <Lock className="w-4 h-4 text-amber-600 shrink-0" />
+                        <div className="text-xs">
+                          <span className="font-bold">Login Diperlukan:</span> Anda harus masuk ke akun warga terlebih dahulu untuk mengajukan perizinan.
+                        </div>
+                      </div>
+                      <Link
+                        href="/login"
+                        className="shrink-0 px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5"
+                      >
+                        <LogIn className="w-3.5 h-3.5" />
+                        <span>Masuk Akun</span>
+                      </Link>
+                    </div>
+                  )}
+
                   <button
                     type="submit"
                     disabled={isSubmittingPerizinan}
@@ -2397,6 +2498,11 @@ export default function LayananPage() {
                       <>
                         <Loader2 className="w-4 h-4 animate-spin text-[#C5D82F]" />
                         <span>Mengirimkan Permohonan & Mengunggah Berkas ke S3...</span>
+                      </>
+                    ) : !currentUser ? (
+                      <>
+                        <Lock className="w-4 h-4 text-[#C5D82F]" />
+                        <span>Masuk Akun untuk Mengajukan Izin</span>
                       </>
                     ) : (
                       <>
@@ -2974,6 +3080,24 @@ export default function LayananPage() {
                   </div>
                 </div>
 
+                {!currentUser && (
+                  <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <Lock className="w-4 h-4 text-amber-600 shrink-0" />
+                      <div className="text-xs">
+                        <span className="font-bold">Login Diperlukan:</span> Anda harus masuk ke akun warga terlebih dahulu untuk mendaftarkan produk UMKM.
+                      </div>
+                    </div>
+                    <Link
+                      href="/login"
+                      className="shrink-0 px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5"
+                    >
+                      <LogIn className="w-3.5 h-3.5" />
+                      <span>Masuk Akun</span>
+                    </Link>
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   disabled={isSubmittingUmkm}
@@ -2983,6 +3107,11 @@ export default function LayananPage() {
                     <>
                       <Loader2 className="w-4 h-4 animate-spin text-[#C5D82F]" />
                       <span>Mengirimkan Pendaftaran & Foto Produk...</span>
+                    </>
+                  ) : !currentUser ? (
+                    <>
+                      <Lock className="w-4 h-4 text-[#C5D82F]" />
+                      <span>Masuk Akun untuk Daftar UMKM</span>
                     </>
                   ) : (
                     <>
@@ -3069,6 +3198,69 @@ export default function LayananPage() {
         onConfirm={deleteConfirmModal.onConfirm}
         onCancel={() => setDeleteConfirmModal((prev) => ({ ...prev, isOpen: false }))}
       />
+
+      {/* POPUP PERINGATAN WAJIB LOGIN */}
+      {loginRequiredModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div
+            className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-100 text-center animate-in zoom-in-95 duration-200 relative overflow-hidden"
+            role="dialog"
+            aria-modal="true"
+          >
+            {/* Tombol Tutup Silang di Sudut */}
+            <button
+              type="button"
+              onClick={() => setLoginRequiredModal((prev) => ({ ...prev, isOpen: false }))}
+              className="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+              aria-label="Tutup"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Icon Gembok / Akses Terbatas */}
+            <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mx-auto mb-4 shadow-xs">
+              <Lock className="w-8 h-8" />
+            </div>
+
+            {/* Judul & Penjelasan */}
+            <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight mb-2">
+              Login Akun Warga Diperlukan
+            </h3>
+            
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+              Untuk mengajukan <span className="font-bold text-slate-900">{loginRequiredModal.serviceTitle || "layanan desa"}</span>, Anda wajib login terlebih dahulu ke akun warga Sawotratap.
+            </p>
+
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 text-slate-600 text-xs text-left mb-6 space-y-1.5">
+              <div className="flex items-center gap-2 font-bold text-slate-800">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Mengapa harus login terlebih dahulu?</span>
+              </div>
+              <p className="text-[11px] text-slate-500 leading-normal pl-6">
+                Untuk memastikan keaslian data pemohon, mencegah pengajuan fiktif, serta memungkinkan Anda melacak status proses secara langsung.
+              </p>
+            </div>
+
+            {/* Aksi: Tombol Login dan Tutup */}
+            <div className="flex flex-col sm:flex-row items-center gap-2.5">
+              <Link
+                href="/login"
+                className="w-full sm:flex-1 py-3 px-4 rounded-xl bg-[#064E3B] hover:bg-[#047857] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+              >
+                <LogIn className="w-4 h-4 text-[#C5D82F]" />
+                <span>Masuk Sekarang</span>
+              </Link>
+              <button
+                type="button"
+                onClick={() => setLoginRequiredModal((prev) => ({ ...prev, isOpen: false }))}
+                className="w-full sm:w-auto py-3 px-5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs sm:text-sm font-semibold transition-all cursor-pointer"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

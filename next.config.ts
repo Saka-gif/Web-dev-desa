@@ -15,6 +15,14 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  async rewrites() {
+    return [
+      {
+        source: "/umkm_saya",
+        destination: "/umkm-saya",
+      },
+    ];
+  },
 };
 
 export default nextConfig;
